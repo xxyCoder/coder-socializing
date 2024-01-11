@@ -5,9 +5,17 @@ import { serviceError, successObj, userIsNotExistsOrPassErr } from '@src/constan
 import env from "@src/config/default.config"
 
 const { create, precisionFind, update, remove, find, verify } = userService;
-const { SECRET } = env;
+const { SECRET, CSRF_SECRET } = env;
+
+const DAY = 24 * 60 * 60 * 1000;
 
 class UserController {
+    get_csrf_info(req: Request, resp: Response) {
+        const { id } = req.body;
+        resp
+            .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
+            .send({ code: 200 });
+    }
     registry(req: Request, resp: Response) {
         const { username, password, account } = req.body;
         precisionFind({ account })
@@ -35,7 +43,14 @@ class UserController {
         verify({ account, password })
             .then(({ sc, id, username }) => {
                 if (sc) {
-                    resp.send({ code: 200, msg: "登录成功", data: { token: jwt.sign({ id }, SECRET!, { expiresIn: '3d' }), username } });
+                    resp
+                        .cookie('ct_token', jwt.sign({ id }, SECRET!, { expiresIn: '15d' }), {
+                            maxAge: 3 * DAY,
+                            path: "/",
+                            httpOnly: true
+                        })
+                        .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
+                        .send({ code: 200, msg: "登录成功", data: { username } });
                 } else {
                     resp.send(userIsNotExistsOrPassErr);
                 }

@@ -4,7 +4,7 @@ import bcrpty from 'bcryptjs'
 
 class UserService {
     create({ username, password, account }: UserModel) {
-        return Users.create({ username, password, account });
+        return Users.create({ username, password, account, });
     }
     update({ username, id, newPassword }: Partial<UserModel & { newPassword: string }>) {
         const whereOp = { id };

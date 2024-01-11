@@ -1,24 +1,5 @@
-# ct-fontend
+# 网络社交平台
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 注册组件
+- 每个input后面跟着校验不通过时需要展示的错误信息，但校验不通过的时候需要展示出来，避免过多ref添加到span标签上，直接使用input的nextElementSibling添加类名
+- 由于没写form标签，无法使用form的校验，可以用一个变量记录当前有多少个没有通过校验的控件，使用位运算优化，不能仅仅是通过+1，没通过-1

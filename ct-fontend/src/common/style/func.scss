@@ -1,0 +1,3 @@
+@function responsive($value, $unit) {
+    @return $value / 750 * 100 + $unit
+}

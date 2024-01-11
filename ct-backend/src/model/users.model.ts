@@ -6,6 +6,7 @@ export interface UserModel {
     username: string;
     account: string;
     password: string;
+    biography?: string;
 }
 
 const Users = seq.define('users', {
@@ -24,6 +25,11 @@ const Users = seq.define('users', {
         type: DataTypes.STRING,
         allowNull: false,
         comment: "密码"
+    },
+    biography: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: "个人简介"
     }
 }, {
     timestamps: false // 静止添加其他列（默认有插入、删除列的时间）
