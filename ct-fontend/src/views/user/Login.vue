@@ -55,6 +55,7 @@ const handlerLogin = () => {
 @import "../../common/style/func.scss";
 
 .ct-login {
+    background-color: #fff;
     min-height: 100vh;
     overflow: hidden;
     display: flex;

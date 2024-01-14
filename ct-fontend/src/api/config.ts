@@ -32,7 +32,7 @@ instance.interceptors.response.use(resp => {
 })
 
 export default {
-    post<D = any, T = IStringObj>(url: string) {
+    post<D = Record<string, string | number>, T = IStringObj>(url: string) {
         return (data: T, query = "") => {
             return instance.post<T, apiResponse<D>>(url + query, JSON.stringify(data));
         }

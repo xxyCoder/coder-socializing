@@ -91,6 +91,7 @@ const handlerVerify = debounce((component: HTMLInputElement | undefined, bit: nu
 }
 
 .ct-registration {
+    background-color: #fff;
     min-height: 100vh;
     overflow: hidden;
     display: flex;
