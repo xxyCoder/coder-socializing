@@ -56,6 +56,7 @@ const handlerLogin = () => {
 
 .ct-login {
     background-color: #fff;
+    color: #000;
     min-height: 100vh;
     overflow: hidden;
     display: flex;

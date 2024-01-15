@@ -8,7 +8,8 @@ body, div {
 }
 #app {
   min-height: 100vh;
-  background-color: black;
+  background-color: #000;
+  color: #fff;
   box-sizing: border-box;
 }
 </style>

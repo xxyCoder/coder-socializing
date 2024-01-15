@@ -2,8 +2,21 @@
 import { ref } from 'vue';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
+import CustomInput from '@/components/custom-input.vue';
 
 const userInfo = getUserInfo();
+
+const oldPassword = ref<HTMLInputElement>();
+const newPassword = ref<HTMLInputElement>();
+const confirmPassword = ref<HTMLInputElement>();
+const username = ref<HTMLInputElement>();
+
+const intro = ref<HTMLInputElement>();
+const introLen = ref(0);
+const countLength = () => {
+    introLen.value = intro.value?.value.length || 0;
+}
+
 const file = ref<HTMLInputElement>();
 const handlerFile = () => {
     if (!file.value) {
@@ -13,6 +26,11 @@ const handlerFile = () => {
     }
     console.log(file.value.files)
 }
+
+const showModify = ref(false);
+const expend = () => {
+    showModify.value = !showModify.value;
+}
 </script>
 
 <template>
@@ -21,19 +39,33 @@ const handlerFile = () => {
             <label for="avatar">
                 <img src="@/assets/default.jpg" alt="头像">
             </label>
-            <input ref="file" @change="handlerFile" hidden type="file" id="avatar" accept="image/png,image/jpg,image/jpeg"
-                size="" />
+            <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
+                accept="image/png,image/jpg,image/jpeg" />
         </div>
-        <input type="text" :placeholder="userInfo?.username || '请输入用户名'" />
+        <CustomInput style="flex: 1" ref="username" max-length="10" max-len="10"
+            :placeholder="userInfo?.username || '请输入用户名'" />
     </div>
     <div class="description pd-20">
         格式：支持JPG、PNG、JPEG
         <br>
         大小：5M以内
     </div>
-    <textarea class="intro"></textarea>
-    <div class="password">
-        <button>修改密码</button>
+    <div class="pos-abs mlr-20">
+        <h5>个人介绍</h5>
+        <textarea @input="countLength" ref="intro" class="intro" maxlength="100"
+            :placeholder="userInfo?.intro || '请输入个人简介'"></textarea>
+        <span>{{ introLen }}/100</span>
+    </div>
+    <div class="password pd-20">
+        <h5 @click="expend">修改密码</h5>
+        <div class="modify-pass" :class="{ 'show-modify': showModify }">
+            <CustomInput ref="oldPassword" minlength="6" max-length="20" max-len="20" placeholder="请输入旧密码" />
+            <CustomInput ref="newPassword" minlength="6" max-length="20" max-len="20" placeholder="请输入新密码" />
+            <CustomInput ref="confirmPassword" minlength="6" max-length="20" max-len="20" placeholder="请确认新密码" />
+        </div>
+    </div>
+    <div class="save">
+        <button>保存</button>
     </div>
 </template>
 
@@ -44,25 +76,32 @@ const handlerFile = () => {
     padding: 0 20px;
 }
 
+.mlr-20 {
+    margin: 0 20px;
+}
+
+.pos-abs {
+    position: relative;
+
+    span {
+        position: absolute;
+        right: responsive(5, vw);
+        color: hsla(0, 0%, 100%, 0.46);
+        font-size: 12px;
+        bottom: responsive(8, vh)
+    }
+}
+
 .base-info {
     box-sizing: border-box;
     padding-top: 20px;
     display: flex;
     align-items: center;
-
-    input {
-        flex: 1;
-        margin-left: responsive(20, vh);
-        height: responsive(30, vh);
-        background-color: #2f2f2f;
-        color: #fff;
-        border: 1px solid #000;
-        border-radius: responsive(10, vh);
-        margin-bottom: 10px;
-    }
 }
 
 .avatar {
+    margin-right: responsive(50, vw);
+
     img {
         height: responsive(80, vh);
         border-radius: 50%;
@@ -78,15 +117,57 @@ const handlerFile = () => {
 
 .intro {
     background-color: #2f2f2f;
-    margin: 10px 20px;
+    width: 100%;
+    min-height: 80px;
+    color: #fff;
+    overflow: auto;
+    border-radius: 5px;
 }
 
 .password {
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
+    border: 1px solid #a2a1a1;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 5px;
 
-    button {}
+    h5 {
+        margin: 10px 0;
+    }
+}
+
+.modify-pass {
+    width: 100%;
+    transition: all 1s;
+    max-height: 0;
+    overflow: hidden;
+
+    input {
+        margin-bottom: 10px;
+    }
+}
+
+.show-modify {
+    max-height: 100vh;
+}
+
+.save {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #ccc;
+    button {
+        padding: responsive(15, vh) responsive(150, vw);
+        border-radius: responsive(30, vh);
+        background-color: rgb(94, 154, 134);
+        color: #fff;
+        border: none;
+    }
 }
 </style>
