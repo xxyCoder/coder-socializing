@@ -14,4 +14,10 @@ export const InputMap = {
     confirmPassword: 3
 }
 
-export const initNotPass = 0b1111
+export const initNotPass = 0b1111;
+
+export interface ICustomInput{
+    component: HTMLInputElement,
+    show: () => void;
+    hide: () => void;
+}

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { debounce } from 'lodash';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import CustomInput from '@/components/custom-input.vue';
+import { ICustomInput, debounceTime, initNotPass } from './ts';
 
 const userInfo = getUserInfo();
 
@@ -31,6 +33,22 @@ const showModify = ref(false);
 const expend = () => {
     showModify.value = !showModify.value;
 }
+
+let verify = initNotPass
+const handlerVerify = debounce((component: ICustomInput | undefined, bit: number) => {
+    if (!component) {
+        useToast("网络不好，请稍后再试");
+        // 埋点上报没有拿到组件问题
+        return;
+    }
+    if (!component.component.checkValidity() || !component.component.value) {
+        component.show();
+        verify |= 1 << bit;
+    } else {
+        component.hide();
+        verify &= ~(1 << bit);
+    }
+}, debounceTime)
 </script>
 
 <template>
@@ -42,8 +60,7 @@ const expend = () => {
             <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
                 accept="image/png,image/jpg,image/jpeg" />
         </div>
-        <CustomInput style="flex: 1" ref="username" max-length="10" max-len="10"
-            :placeholder="userInfo?.username || '请输入用户名'" />
+        <CustomInput ref="username" maxlength="10" max-len="10" :placeholder="userInfo?.username || '请输入用户名'" />
     </div>
     <div class="description pd-20">
         格式：支持JPG、PNG、JPEG
@@ -59,9 +76,12 @@ const expend = () => {
     <div class="password pd-20">
         <h5 @click="expend">修改密码</h5>
         <div class="modify-pass" :class="{ 'show-modify': showModify }">
-            <CustomInput ref="oldPassword" minlength="6" max-length="20" max-len="20" placeholder="请输入旧密码" />
-            <CustomInput ref="newPassword" minlength="6" max-length="20" max-len="20" placeholder="请输入新密码" />
-            <CustomInput ref="confirmPassword" minlength="6" max-length="20" max-len="20" placeholder="请确认新密码" />
+            <CustomInput @input="handlerVerify" ref="oldPassword" type="password" minlength="6" max-length="20" max-len="20"
+                placeholder="请输入旧密码" err-msg="长度在6~20之间" />
+            <CustomInput @input="handlerVerify" ref="newPassword" type="password" minlength="6" max-length="20" max-len="20"
+                placeholder="请输入新密码" err-msg="长度在6~20之间" />
+            <CustomInput @input="handlerVerify" ref="confirmPassword" type="password" minlength="6" max-length="20"
+                max-len="20" placeholder="请确认新密码" err-msg="长度在6~20之间" />
         </div>
     </div>
     <div class="save">
@@ -69,7 +89,7 @@ const expend = () => {
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "../../common/style/func.scss";
 
 .pd-20 {
@@ -97,6 +117,10 @@ const expend = () => {
     padding-top: 20px;
     display: flex;
     align-items: center;
+
+    ::v-deep .custom {
+        flex: 1;
+    }
 }
 
 .avatar {
@@ -149,7 +173,7 @@ const expend = () => {
 }
 
 .show-modify {
-    max-height: 100vh;
+    max-height: 50vh;
 }
 
 .save {
@@ -161,7 +185,8 @@ const expend = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #595454;
+
     button {
         padding: responsive(15, vh) responsive(150, vw);
         border-radius: responsive(30, vh);
