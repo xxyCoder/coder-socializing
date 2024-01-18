@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 type IStringObj = Record<string, string>
 
@@ -35,6 +35,11 @@ export default {
     post<D = Record<string, string | number>, T = IStringObj>(url: string) {
         return (data: T, query = "") => {
             return instance.post<T, apiResponse<D>>(url + query, JSON.stringify(data));
+        }
+    },
+    get<D = IStringObj>(url: string) {
+        return (query: string) => {
+            return instance.get<D, apiResponse<D>>(url + query);
         }
     }
 }

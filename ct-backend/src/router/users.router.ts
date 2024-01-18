@@ -3,7 +3,7 @@ import UsersController from "@src/controller/users.controller"
 import express from 'express'
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware';
 
-const { registry, login, modify, logout, search, get_csrf_info } = UsersController;
+const { registry, login, modify, logout, search, getSelfInfo } = UsersController;
 
 const router = express.Router();
 
@@ -15,6 +15,7 @@ router.post("", verifyToken, verifyCSRFSession, checkIdAndPassExists, checkAllPa
 router.delete("", verifyToken, verifyCSRFSession, checkIdAndPassExists, logout);
 // 查询用户
 router.get("", checkPageParams, search);
-router.get("/csrf", verifyToken, get_csrf_info)
+// 拿到用户个人信息
+router.get("/info", verifyToken, getSelfInfo)
 
 export default router;

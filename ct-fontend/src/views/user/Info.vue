@@ -4,6 +4,7 @@ import { debounce } from 'lodash';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import CustomInput from '@/components/custom-input.vue';
+import NullState from '@/components/null-state.vue';
 import { ICustomInput, debounceTime, initNotPass } from './ts';
 
 const userInfo = getUserInfo();
@@ -52,41 +53,44 @@ const handlerVerify = debounce((component: ICustomInput | undefined, bit: number
 </script>
 
 <template>
-    <div class="base-info pd-20">
-        <div class="avatar">
-            <label for="avatar">
-                <img src="@/assets/default.jpg" alt="头像">
-            </label>
-            <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
-                accept="image/png,image/jpg,image/jpeg" />
+    <template v-if="userInfo">
+        <div class="base-info pd-20">
+            <div class="avatar">
+                <label for="avatar">
+                    <img src="@/assets/default.jpg" alt="头像">
+                </label>
+                <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
+                    accept="image/png,image/jpg,image/jpeg" />
+            </div>
+            <CustomInput ref="username" maxlength="10" max-len="10" :placeholder="userInfo.username || '请输入用户名'" />
         </div>
-        <CustomInput ref="username" maxlength="10" max-len="10" :placeholder="userInfo?.username || '请输入用户名'" />
-    </div>
-    <div class="description pd-20">
-        格式：支持JPG、PNG、JPEG
-        <br>
-        大小：5M以内
-    </div>
-    <div class="pos-abs mlr-20">
-        <h5>个人介绍</h5>
-        <textarea @input="countLength" ref="intro" class="intro" maxlength="100"
-            :placeholder="userInfo?.intro || '请输入个人简介'"></textarea>
-        <span>{{ introLen }}/100</span>
-    </div>
-    <div class="password pd-20">
-        <h5 @click="expend">修改密码</h5>
-        <div class="modify-pass" :class="{ 'show-modify': showModify }">
-            <CustomInput @input="handlerVerify" ref="oldPassword" type="password" minlength="6" max-length="20" max-len="20"
-                placeholder="请输入旧密码" err-msg="长度在6~20之间" />
-            <CustomInput @input="handlerVerify" ref="newPassword" type="password" minlength="6" max-length="20" max-len="20"
-                placeholder="请输入新密码" err-msg="长度在6~20之间" />
-            <CustomInput @input="handlerVerify" ref="confirmPassword" type="password" minlength="6" max-length="20"
-                max-len="20" placeholder="请确认新密码" err-msg="长度在6~20之间" />
+        <div class="description pd-20">
+            格式：支持JPG、PNG、JPEG
+            <br>
+            大小：5M以内
         </div>
-    </div>
-    <div class="save">
-        <button>保存</button>
-    </div>
+        <div class="pos-abs mlr-20">
+            <h5>个人介绍</h5>
+            <textarea @input="countLength" ref="intro" class="intro" maxlength="100"
+                :placeholder="userInfo.intro || '请输入个人简介'"></textarea>
+            <span>{{ introLen }}/100</span>
+        </div>
+        <div class="password pd-20">
+            <h5 @click="expend">修改密码</h5>
+            <div class="modify-pass" :class="{ 'show-modify': showModify }">
+                <CustomInput @input="handlerVerify" ref="oldPassword" type="password" minlength="6" maxlength="20"
+                    max-len="20" placeholder="请输入旧密码" err-msg="长度在6~20之间" />
+                <CustomInput @input="handlerVerify" ref="newPassword" type="password" minlength="6" maxlength="20"
+                    max-len="20" placeholder="请输入新密码" err-msg="长度在6~20之间" />
+                <CustomInput @input="handlerVerify" ref="confirmPassword" type="password" minlength="6" maxlength="20"
+                    max-len="20" placeholder="请确认新密码" err-msg="长度在6~20之间" />
+            </div>
+        </div>
+        <div class="save">
+            <button>保存</button>
+        </div>
+    </template>
+    <NullState v-else />
 </template>
 
 <style lang="scss" scoped>

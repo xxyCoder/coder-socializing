@@ -6,16 +6,15 @@ import { csrfSessionError, csrfSessionIsNull, csrfSessionLapse, csrfSessionTimeo
 const { CSRF_SECRET, SECRET } = env;
 
 export function verifyToken(req: Request, resp: Response, next: NextFunction) {
-    const token = req.cookies.token;
-    const { id } = req.body;
+    const token = req.cookies["ct_token"];
     if (!token) {
         resp.send(tokenIsNull)
         return;
     }
-    const user = jwt.verify(token, SECRET!) as { id: number }
     try {
-        if (id == user.id) next();
-        else resp.send(tokenError);
+        const user = jwt.verify(token, SECRET!) as { id: number }
+        req.body.id = user.id; 
+        next();
     } catch (err: any) {
         switch (err.name) {
             case 'TokenExpiredError':

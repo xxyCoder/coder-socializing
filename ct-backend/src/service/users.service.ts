@@ -32,7 +32,7 @@ class UserService {
         return Users.findOne({ where: whereOp });
     }
     verify({ account, id, password }: Partial<UserModel>) {
-        if (!password) return Promise.resolve({ sc: false, id: null, username: "" });
+        if (!password) return Promise.resolve({ sc: false, id: null, username: "", intro: "", imgSrc: "" });
         const whereOp = {};
         account && Object.assign(whereOp, { account });
         id && Object.assign(whereOp, { id });
@@ -41,7 +41,7 @@ class UserService {
             .then(res => {
                 if (!res || !res.dataValues) return { sc: false, id: null, username: "" };
                 const sc = bcrpty.compareSync(password, res.dataValues.password);
-                return { sc, id: res.dataValues.id, username: res.dataValues.username };
+                return { sc, id: res.dataValues.id, username: res.dataValues.username, intro: res.dataValues.biography, imgSrc: res.dataValues.imgSrc };
             })
     }
 }

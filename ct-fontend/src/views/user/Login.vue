@@ -5,6 +5,7 @@ import { userLogin } from '@/api/users';
 import { cryptoPassword } from './ts/index'
 import { useToast } from "@/components/Toast/index";
 import { useLoading } from '@/components/Loading/index';
+import { setUserInfo } from '@/common/ts/user-info';
 
 const account = ref<HTMLInputElement>();
 const password = ref<HTMLInputElement>();
@@ -24,8 +25,10 @@ const handlerLogin = () => {
     const remove = useLoading()
     userLogin({ account: acc, password: cryptoPassword(pass) })
         .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
+            if (res.code !== 200 || !res.data) throw new Error(res.msg);
             remove();
+            localStorage.setItem("user-info", res.data.username!);
+            setUserInfo(res.data)
             useToast("登录成功")
                 .then(() => {
                     router.replace('/');

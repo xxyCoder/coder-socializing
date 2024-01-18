@@ -1,7 +1,7 @@
 interface UserInfo {
     avatarSrc?: string;
     intro?: string;
-    username?: string;
+    username: string;
 }
 
 let _userInfo: UserInfo;

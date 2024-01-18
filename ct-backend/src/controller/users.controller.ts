@@ -10,12 +10,6 @@ const { SECRET, CSRF_SECRET } = env;
 const DAY = 24 * 60 * 60 * 1000;
 
 class UserController {
-    get_csrf_info(req: Request, resp: Response) {
-        const { id } = req.body;
-        resp
-            .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
-            .send({ code: 200 });
-    }
     registry(req: Request, resp: Response) {
         const { username, password, account } = req.body;
         precisionFind({ account })
@@ -41,16 +35,16 @@ class UserController {
     login(req: Request, resp: Response) {
         const { password, account } = req.body;
         verify({ account, password })
-            .then(({ sc, id, username }) => {
+            .then(({ sc, id, username, intro, imgSrc }) => {
                 if (sc) {
                     resp
                         .cookie('ct_token', jwt.sign({ id }, SECRET!, { expiresIn: '15d' }), {
-                            maxAge: 3 * DAY,
+                            maxAge: 15 * DAY,
                             path: "/",
                             httpOnly: true
                         })
                         .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
-                        .send({ code: 200, msg: "登录成功", data: { username } });
+                        .send({ code: 200, msg: "登录成功", data: { username, intro, imgSrc } });
                 } else {
                     resp.send(userIsNotExistsOrPassErr);
                 }
@@ -121,6 +115,23 @@ class UserController {
             })
             .catch(err => {
                 console.error(`查询失败：${err}`);
+                resp.send(serviceError);
+            })
+    }
+    getSelfInfo(req: Request, resp: Response) {
+        const { id } = req.body;
+        precisionFind({ id })
+            .then(res => {
+                if (!res || res.dataValues.id != id) {
+                    resp.send({ code: 400, msg: "没有该用户" });
+                    return;
+                }
+                resp
+                    .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!))
+                    .send({ code: 200, msg: "获取个人信息成功", data: { imgSrc: res.dataValues.imgSrc, intro: res.dataValues.biography, username: res.dataValues.username } });
+            })
+            .catch(err => {
+                console.error(`获取个人信息失败：${err}`);
                 resp.send(serviceError);
             })
     }
