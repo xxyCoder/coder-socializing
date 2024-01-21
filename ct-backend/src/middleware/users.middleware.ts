@@ -2,28 +2,10 @@ import { importArgsIsNull } from '@src/constant/resp.constant';
 import bcrpty from 'bcryptjs'
 import type { Request, Response, NextFunction } from 'express'
 
-export const checkIdAndPassExists = (req: Request, res: Response, next: NextFunction) => {
-    const { id, password } = req.body;
-    if (!id || !password) {
-        res.send(importArgsIsNull);
-        return;
-    }
-    next();
-}
-
 export const checkFormParams = (req: Request, res: Response, next: NextFunction) => {
     const { password, account } = req.body;
     if (!password || !account) {
         res.send(importArgsIsNull);
-        return;
-    }
-    next();
-}
-
-export const checkAllParamsIsNull = (req: Request, res: Response, next: NextFunction) => {
-    const { username, newPassword, intro, avatarSrc } = req.body;
-    if (!username && !intro && !avatarSrc && !newPassword) {
-        res.send({ code: 400, msg: "至少有一个参数不能为空" });
         return;
     }
     next();
@@ -63,5 +45,6 @@ export const checkIdAndAccountExists = (req: Request, res: Response, next: NextF
         res.send(importArgsIsNull);
         return;
     }
+    req.body.id = Number(id), req.body.account = String(account)
     next()
 }

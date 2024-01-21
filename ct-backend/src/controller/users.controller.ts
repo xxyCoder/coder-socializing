@@ -1,11 +1,12 @@
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import userService from '@src/service/users.service';
-import { serviceError, successObj, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
+import { modifySuc, serviceError, successObj, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
 import env from "@src/config/default.config"
+import { staticRoot } from '@src/app';
 
 const { create, precisionFind, update, remove, find, verify } = userService;
-const { SECRET, CSRF_SECRET } = env;
+const { SECRET, CSRF_SECRET, PORT } = env;
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -51,32 +52,6 @@ class UserController {
             })
             .catch(err => {
                 console.error(`登录失败：${err}`);
-                resp.send(serviceError);
-            })
-    }
-    modify(req: Request, resp: Response) {
-        const { id, username, newPassword, password, intro, avatarSrc } = req.body;
-        verify({ id, password })
-            .then(({ sc }) => {
-                if (!sc) {
-                    resp.send(userIsNotExistsOrPassErr);
-                    return;
-                }
-                update({ username, id, newPassword })
-                    .then(([affectedCount]) => {
-                        if (affectedCount == 1) {
-                            resp.send({ code: 0, msg: "修改成功" });
-                        } else {
-                            resp.send(userIsNotExistsOrPassErr);
-                        }
-                    })
-                    .catch(err => {
-                        console.error(`修改失败：${err}`);
-                        resp.send(serviceError);
-                    })
-            })
-            .catch(err => {
-                console.error(`修改失败：${err}`);
                 resp.send(serviceError);
             })
     }
@@ -137,27 +112,36 @@ class UserController {
             })
     }
     uploadPass(req: Request, resp: Response) {
-        const { newPassword, password } = req.body;
-        const { id: _id, account: _account } = req.query;
-        const id = Number(_id), account = String(_account)
+        const { newPassword, password, id, account } = req.body;
         verify({ id, password, account })
             .then(({ sc }) => {
                 if (!sc) {
-                    resp.send({ code: 400, msg: '密码不正确' });
+                    resp.send({ code: 400, msg: '密码不正确或用户不存在' });
                     return;
                 }
                 update({ account, newPassword, id })
-                    .then((res) => {
+                    .then(() => {
                         resp
                             .cookie('csrf_session', '')
                             .cookie('ct_token', '')
-                            .send({ code: 200, msg: '修改成功' });
+                            .send(modifySuc);
                     })
                     .catch(err => {
                         console.error(`修改失败：${err}`);
                         resp.send(serviceError);
                     })
             })
+            .catch(err => {
+                console.error(`修改失败：${err}`);
+                resp.send(serviceError);
+            })
+    }
+    uploadInfo(req: Request, resp: Response) {
+        const { username, intro } = req.body;
+        const { account: _account, id: _id } = req.query;
+        const account = String(_account), id = Number(_id);
+        update({ account, id, username, biography: intro, avatarSrc: `http://localhost:${PORT}/${req.file?.path.replace(staticRoot, '').replace(/\\/g, '/')}` })
+            .then(() => resp.send(modifySuc))
             .catch(err => {
                 console.error(`修改失败：${err}`);
                 resp.send(serviceError);

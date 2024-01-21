@@ -6,11 +6,13 @@ class UserService {
     create({ username, password, account }: UserModel) {
         return Users.create({ username, password, account, });
     }
-    update({ account, id, newPassword }: Partial<UserModel & { newPassword: string }>) {
-        const whereOp = { id };
+    update({ account, id, newPassword, biography, username, avatarSrc }: Partial<UserModel & { newPassword: string }>) {
+        const whereOp = { id, account };
         const updateOp = {};
-        account && Object.assign(updateOp, { account });
         newPassword && Object.assign(updateOp, { password: newPassword });
+        biography && Object.assign(updateOp, { biography });
+        avatarSrc && Object.assign(updateOp, { avatarSrc });
+        username && Object.assign(updateOp, { username });
         return Users.update(updateOp, { where: whereOp });
     }
     remove({ id }: Partial<UserModel>) {

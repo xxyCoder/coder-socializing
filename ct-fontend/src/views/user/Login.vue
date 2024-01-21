@@ -28,6 +28,7 @@ const handlerLogin = () => {
             if (res.code !== 200 || !res.data) throw new Error(res.msg);
             remove();
             setUserInfo(res.data)
+            localStorage.setItem('user-info', JSON.stringify({ id: res.data.id, account: res.data.account }))
             useToast("登录成功")
                 .then(() => {
                     router.replace('/');

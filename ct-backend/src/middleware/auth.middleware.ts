@@ -50,8 +50,3 @@ export function verifyCSRFSession(req: Request, resp: Response, next: NextFuncti
         }
     }
 }
-
-export function addCustomHeader(req: Request, resp: Response, next: NextFunction) {
-    resp.set("Access-Control-Expose-Headers", "X-CSRF-Session");
-    next();
-}

@@ -1,7 +1,8 @@
 import { getUserInfo } from "@/common/ts/user-info";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
-type IStringObj = Record<string, string>
+type IStringObj = Record<string, string>;
+export type PostFirstArg = Record<string, string | number>
 
 export interface apiResponse<T = IStringObj> {
     code: number;
@@ -19,7 +20,10 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use(config => {
-    const userinfo = getUserInfo();
+    let userinfo = getUserInfo();
+    if (!userinfo) {
+        userinfo = JSON.parse(localStorage.getItem('user-info') || '{}') // 避免第一次进入没有登录过
+    }
     let query = "";
     userinfo?.id && (query += `id=${userinfo.id}`);
     if (userinfo?.account) {
@@ -30,6 +34,7 @@ instance.interceptors.request.use(config => {
         config.url.indexOf('?') === -1 && (config.url += '?');
         config.url += query;
     }
+
     return config;
 }, error => {
     console.error("请求错误: ", error);
@@ -44,9 +49,13 @@ instance.interceptors.response.use(resp => {
 })
 
 export default {
-    post<D = Record<string, string | number>, T = IStringObj>(url: string) {
-        return (data: T, query = "") => {
-            return instance.post<T, apiResponse<D>>(url + query, JSON.stringify(data));
+    post<D = PostFirstArg, T = IStringObj>(url: string) {
+        return (data: T, query = "", config: AxiosRequestConfig<T> = {}) => {
+            let _data: string | FormData = JSON.stringify(data)
+            if (config.headers?.["Content-Type"] === 'multipart/form-data' && data instanceof FormData) {
+                _data = data
+            }
+            return instance.post<D, apiResponse<D>>(url + query, _data, config);
         }
     },
     get<D = IStringObj>(url: string) {

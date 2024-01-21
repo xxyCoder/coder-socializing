@@ -7,6 +7,10 @@ export function cryptoPassword(password: string) {
 
 export const debounceTime = 500;
 
+const byte = 1024;
+
+export const MB = byte * byte;
+
 export const InputMap = {
     username: 0,
     account: 1,
@@ -14,9 +18,15 @@ export const InputMap = {
     confirmPassword: 3
 }
 
+export const PassMap = {
+    oldPassword: 1,
+    newPassword: 2,
+    confirmPassword: 3
+}
+
 export const initNotPass = 0b1111;
 
-export interface ICustomInput{
+export interface ICustomInput {
     component: HTMLInputElement,
     show: () => void;
     hide: () => void;

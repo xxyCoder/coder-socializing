@@ -7,6 +7,11 @@ export const successObj = {
     code: 200,
 }
 
+export const modifySuc = {
+    code: 200,
+    msg: "修改成功"
+}
+
 export const userIsNotExistsOrPassErr = {
     code: 400,
     msg: "用户不存在或密码不正确"
