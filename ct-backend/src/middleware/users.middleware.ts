@@ -21,8 +21,8 @@ export const checkFormParams = (req: Request, res: Response, next: NextFunction)
 }
 
 export const checkAllParamsIsNull = (req: Request, res: Response, next: NextFunction) => {
-    const { username, newPassword } = req.body;
-    if (!username && !newPassword) {
+    const { username, newPassword, intro, avatarSrc } = req.body;
+    if (!username && !intro && !avatarSrc && !newPassword) {
         res.send({ code: 400, msg: "至少有一个参数不能为空" });
         return;
     }
@@ -31,10 +31,11 @@ export const checkAllParamsIsNull = (req: Request, res: Response, next: NextFunc
 
 export const crpytPassword = (req: Request, res: Response, next: NextFunction) => {
     let { password, newPassword } = req.body;
-    if(!newPassword) newPassword = password;
+    if (!newPassword) newPassword = password;
     const salt = bcrpty.genSaltSync(10)
     const hash = bcrpty.hashSync(newPassword, salt) // hash保存的是密文
-    req.body.password = hash
+    if (req.body.newPassword) req.body.newPassword = hash
+    else req.body.password = hash
     next();
 }
 
@@ -45,4 +46,22 @@ export const checkPageParams = (req: Request, res: Response, next: NextFunction)
         return;
     }
     next();
+}
+
+export const checkPassParams = (req: Request, res: Response, next: NextFunction) => {
+    const { password, newPassword } = req.body;
+    if (!password || !newPassword) {
+        res.send(importArgsIsNull);
+        return;
+    }
+    next();
+}
+
+export const checkIdAndAccountExists = (req: Request, res: Response, next: NextFunction) => {
+    const { id, account } = req.query;
+    if (!id || !account) {
+        res.send(importArgsIsNull);
+        return;
+    }
+    next()
 }

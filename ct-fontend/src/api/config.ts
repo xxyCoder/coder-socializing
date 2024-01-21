@@ -1,3 +1,4 @@
+import { getUserInfo } from "@/common/ts/user-info";
 import axios, { AxiosResponse } from "axios";
 
 type IStringObj = Record<string, string>
@@ -18,6 +19,17 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use(config => {
+    const userinfo = getUserInfo();
+    let query = "";
+    userinfo?.id && (query += `id=${userinfo.id}`);
+    if (userinfo?.account) {
+        if (query) query += '&';
+        query += `account=${userinfo.account}`
+    }
+    if (query && config.url) {
+        config.url.indexOf('?') === -1 && (config.url += '?');
+        config.url += query;
+    }
     return config;
 }, error => {
     console.error("请求错误: ", error);

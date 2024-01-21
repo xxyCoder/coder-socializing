@@ -13,7 +13,7 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
     }
     try {
         const user = jwt.verify(token, SECRET!) as { id: number }
-        req.body.id = user.id; 
+        req.body.id = user.id;
         next();
     } catch (err: any) {
         switch (err.name) {
@@ -29,7 +29,7 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
 
 export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
     const { id } = req.body;
-    const csrf_session = req.headers["X-CSRF-Session"] as string;
+    const csrf_session = req.cookies['csrf_session']
 
     if (!csrf_session) {
         resp.send(csrfSessionIsNull);

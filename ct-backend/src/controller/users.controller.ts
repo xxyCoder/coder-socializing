@@ -35,7 +35,7 @@ class UserController {
     login(req: Request, resp: Response) {
         const { password, account } = req.body;
         verify({ account, password })
-            .then(({ sc, id, username, intro, imgSrc }) => {
+            .then(({ sc, id, username, intro, avatarSrc, account }) => {
                 if (sc) {
                     resp
                         .cookie('ct_token', jwt.sign({ id }, SECRET!, { expiresIn: '15d' }), {
@@ -44,7 +44,7 @@ class UserController {
                             httpOnly: true
                         })
                         .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
-                        .send({ code: 200, msg: "登录成功", data: { username, intro, imgSrc } });
+                        .send({ code: 200, msg: "登录成功", data: { username, intro, avatarSrc, account, id } });
                 } else {
                     resp.send(userIsNotExistsOrPassErr);
                 }
@@ -55,7 +55,7 @@ class UserController {
             })
     }
     modify(req: Request, resp: Response) {
-        const { id, username, newPassword, password } = req.body;
+        const { id, username, newPassword, password, intro, avatarSrc } = req.body;
         verify({ id, password })
             .then(({ sc }) => {
                 if (!sc) {
@@ -126,12 +126,40 @@ class UserController {
                     resp.send({ code: 400, msg: "没有该用户" });
                     return;
                 }
+                const { avatarSrc, biography, username, account } = res.dataValues
                 resp
                     .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!))
-                    .send({ code: 200, msg: "获取个人信息成功", data: { imgSrc: res.dataValues.imgSrc, intro: res.dataValues.biography, username: res.dataValues.username } });
+                    .send({ code: 200, msg: "获取个人信息成功", data: { avatarSrc, intro: biography, username, account, id } });
             })
             .catch(err => {
                 console.error(`获取个人信息失败：${err}`);
+                resp.send(serviceError);
+            })
+    }
+    uploadPass(req: Request, resp: Response) {
+        const { newPassword, password } = req.body;
+        const { id: _id, account: _account } = req.query;
+        const id = Number(_id), account = String(_account)
+        verify({ id, password, account })
+            .then(({ sc }) => {
+                if (!sc) {
+                    resp.send({ code: 400, msg: '密码不正确' });
+                    return;
+                }
+                update({ account, newPassword, id })
+                    .then((res) => {
+                        resp
+                            .cookie('csrf_session', '')
+                            .cookie('ct_token', '')
+                            .send({ code: 200, msg: '修改成功' });
+                    })
+                    .catch(err => {
+                        console.error(`修改失败：${err}`);
+                        resp.send(serviceError);
+                    })
+            })
+            .catch(err => {
+                console.error(`修改失败：${err}`);
                 resp.send(serviceError);
             })
     }

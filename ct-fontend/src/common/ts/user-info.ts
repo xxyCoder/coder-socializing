@@ -1,12 +1,14 @@
-interface UserInfo {
+export interface UserInfo {
     avatarSrc?: string;
     intro?: string;
     username: string;
+    id: number;
+    account: string;
 }
 
-let _userInfo: UserInfo;
+let _userInfo: UserInfo | null = null;
 
-export function setUserInfo(userInfo: UserInfo) {
+export function setUserInfo(userInfo: UserInfo | null) {
     _userInfo = userInfo;
 }
 

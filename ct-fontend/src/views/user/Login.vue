@@ -27,7 +27,6 @@ const handlerLogin = () => {
         .then(res => {
             if (res.code !== 200 || !res.data) throw new Error(res.msg);
             remove();
-            localStorage.setItem("user-info", res.data.username!);
             setUserInfo(res.data)
             useToast("登录成功")
                 .then(() => {

@@ -6,12 +6,11 @@ class UserService {
     create({ username, password, account }: UserModel) {
         return Users.create({ username, password, account, });
     }
-    update({ username, id, newPassword }: Partial<UserModel & { newPassword: string }>) {
+    update({ account, id, newPassword }: Partial<UserModel & { newPassword: string }>) {
         const whereOp = { id };
         const updateOp = {};
-        username && Object.assign(updateOp, { username });
+        account && Object.assign(updateOp, { account });
         newPassword && Object.assign(updateOp, { password: newPassword });
-
         return Users.update(updateOp, { where: whereOp });
     }
     remove({ id }: Partial<UserModel>) {
@@ -32,7 +31,7 @@ class UserService {
         return Users.findOne({ where: whereOp });
     }
     verify({ account, id, password }: Partial<UserModel>) {
-        if (!password) return Promise.resolve({ sc: false, id: null, username: "", intro: "", imgSrc: "" });
+        if (!password) return Promise.resolve({ sc: false, id: null, username: "", intro: "", avatarSrc: "", account: "" });
         const whereOp = {};
         account && Object.assign(whereOp, { account });
         id && Object.assign(whereOp, { id });
@@ -41,7 +40,7 @@ class UserService {
             .then(res => {
                 if (!res || !res.dataValues) return { sc: false, id: null, username: "" };
                 const sc = bcrpty.compareSync(password, res.dataValues.password);
-                return { sc, id: res.dataValues.id, username: res.dataValues.username, intro: res.dataValues.biography, imgSrc: res.dataValues.imgSrc };
+                return { sc, id: res.dataValues.id, username: res.dataValues.username, intro: res.dataValues.biography, avatarSrc: res.dataValues.avatarSrc, account: res.dataValues.account };
             })
     }
 }

@@ -7,6 +7,7 @@ export interface UserModel {
     account: string;
     password: string;
     biography?: string;
+    avatarSrc?: string;
 }
 
 const Users = seq.define('users', {
@@ -31,7 +32,7 @@ const Users = seq.define('users', {
         allowNull: true,
         comment: "个人简介"
     },
-    imgSrc: {
+    avatarSrc: {
         type: DataTypes.STRING,
         allowNull: true,
         comment: "头像路径"

@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { debounce } from 'lodash';
-import { getUserInfo } from '@/common/ts/user-info';
+import { getUserInfo, setUserInfo, } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import CustomInput from '@/components/custom-input.vue';
 import NullState from '@/components/null-state.vue';
-import { ICustomInput, debounceTime, initNotPass } from './ts';
+import { updatePass } from '@/api/users'
+import { ICustomInput, cryptoPassword, debounceTime, initNotPass } from './ts';
+import { useLoading } from '@/components/Loading';
+import { useRouter } from 'vue-router';
 
 const userInfo = getUserInfo();
-
-const oldPassword = ref<HTMLInputElement>();
-const newPassword = ref<HTMLInputElement>();
-const confirmPassword = ref<HTMLInputElement>();
-const username = ref<HTMLInputElement>();
 
 const intro = ref<HTMLInputElement>();
 const introLen = ref(0);
@@ -35,7 +33,7 @@ const expend = () => {
     showModify.value = !showModify.value;
 }
 
-let verify = initNotPass
+let verify = initNotPass & ~0;
 const handlerVerify = debounce((component: ICustomInput | undefined, bit: number) => {
     if (!component) {
         useToast("网络不好，请稍后再试");
@@ -49,7 +47,46 @@ const handlerVerify = debounce((component: ICustomInput | undefined, bit: number
         component.hide();
         verify &= ~(1 << bit);
     }
-}, debounceTime)
+}, debounceTime);
+
+const oldPassword = ref<ICustomInput>();
+const newPassword = ref<ICustomInput>();
+const confirmPassword = ref<ICustomInput>();
+const username = ref<ICustomInput>();
+const router = useRouter();
+const modifyPassword = () => {
+    const np = newPassword.value?.component.value, p = oldPassword.value?.component.value, cp = confirmPassword.value?.component.value
+    if (!p) {
+        useToast('请输入旧密码');
+        return;
+    }
+    if (np !== cp) {
+        confirmPassword.value?.show();
+        return;
+    }
+    if (p === np) {
+        oldPassword.value?.show()
+        return;
+    }
+    const remove = useLoading()
+    updatePass({ newPassword: cryptoPassword(np!), password: cryptoPassword(p!) })
+        .then(res => {
+            if (res.code !== 200) throw new Error(res.msg);
+            remove();
+            useToast('修改成功')
+                .then(() => {
+                    setUserInfo(null)
+                    router.replace('/login')
+                })
+        })
+        .catch(err => {
+            remove();
+            useToast(err.message || '网络错误')
+        })
+}
+const modifyProfile = () => {
+    newPassword.value?.component.value && modifyPassword();
+}
 </script>
 
 <template>
@@ -78,15 +115,15 @@ const handlerVerify = debounce((component: ICustomInput | undefined, bit: number
         <div class="password pd-20">
             <h5 @click="expend">修改密码</h5>
             <div class="modify-pass" :class="{ 'show-modify': showModify }">
-                <CustomInput @input="handlerVerify" ref="oldPassword" type="password" minlength="6" maxlength="20"
-                    max-len="20" placeholder="请输入旧密码" err-msg="长度在6~20之间" />
-                <CustomInput @input="handlerVerify" ref="newPassword" type="password" minlength="6" maxlength="20"
-                    max-len="20" placeholder="请输入新密码" err-msg="长度在6~20之间" />
-                <CustomInput @input="handlerVerify" ref="confirmPassword" type="password" minlength="6" maxlength="20"
-                    max-len="20" placeholder="请确认新密码" err-msg="长度在6~20之间" />
+                <CustomInput @input="handlerVerify(oldPassword, 1)" ref="oldPassword" type="password" minlength="6"
+                    maxlength="20" max-len="20" placeholder="请输入旧密码" err-msg="新旧密码一致" />
+                <CustomInput @input="handlerVerify(newPassword, 2)" ref="newPassword" type="password" minlength="6"
+                    maxlength="20" max-len="20" placeholder="请输入新密码" err-msg="长度在6~20之间" />
+                <CustomInput @input="handlerVerify(confirmPassword, 3)" ref="confirmPassword" type="password" minlength="6"
+                    maxlength="20" max-len="20" placeholder="请确认新密码" err-msg="两次密码不一致" />
             </div>
         </div>
-        <div class="save">
+        <div class="save" @click="modifyProfile">
             <button>保存</button>
         </div>
     </template>
