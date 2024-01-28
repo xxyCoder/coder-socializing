@@ -1,11 +1,15 @@
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import userService from '@src/service/users.service';
-import { modifySuc, serviceError, successObj, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
+import concernsService from '@src/service/concerns.service';
+import notesService from '@src/service/notes.service';
+import { modifySuc, serviceError, successObj, userIsNotExists, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
 import env from "@src/config/default.config"
 import { staticRoot } from '@src/app';
 
 const { create, precisionFind, update, remove, find, verify } = userService;
+const { search } = concernsService;
+const { getByPage: getUserNotesByPage } = notesService
 const { SECRET, CSRF_SECRET, PORT } = env;
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -81,24 +85,12 @@ class UserController {
                 resp.send(serviceError);
             })
     }
-    search(req: Request, resp: Response) {
-        const { username = "", page_num, page_size } = req.query;
-        find(Number(page_size), Number(page_num), username as string)
-            .then(res => {
-                const users = res.map(r => r.dataValues);
-                resp.send({ code: 0, msg: "查询成功", data: JSON.stringify(users) });
-            })
-            .catch(err => {
-                console.error(`查询失败：${err}`);
-                resp.send(serviceError);
-            })
-    }
     getSelfInfo(req: Request, resp: Response) {
         const { id } = req.body;
         precisionFind({ id })
             .then(res => {
                 if (!res || res.dataValues.id != id) {
-                    resp.send({ code: 400, msg: "没有该用户" });
+                    resp.send(userIsNotExists);
                     return;
                 }
                 const { avatarSrc, biography, username, account } = res.dataValues
@@ -144,6 +136,44 @@ class UserController {
             .then(() => resp.send(modifySuc))
             .catch(err => {
                 console.error(`修改失败：${err}`);
+                resp.send(serviceError);
+            })
+    }
+    pageInteraction(req: Request, resp: Response) {
+        const { page_num, page_size, id, category } = req.query;
+    }
+    getViewerInfo(req: Request, resp: Response) {
+        let { id: _id, viewer_id: _vid, page_num, page_size } = req.query;
+        const id = Number(_id), viewer_id = Number(_vid)
+        precisionFind({ id: viewer_id })
+            .then(res => {
+                if (!res || res.dataValues.id !== viewer_id) {
+                    resp.send(userIsNotExists);
+                    return;
+                }
+                // 访问主页默认tab页是notes
+                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), page_size: Number(page_size) })])
+                    .then(([isFollwer, notes]) => {
+                        resp.send({
+                            code: 200,
+                            msg: '获取成功',
+                            data: {
+                                username: res.dataValues.username,
+                                intro: res.dataValues.biography,
+                                avatarSrc: res.dataValues.avatarSrc,
+                                isFollwer,
+                                notes: notes.map(note => ({ id: note.dataValues.id, title: note.dataValues.title, videoSrc: note.dataValues.videoSrc, image: note.dataValues.imageList }))
+                            }
+                        })
+                    })
+                    .catch(err => {
+                        console.log(`搜索失败：${err}`);
+                        resp.send(serviceError);
+                    })
+
+            })
+            .catch(err => {
+                console.error(`获取用户信息失败：${err}`);
                 resp.send(serviceError);
             })
     }

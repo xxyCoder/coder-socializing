@@ -31,3 +31,9 @@ export interface ICustomInput {
     show: () => void;
     hide: () => void;
 }
+
+export const pageSize = 20;
+
+export const tabName: { [key: number]: string } = {
+    0: 'like'
+}

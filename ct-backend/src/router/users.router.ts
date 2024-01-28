@@ -1,12 +1,13 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { checkFormParams, crpytPassword, checkPassParams, checkIdAndAccountExists } from '@src/middleware/users.middleware';
+import { checkFormParams, crpytPassword, checkPassParams, checkIdAndAccountExists, checkViewIdExists } from '@src/middleware/users.middleware';
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware';
 import UsersController from "@src/controller/users.controller"
+import { checkPageParams } from '@src/middleware/common.middleware';
 
 
-const { registry, login, getSelfInfo, uploadPass, uploadInfo } = UsersController;
+const { registry, login, getSelfInfo, uploadPass, uploadInfo, getViewerInfo } = UsersController;
 
 const router = express.Router();
 
@@ -27,7 +28,10 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage });
-
 router.post("/update_userinfo", checkIdAndAccountExists, verifyToken, verifyCSRFSession, upload.single('avatarSrc'), uploadInfo)
 
+// 分页获取
+router.get('/dynamic_datas', checkPageParams)
+// 拿到被观察者用户信息
+router.get('/user_info', checkViewIdExists, checkPageParams, getViewerInfo)
 export default router;

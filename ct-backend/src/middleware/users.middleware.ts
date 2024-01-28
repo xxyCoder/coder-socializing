@@ -21,15 +21,6 @@ export const crpytPassword = (req: Request, res: Response, next: NextFunction) =
     next();
 }
 
-export const checkPageParams = (req: Request, res: Response, next: NextFunction) => {
-    const { page_num, page_size } = req.query;
-    if (!page_num || !page_size) {
-        res.send(importArgsIsNull);
-        return;
-    }
-    next();
-}
-
 export const checkPassParams = (req: Request, res: Response, next: NextFunction) => {
     const { password, newPassword } = req.body;
     if (!password || !newPassword) {
@@ -46,5 +37,14 @@ export const checkIdAndAccountExists = (req: Request, res: Response, next: NextF
         return;
     }
     req.body.id = Number(id), req.body.account = String(account)
+    next()
+}
+
+export const checkViewIdExists = (req: Request, res: Response, next: NextFunction) => {
+    const { viewer_id } = req.query
+    if (!viewer_id) {
+        res.send(importArgsIsNull);
+        return;
+    }
     next()
 }

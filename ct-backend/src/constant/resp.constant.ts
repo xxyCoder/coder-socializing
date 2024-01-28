@@ -60,3 +60,8 @@ export const tokenTimeout = {
     code: 408,
     msg: "token超时"
 }
+
+export const userIsNotExists = {
+    code: 409,
+    msg: "用户不存在"
+}
