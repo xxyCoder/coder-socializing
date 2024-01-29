@@ -10,6 +10,7 @@ import { updateUserInfo, updateUserPass } from '@/api/users'
 import { ICustomInput, cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
+import { backendStatic, ip, port } from '@/api/config';
 
 const userInfo = getUserInfo();
 
@@ -144,7 +145,7 @@ onMounted(() => {
         <div class="base-info pd-20">
             <div class="avatar">
                 <label for="avatar">
-                    <img ref="avatar" :src="userInfo.avatarSrc || '@/assets/default.jpg'" alt="头像">
+                    <img ref="avatar" :src="userInfo.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像">
                 </label>
                 <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
                     accept="image/png,image/jpg,image/jpeg" />

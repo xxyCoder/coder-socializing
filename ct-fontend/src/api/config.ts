@@ -10,8 +10,12 @@ export interface apiResponse<T = IStringObj> {
     data?: T;
 }
 
+export const ip = 'http://localhost';
+export const port = 3000;
+export const backendStatic = '/uploads'
+
 const instance = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: `${ip}:${port}`,
     timeout: 10 * 1000,
     headers: {
         "Content-Type": "application/json"
@@ -31,7 +35,7 @@ instance.interceptors.request.use(config => {
         query += `account=${userinfo.account}`
     }
     if (query && config.url) {
-        config.url.indexOf('?') === -1 && (config.url += '?');
+        config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
         config.url += query;
     }
 
