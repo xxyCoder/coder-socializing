@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { pageSize, tabName } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
 import { getViewerInfo } from '@/api/users';
-import { follwerOrCancel } from '@/api/concern'
+import { follwerOrCancel } from '@/api/index'
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
@@ -85,7 +85,7 @@ const handlerClick = () => {
         </div>
         <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
         <div class="user-interactions"></div>
-        <NoteCard title="虽然但是，她给的真的好多！" author="xxyCoder" :likes="666"/>
+        <NoteCard title="虽然但是，她给的真的好多！" author="xxyCoder" :likes="666" />
     </div>
 </template>
 
