@@ -18,6 +18,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/user-info",
     component: () => import("@/views/user/Info.vue")
+  },
+  {
+    path: '/publish',
+    component: () => import('@/views/note.vue')
   }
 ]
 

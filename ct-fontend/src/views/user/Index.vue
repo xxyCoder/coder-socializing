@@ -9,7 +9,6 @@ import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import type { NoteCardType } from '@/common/types'
-import NoteCard from '@/components/note-card.vue';
 import BottomMenu from '@/components/bottom-menu.vue';
 
 const route = useRoute();
@@ -86,7 +85,6 @@ const handlerClick = () => {
         </div>
         <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
         <div class="user-interactions"></div>
-        <NoteCard title="虽然但是，她给的真的好多！" author="xxyCoder" :likes="666" />
     </div>
     <BottomMenu />
 </template>

@@ -2,7 +2,7 @@
 import { defineProps, ref } from 'vue'
 import { backendStatic, ip, port } from '@/api/config';
 import { noteLike } from '@/api';
-import { useToast } from './Toast';
+import { useToast } from '../Toast';
 
 const props = defineProps({
     posterSrc: String,
