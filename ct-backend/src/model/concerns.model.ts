@@ -24,7 +24,7 @@ const Concern = seq.define('concerns', {
 
 // 模型同步，创建该表
 Concern.sync({
-    force: false // true表示数据库如果存在该表，则先删除
+    force: true // true表示数据库如果存在该表，则先删除
 })
 
 export default Concern;

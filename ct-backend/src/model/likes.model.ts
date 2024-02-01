@@ -7,7 +7,7 @@ export interface LikeModel {
     userId: number;
 }
 
-const Like = seq.define('concerns', {
+const Like = seq.define('likes', {
     noteId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -18,6 +18,8 @@ const Like = seq.define('concerns', {
         allowNull: false,
         comment: '点赞用户id'
     }
+}, {
+    timestamps: false // 静止添加其他列（默认有插入、删除列的时间）
 })
 
 // 模型同步，创建该表

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { defineProps, ref } from 'vue'
 import { backendStatic, ip, port } from '@/api/config';
+import { noteLike } from '@/api';
+import { useToast } from './Toast';
 
-defineProps({
+const props = defineProps({
     posterSrc: String,
     title: String,
     author: String,
@@ -14,8 +16,15 @@ defineProps({
 
 const isLike = ref(true) // 能出现在喜欢列表的都是true，只有点击之后才会不喜欢
 const handlerLike = () => {
-    
-    isLike.value = !isLike.value
+    noteLike({ is_like: String(isLike.value), noteId: String(props.noteId) })
+        .then(res => {
+            if (res.code !== 200) throw new Error(res.msg)
+            isLike.value = !isLike.value
+        })
+        .catch(err => {
+            useToast(err.message)
+            //
+        })
 }
 </script>
 
@@ -86,12 +95,14 @@ const handlerLike = () => {
 
 .author {
     margin-right: 5px;
+
     img {
         margin-right: 5px;
         height: responsive(30, vh);
         width: responsive(30, vh);
         border-radius: 50%;
     }
+
     span {
         overflow: hidden;
         text-overflow: ellipsis;

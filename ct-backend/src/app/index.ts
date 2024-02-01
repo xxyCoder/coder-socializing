@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser'
 import users from "@src/router/users.router"
 import concerns from '@src/router/concerns.router'
+import note from '@src/router/note.router'
 import path from 'path';
 
 
@@ -22,5 +23,6 @@ app.use(bodyParser.json());
 // 挂载路由
 app.use('/user', users);
 app.use('/concern', concerns);
+app.use('/note', note)
 
 export default app;
