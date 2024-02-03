@@ -132,7 +132,9 @@ class UserController {
         const { username, intro } = req.body;
         const { account: _account, id: _id } = req.query;
         const account = String(_account), id = Number(_id);
-        update({ account, id, username, biography: intro, avatarSrc: `http://localhost:${PORT}/${req.file?.path.replace(staticRoot, '').replace(/\\/g, '/')}` })
+        let avatarSrc: string | undefined = void 0;
+        req.file && (avatarSrc = `http://localhost:${PORT}/${req.file?.path.replace(staticRoot, '').replace(/\\/g, '/')}`);
+        update({ account, id, username, biography: intro, avatarSrc })
             .then(() => resp.send(modifySuc))
             .catch(err => {
                 console.error(`修改失败：${err}`);

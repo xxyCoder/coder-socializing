@@ -1,4 +1,4 @@
-import instance, { type PostFirstArg } from "./config";
+import instance from "./config";
 
 export const follwerOrCancel = instance.post("/concern/follower_or_cancel");
 

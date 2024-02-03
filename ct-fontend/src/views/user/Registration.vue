@@ -64,9 +64,9 @@ const handlerVerify = debounce((component: ICustomInput | undefined, bit: number
         <img src="@/assets/logo.png" alt="">
         <h1>coder 注册</h1>
         <CustomInput ref="username" @input="handlerVerify(username, InputMap.username)" type="text" placeholder="请输入用户名"
-            minlength="1" maxlength="10" :max-len="10" err-msg="长度应该在1~10之间" />
+            minlength="1" maxlength="10" err-msg="长度应该在1~10之间" />
         <CustomInput @input="handlerVerify(account, InputMap.account)" ref="account" type="text" placeholder="请输入账户名"
-            minlength="6" maxlength="16" :max-len="16" err-msg="长度应该在6~16之间" />
+            minlength="6" maxlength="16" err-msg="长度应该在6~16之间" />
         <CustomInput @input="handlerVerify(password, InputMap.password)" ref="password" type="password" placeholder="请输入密码"
             minlength="6" maxlength="20" max-len="20" err-msg="长度应该在6~20之间" />
         <CustomInput @input="handlerVerify(confirmPassword, InputMap.confirmPassword)" ref="confirmPassword" type="password"

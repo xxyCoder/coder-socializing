@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, defineEmits, defineExpose, defineProps } from 'vue';
 
-defineProps({
+const props = defineProps({
     maxlength: {
         type: [Number, String],
         default: 999
@@ -14,10 +14,6 @@ defineProps({
         type: String,
         default: ''
     },
-    maxLen: {
-        type: [Number, String],
-        default: 999
-    },
     type: {
         type: String,
         default: 'text'
@@ -25,6 +21,10 @@ defineProps({
     errMsg: {
         type: String,
         default: ''
+    },
+    initVal: {
+        type: Number,
+        default: 0
     }
 });
 
@@ -35,7 +35,7 @@ const handlerInput = () => {
 }
 
 const component = ref<HTMLInputElement>();
-const len = ref(0);
+const len = ref(props.initVal);
 const countInputLen = () => {
     len.value = component.value?.value.length || 0;
 }
@@ -57,7 +57,7 @@ defineExpose({
         <input ref="component" :type="type" :minlength="minlength" :maxlength="maxlength" :placeholder="placeholder"
             @input="handlerInput" />
         <div>
-            <span>{{ len }}/{{ maxLen }}</span>
+            <span>{{ len }}/{{ maxlength }}</span>
         </div>
     </div>
     <span :class="[showError ? 'show-tips' : 'hide-tips']">{{ errMsg }}</span>

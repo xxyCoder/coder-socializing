@@ -11,14 +11,13 @@ import { ICustomInput, cryptoPassword, debounceTime, initNotPass, PassMap, MB } 
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
 import { backendStatic, ip, port } from '@/api/config';
+import CustomTextarea from '@/components/custom-textarea.vue';
+import { CustomComponent } from '@/common/types';
+import BottomButton from '@/components/bottom-button.vue';
 
 const userInfo = getUserInfo();
 
-const intro = ref<HTMLInputElement>();
-const introLen = ref(0);
-const countLength = () => {
-    introLen.value = intro.value?.value.length || 0;
-}
+const intro = ref<CustomComponent>();
 
 const file = ref<HTMLInputElement>();
 const avatar = ref<HTMLImageElement>()
@@ -50,7 +49,7 @@ const handlerFile = () => {
                 hasAvatar.value = true
             }
         }
-        reader.onerror = (e) => fn('上传失败');
+        reader.onerror = () => fn('上传失败');
         reader.readAsDataURL(img)
     }
 }
@@ -110,8 +109,12 @@ const modifyProfile = () => {
     const promises = []
     newPassword.value?.component.value && promises.push(modifyPassword());
 
-    intro.value?.value && intro.value?.value !== userInfo?.intro && (formData.set('intro', intro.value.value));
-    username.value?.component.value && username.value?.component.value !== userInfo?.username && (formData.set('username', username.value?.component.value))
+    const introValue = intro.value?.component.value;
+    introValue && introValue !== userInfo?.intro && (formData.set('intro', introValue));
+
+    const usernameValue = username.value?.component.value
+    usernameValue && usernameValue !== userInfo?.username && (formData.set('username', usernameValue))
+
     promises.push(updateUserInfo(formData, "", { headers: { "Content-Type": "multipart/form-data" } })
         .then(res => {
             if (res.code !== 200) throw new Error(res.msg)
@@ -135,7 +138,7 @@ const modifyProfile = () => {
 }
 
 onMounted(() => {
-    intro.value && (intro.value.value = userInfo?.intro ?? "")
+    intro.value && (intro.value.component.value = userInfo?.intro ?? "")
     username.value && (username.value.component.value = userInfo?.username ?? "")
 })
 </script>
@@ -150,16 +153,16 @@ onMounted(() => {
                 <input ref="file" @change="handlerFile" hidden type="file" id="avatar"
                     accept="image/png,image/jpg,image/jpeg" />
             </div>
-            <CustomInput ref="username" maxlength="10" max-len="10" :placeholder="userInfo.username || '请输入用户名'" />
+            <CustomInput :init-val="userInfo.username?.length" ref="username" maxlength="10"
+                :placeholder="userInfo.username || '请输入用户名'" />
         </div>
         <div class="description pd-20" v-html="hasAvatar ? '点击下方保存修改生效 ' :
             '格式：支持JPG、PNG、JPEG<br>大小：4M以内'">
         </div>
         <div class="pos-abs mlr-20">
             <h5>个人介绍</h5>
-            <textarea @input="countLength" ref="intro" class="intro" maxlength="100"
-                :placeholder="userInfo.intro || '请输入个人简介'"></textarea>
-            <span>{{ introLen }}/100</span>
+            <CustomTextarea :init-val="userInfo.intro?.length" ref="intro" :placeholder="userInfo.intro || '请输入个人简介'"
+                :maxlength="100" />
         </div>
         <div class="password pd-20">
             <h5 @click="expend">修改密码</h5>
@@ -172,9 +175,7 @@ onMounted(() => {
                     max-len="20" placeholder="请确认新密码" err-msg="两次密码不一致" />
             </div>
         </div>
-        <div class="save">
-            <button @click="modifyProfile">保存</button>
-        </div>
+        <BottomButton btn-text="保存" @click="modifyProfile" />
     </template>
     <NullState v-else />
 </template>
@@ -265,25 +266,5 @@ onMounted(() => {
 
 .show-modify {
     max-height: 50vh;
-}
-
-.save {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 1px solid #595454;
-
-    button {
-        padding: responsive(15, vh) responsive(150, vw);
-        border-radius: responsive(30, vh);
-        background-color: rgb(94, 154, 134);
-        color: #fff;
-        border: none;
-    }
 }
 </style>

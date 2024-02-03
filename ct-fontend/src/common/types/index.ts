@@ -14,3 +14,7 @@ export interface viewerInfoReq {
     isFollwer: boolean;
     notes: NoteCardType[]
 }
+
+export interface CustomComponent {
+    component: HTMLInputElement | HTMLTextAreaElement
+}

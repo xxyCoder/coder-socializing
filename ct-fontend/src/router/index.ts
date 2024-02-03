@@ -21,7 +21,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/publish',
-    component: () => import('@/views/note.vue')
+    component: () => import('@/views/note/index.vue')
   }
 ]
 
