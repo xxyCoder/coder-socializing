@@ -5,10 +5,10 @@ import Users from "./users.model";
 export interface NoteModel {
     id: number | null;
     title: string;
-    desc: string;
-    videoSrc?: string;
-    imageList?: string;
-    tagList?: string;
+    content: string;
+    mediaList?: string;
+    tag?: string;
+    atUserIds?: string;
     userId: number | null
 }
 
@@ -18,25 +18,25 @@ const Notes = seq.define('notes', {
         allowNull: false,
         comment: '标题'
     },
-    desc: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        comment: '内容'
-    },
-    videoSrc: {
+    content: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: '视频路径'
+        comment: '内容'
     },
-    imageList: {
+    mediaList: {
         type: DataTypes.STRING,
         allowNull: true,
         comment: '图片路径'
     },
-    tagList: {
+    tag: {
         type: DataTypes.STRING,
         allowNull: true,
         comment: '笔记标签'
+    },
+    atUserIds: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: '@的用户id集合，使用;分隔'
     }
 })
 

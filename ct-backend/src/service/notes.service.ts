@@ -1,4 +1,4 @@
-import Note from "@src/model/notes.model";
+import Note, { NoteModel } from "@src/model/notes.model";
 import { pageType } from "@src/constant/types";
 
 class NoteService {
@@ -8,6 +8,12 @@ class NoteService {
             offset: page_num * page_size,
             limit: page_size
         });
+    }
+    add({ tag, title, content, mediaList, atUserIds, userId }: Partial<NoteModel>) {
+        const params = { title, tag, mediaList, userId };
+        content && Object.assign(params, { content });
+        atUserIds && Object.assign(params, { atUserIds });
+        return Note.create(params)
     }
 }
 

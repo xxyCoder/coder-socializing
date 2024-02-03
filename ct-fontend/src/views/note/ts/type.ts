@@ -1,3 +1,3 @@
 export interface UploadImgComp {
-    mediaUrls: Array<string>
+    mediaList: Array<File>
 }

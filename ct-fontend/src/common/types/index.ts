@@ -18,3 +18,9 @@ export interface viewerInfoReq {
 export interface CustomComponent {
     component: HTMLInputElement | HTMLTextAreaElement
 }
+
+export interface CustomInputComponent {
+    component: HTMLInputElement,
+    show: () => void;
+    hide: () => void;
+}

@@ -7,12 +7,12 @@ import { useToast } from '@/components/Toast';
 import CustomInput from '@/components/custom-input.vue';
 import NullState from '@/components/null-state.vue';
 import { updateUserInfo, updateUserPass } from '@/api/users'
-import { ICustomInput, cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
+import { cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
 import { backendStatic, ip, port } from '@/api/config';
 import CustomTextarea from '@/components/custom-textarea.vue';
-import { CustomComponent } from '@/common/types';
+import { CustomComponent, CustomInputComponent } from '@/common/types';
 import BottomButton from '@/components/bottom-button.vue';
 
 const userInfo = getUserInfo();
@@ -86,10 +86,10 @@ const handlerVerify = debounce(() => {
     }
 }, debounceTime);
 
-const oldPassword = ref<ICustomInput>();
-const newPassword = ref<ICustomInput>();
-const confirmPassword = ref<ICustomInput>();
-const username = ref<ICustomInput>();
+const oldPassword = ref<CustomInputComponent>();
+const newPassword = ref<CustomInputComponent>();
+const confirmPassword = ref<CustomInputComponent>();
+const username = ref<CustomInputComponent>();
 const router = useRouter();
 
 const modifyPassword = () => {

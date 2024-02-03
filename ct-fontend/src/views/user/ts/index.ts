@@ -26,12 +26,6 @@ export const PassMap = {
 
 export const initNotPass = 0b1111;
 
-export interface ICustomInput {
-    component: HTMLInputElement,
-    show: () => void;
-    hide: () => void;
-}
-
 export const pageSize = 20;
 
 export const tabName: { [key: number]: string } = {

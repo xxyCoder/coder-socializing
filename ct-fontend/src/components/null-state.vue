@@ -2,7 +2,7 @@
     <div class="null-state">
         <img src="@/assets/logo.png">
         <h1>请先登录~</h1>
-        <router-link to="/login">去登陆</router-link>
+        <router-link to="/login">去登录</router-link>
     </div>
 </template>
 

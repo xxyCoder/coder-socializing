@@ -6,12 +6,13 @@ import { userRegistry } from '@/api/users';
 import { useToast } from '@/components/Toast/index';
 import { useLoading } from '@/components/Loading/index'
 import CustomInput from '@/components/custom-input.vue';
-import { debounceTime, InputMap, initNotPass, cryptoPassword, type ICustomInput } from './ts/index'
+import { debounceTime, InputMap, initNotPass, cryptoPassword } from './ts/index'
+import { CustomInputComponent } from '@/common/types';
 
-const username = ref<ICustomInput>();
-const account = ref<ICustomInput>();
-const password = ref<ICustomInput>();
-const confirmPassword = ref<ICustomInput>();
+const username = ref<CustomInputComponent>();
+const account = ref<CustomInputComponent>();
+const password = ref<CustomInputComponent>();
+const confirmPassword = ref<CustomInputComponent>();
 const router = useRouter()
 
 let verify = initNotPass
@@ -43,7 +44,7 @@ const handlerRegistered = () => {
         })
 }
 
-const handlerVerify = debounce((component: ICustomInput | undefined, bit: number) => {
+const handlerVerify = debounce((component: CustomInputComponent | undefined, bit: number) => {
     if (!component) {
         useToast("网络不好，请稍后再试");
         // 埋点上报没有拿到组件问题

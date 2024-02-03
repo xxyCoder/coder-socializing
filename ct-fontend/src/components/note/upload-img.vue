@@ -3,7 +3,7 @@ import { ref, defineExpose, computed } from 'vue';
 import { useToast } from '../Toast';
 
 const media = ref<HTMLInputElement>()
-const mediaList: File[] = []
+const mediaList = ref<File[]>([])
 const mediaUrls = ref<Array<string>>([])
 const isVideo = ref(false)
 
@@ -14,13 +14,13 @@ const uploadImg = () => {
         const file = media.value.files[0]
         media.value.files = null
         if (file.type.startsWith('video/')) {
-            if (mediaList.length > 0) {
+            if (mediaList.value.length > 0) {
                 useToast('上传了图片就不能再次上传视频了~')
                 return
             }
             isVideo.value = true
         }
-        mediaList.push(file)
+        mediaList.value.push(file)
         if (isVideo.value) {
             const url = URL.createObjectURL(file)
             mediaUrls.value.push(url)
@@ -39,7 +39,7 @@ const uploadImg = () => {
 }
 
 defineExpose({
-    mediaUrls
+    mediaList
 })
 </script>
 

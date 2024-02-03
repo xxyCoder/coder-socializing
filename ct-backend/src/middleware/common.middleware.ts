@@ -1,5 +1,7 @@
 import { importArgsIsNull } from "@src/constant/resp.constant";
 import { NextFunction, Request, Response } from "express";
+import multer from "multer";
+import path from "path";
 
 export const categories = ['like', 'note'] as const;
 
@@ -21,3 +23,12 @@ export const checkPageParams = (req: Request, res: Response, next: NextFunction)
     }
     res.send({ code: 400, msg: '类型错误' });
 }
+
+export const storage = multer.diskStorage({
+    destination(req, file, cb) {
+        cb(null, path.join(__dirname, '../../uploads/'));
+    },
+    filename(req, file, cb) {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+})

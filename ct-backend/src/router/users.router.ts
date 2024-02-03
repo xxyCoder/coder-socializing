@@ -1,11 +1,10 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import { checkFormParams, crpytPassword, checkPassParams, checkIdAndAccountExists, checkViewIdExists } from '@src/middleware/users.middleware';
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware';
 import UsersController from "@src/controller/users.controller"
 import { checkPageParams } from '@src/middleware/common.middleware';
-
+import { storage } from '@src/middleware/common.middleware'
 
 const { registry, login, getSelfInfo, uploadPass, uploadInfo, getViewerInfo } = UsersController;
 
@@ -19,14 +18,6 @@ router.get("/info", checkIdAndAccountExists, verifyToken, getSelfInfo);
 router.post("/update_pass", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkPassParams, crpytPassword, uploadPass);
 
 // 修改个人信息
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        cb(null, path.join(__dirname, '../../uploads/'));
-    },
-    filename(req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
-    }
-});
 const upload = multer({ storage });
 router.post("/update_userinfo", checkIdAndAccountExists, verifyToken, verifyCSRFSession, upload.single('avatarSrc'), uploadInfo)
 

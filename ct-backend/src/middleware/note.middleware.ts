@@ -9,3 +9,14 @@ export const checkLikeParams = (req: Request, res: Response, next: NextFunction)
     }
     next()
 }
+
+const tags = ['new', 'learn', 'game', 'help', 'food']
+export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {
+    const { tag, title } = req.body;
+    const mediaList = req.files;
+    if (!tags.includes(tag) || !title || !mediaList || mediaList.length === 0) {
+        res.send({ code: 400, msg: '信息不完整' });
+        return;
+    }
+    next();
+}
