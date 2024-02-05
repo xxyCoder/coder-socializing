@@ -39,7 +39,8 @@ const uploadImg = () => {
 }
 
 defineExpose({
-    mediaList
+    mediaList,
+    isVideo
 })
 </script>
 

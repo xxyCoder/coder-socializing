@@ -4,33 +4,37 @@ import { useRoute, useRouter } from 'vue-router';
 import { pageSize, tabName } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
 import { getViewerInfo } from '@/api/users';
+import { getViewerNote } from '@/api/note'
 import { follwerOrCancel } from '@/api/index'
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import type { NoteCardType } from '@/common/types'
 import BottomMenu from '@/components/bottom-menu.vue';
+import StickyList from '@/components/sticky-list.vue';
+import NoteCard from '@/components/note/note-card.vue';
 
 const route = useRoute();
 const router = useRouter()
 const selfInfo = getUserInfo();
 
 const { id: viewerId } = route.params;
-const tabId = ref(0)
 let notePageNum = 0, likePageNum = 0;
 
 const userExists = ref(true)
 const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollwer: false });
-const notes = ref<NoteCardType[]>([]), likes = ref<NoteCardType[]>([]);
+const notes: NoteCardType[] = [], likes: NoteCardType[] = [];
+const showInfos = ref<NoteCardType[]>([]);
 const remove = useLoading()
-getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&page_size=${pageSize}&category=${tabName[tabId.value]}`)
+getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&page_size=${pageSize}&category=${tabName[0]}`)
     .then(res => {
         if (res.code !== 200) throw new Error(res.msg);
         remove();
         ++notePageNum;
         if (res.data) {
             const { notes: _notes, avatarSrc, username, intro, isFollwer } = res.data;
-            notes.value.push(..._notes);
+            notes.push(..._notes);
+            showInfos.value = notes;
             userInfo.avatarSrc = avatarSrc
             userInfo.intro = intro
             userInfo.username = username
@@ -69,6 +73,33 @@ const handlerClick = () => {
             break;
     }
 };
+
+const list = ['笔记', '点赞'];
+const reqListData = (idx: number) => {
+    let query = ''
+    switch (idx) {
+        case 0:
+            query = `page_num=${notePageNum}`;
+            break;
+        case 1:
+            query = `page_num=${likePageNum}`;
+            break
+    }
+    const remove = useLoading()
+    showInfos.value = []
+    getViewerNote(`?viewer_id=${viewerId}&${query}&page_size=${pageSize}&category=${tabName[idx]}`)
+        .then(res => {
+            if (res.code !== 200) throw new Error(res.msg);
+            console.log(res.data)
+        })
+        .catch(err => {
+            useToast(err.message)
+        })
+        .finally(() => {
+            remove()
+            showInfos.value = idx ? likes : notes;
+        })
+}
 </script>
 
 <template>
@@ -86,6 +117,9 @@ const handlerClick = () => {
         <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
         <div class="user-interactions"></div>
     </div>
+    <StickyList :list="list" @click="reqListData" />
+    <NoteCard v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
+        :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
     <BottomMenu />
 </template>
 

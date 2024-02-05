@@ -46,13 +46,13 @@ const handlerPublish = () => {
     formData.set('tag', selectTag.value.selectedOptions[0].value)
     mediaList.forEach(media => formData.append('mediaList', media, media.name))
     content && formData.set('content', content);
+    uploadImgRef.value && formData.set('is_video', JSON.stringify(uploadImgRef.value.isVideo))
     const remove = useLoading();
-    console.log(formData, 'da')
     publishNote(formData, "", { headers: { "Content-Type": "multipart/form-data" } })
         .then(res => {
             if (res.code !== 200) throw new Error(res.msg);
             remove();
-            router.replace(`/user/${userInfo.id}`)
+            useToast('发布成功').then(() => router.replace(`/user/${userInfo.id}`))
         })
         .catch(err => {
             remove();
@@ -81,7 +81,7 @@ const handlerPublish = () => {
         </div>
         <BottomButton v-if="showPublish" btn-text="发布" @click="handlerPublish" />
     </template>
-    <NullState v-else/>
+    <NullState v-else />
 </template>
 
 <style lang="scss" scoped>

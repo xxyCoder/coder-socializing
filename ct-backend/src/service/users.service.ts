@@ -1,7 +1,7 @@
 import Users, { UserModel } from "@src/model/users.model";
 import { Op } from "sequelize";
 import bcrpty from 'bcryptjs'
-import { CategoriesUnion, categories } from "@src/middleware/common.middleware";
+import { categories } from "@src/middleware/common.middleware";
 
 class UserService {
     create({ username, password, account }: UserModel) {
@@ -19,7 +19,7 @@ class UserService {
     remove({ id }: Partial<UserModel>) {
         return Users.destroy({ where: { id } });
     }
-    find({ page_size, page_num, username, category, id }: { page_size: number, page_num: number, category: CategoriesUnion } & Partial<UserModel>) {
+    find({ page_size, page_num, username, category, id }: { page_size: number, page_num: number, category: categories } & Partial<UserModel>) {
         const whereOp = {};
         username && Object.assign(whereOp, { username: { [Op.like]: `%${username}%` } });  // 实现模糊查询
         id && Object.assign(whereOp, { id });

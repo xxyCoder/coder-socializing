@@ -1,3 +1,4 @@
 export interface UploadImgComp {
-    mediaList: Array<File>
+    mediaList: Array<File>,
+    isVideo: boolean
 }

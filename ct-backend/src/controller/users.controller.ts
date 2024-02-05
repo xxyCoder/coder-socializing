@@ -154,7 +154,7 @@ class UserController {
                     return;
                 }
                 // 访问主页默认tab页是notes
-                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), page_size: Number(page_size) })])
+                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), page_size: Number(page_size), category: 'note' })])
                     .then(([isFollwer, notes]) => {
                         resp.send({
                             code: 200,
@@ -164,7 +164,12 @@ class UserController {
                                 intro: res.dataValues.biography,
                                 avatarSrc: res.dataValues.avatarSrc,
                                 isFollwer,
-                                notes: notes.map(note => ({ id: note.dataValues.id, title: note.dataValues.title, videoSrc: note.dataValues.videoSrc, image: note.dataValues.imageList }))
+                                notes: notes.map(note => ({
+                                    id: note.dataValues.id, title: note.dataValues.title,
+                                    posterSrc: note.dataValues.mediaList.split(';')[0],
+                                    userId: note.dataValues.userId, avatarSrc: note.dataValues.user.avatarSrc,
+                                    username: note.dataValues.user.username, isVideo: note.dataValues.isVideo
+                                }))
                             }
                         })
                     })

@@ -28,17 +28,15 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
 }
 
 export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
-    const { id } = req.body;
     const csrf_session = req.cookies['csrf_session']
 
     if (!csrf_session) {
         resp.send(csrfSessionIsNull);
         return;
     }
-    const user = jwt.verify(csrf_session, CSRF_SECRET!) as { id: number }
+    jwt.verify(csrf_session, CSRF_SECRET!);
     try {
-        if (id == user.id) next();
-        else resp.send(csrfSessionError);
+        next();
     } catch (err: any) {
         switch (err.name) {
             case 'TokenExpiredError':

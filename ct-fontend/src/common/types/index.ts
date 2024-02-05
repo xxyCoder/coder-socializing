@@ -1,10 +1,11 @@
 export interface NoteCardType {
     id: number;
     title: string;
-    poster: string;
+    posterSrc: string;
     userId: number;
     username: string;
     avatarSrc: string;
+    isVideo: boolean;
 }
 
 export interface viewerInfoReq {

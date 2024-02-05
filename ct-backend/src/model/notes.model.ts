@@ -9,7 +9,8 @@ export interface NoteModel {
     mediaList?: string;
     tag?: string;
     atUserIds?: string;
-    userId: number | null
+    userId: number | null,
+    isVideo: boolean
 }
 
 const Notes = seq.define('notes', {
@@ -37,6 +38,11 @@ const Notes = seq.define('notes', {
         type: DataTypes.STRING,
         allowNull: true,
         comment: '@的用户id集合，使用;分隔'
+    },
+    isVideo: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        comment: '是否是视频'
     }
 })
 

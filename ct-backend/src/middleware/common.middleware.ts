@@ -3,11 +3,10 @@ import { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 
-export const categories = ['like', 'note'] as const;
-
-type ArrayToUnion<T extends readonly string[]> = T[number];
-
-export type CategoriesUnion = ArrayToUnion<typeof categories>;
+export enum categories {
+    note = 'note',
+    like = 'like'
+}
 
 export const checkPageParams = (req: Request, res: Response, next: NextFunction) => {
     const { page_num, page_size, category } = req.query;
@@ -15,13 +14,8 @@ export const checkPageParams = (req: Request, res: Response, next: NextFunction)
         res.send(importArgsIsNull);
         return;
     }
-    for (const c of categories) {
-        if (c === category) {
-            next();
-            return;
-        }
-    }
-    res.send({ code: 400, msg: '类型错误' });
+
+    (category as string) in categories ? next() : res.send({ code: 400, msg: '类型错误' });
 }
 
 export const storage = multer.diskStorage({
@@ -32,3 +26,12 @@ export const storage = multer.diskStorage({
         cb(null, Date.now() + "-" + file.originalname);
     }
 })
+
+export const checkViewerId = (req: Request, res: Response, next: NextFunction) => {
+    const { viewer_id } = req.query;
+    if (Number.isNaN(Number(viewer_id))) {
+        res.send(importArgsIsNull)
+        return
+    }
+    next()
+}

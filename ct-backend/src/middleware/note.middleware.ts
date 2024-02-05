@@ -12,9 +12,9 @@ export const checkLikeParams = (req: Request, res: Response, next: NextFunction)
 
 const tags = ['new', 'learn', 'game', 'help', 'food']
 export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {
-    const { tag, title } = req.body;
+    const { tag, title, is_video } = req.body;
     const mediaList = req.files;
-    if (!tags.includes(tag) || !title || !mediaList || mediaList.length === 0) {
+    if (!tags.includes(tag) || !title || !mediaList || mediaList.length === 0 || !['false', 'true'].includes(is_video)) {
         res.send({ code: 400, msg: '信息不完整' });
         return;
     }

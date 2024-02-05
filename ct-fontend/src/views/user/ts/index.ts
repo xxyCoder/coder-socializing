@@ -29,5 +29,6 @@ export const initNotPass = 0b1111;
 export const pageSize = 20;
 
 export const tabName: { [key: number]: string } = {
-    0: 'like'
+    0: 'note',
+    1: 'like'
 }

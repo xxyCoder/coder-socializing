@@ -11,7 +11,14 @@ const props = defineProps({
     avatarSrc: String,
     userId: [String, Number],
     noteId: [String, Number],
-    likes: Number
+    likes: {
+        type: Number,
+        default: 0
+    },
+    isVideo: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const isLike = ref(true) // 能出现在喜欢列表的都是true，只有点击之后才会不喜欢
@@ -31,7 +38,8 @@ const handlerLike = () => {
 <template>
     <div class="note-card-wrapper">
         <div class="note-intro">
-            <img :src="posterSrc || `${ip}:${port}${backendStatic}/default.jpg`" />
+            <video v-if="isVideo" :src="posterSrc"></video>
+            <img v-else :src="posterSrc || `${ip}:${port}${backendStatic}/default.jpg`" />
             <span class="title">{{ title }}</span>
         </div>
         <div class="author-wrapper center">
@@ -55,10 +63,11 @@ const handlerLike = () => {
 </template>
 
 <style lang="scss">
-@import '../common/style/func.scss';
+@import '../../common/style/func.scss';
 
 .note-card-wrapper {
     display: inline-block;
+    margin: responsive(20, vh);
 }
 
 .note-intro {
@@ -69,7 +78,8 @@ const handlerLike = () => {
     overflow: hidden;
     width: responsive(300, vw);
 
-    img {
+    img,
+    video {
         display: block;
         margin-bottom: 5px;
         width: 100%;
