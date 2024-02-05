@@ -66,7 +66,6 @@ const handlerLike = () => {
 @import '../../common/style/func.scss';
 
 .note-card-wrapper {
-    display: inline-block;
     margin: responsive(20, vh);
 }
 

@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import seq from "@src/database/seq.database";
 import Users from "./users.model";
+import Like from "./likes.model";
+import Likes from "./likes.model";
 
 export interface NoteModel {
     id: number | null;
@@ -47,8 +49,8 @@ const Notes = seq.define('notes', {
 })
 
 // 指定外键
-Notes.belongsTo(Users, { foreignKey: 'userId' })
-
+Notes.belongsTo(Users, { foreignKey: 'userId' });
+Notes.hasMany(Likes, { foreignKey: 'noteId' });
 // 模型同步，创建该表
 Notes.sync({
     force: false // true表示数据库如果存在该表，则先删除

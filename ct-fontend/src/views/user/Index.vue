@@ -118,9 +118,11 @@ const reqListData = (idx: number) => {
         <div class="user-interactions"></div>
     </div>
     <StickyList :list="list" @click="reqListData" />
-    <NoteCard v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
-        :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
-    <BottomMenu />
+    <div class="note-info">
+        <NoteCard v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
+            :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
+        <BottomMenu />
+    </div>
 </template>
 
 <style scoped lang="scss">
@@ -166,5 +168,10 @@ const reqListData = (idx: number) => {
     padding: responsive(8, vh) responsive(20, vh);
     background-color: transparent;
     color: #fff;
+}
+
+.note-info {
+    display: flex;
+    flex-wrap: wrap;
 }
 </style>

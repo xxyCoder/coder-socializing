@@ -1,11 +1,9 @@
 import Like, { LikeModel } from "@src/model/likes.model";
 
 class LikeService {
-    get({ userId, page_num, page_size }: { userId: number, page_num: number, page_size: number }) {
-        Like.findAll({
-            where: { userId },
-            offset: page_num * page_size,
-            limit: page_size
+    get({ userId }: { userId: number }) {
+        return Like.findAll({
+            where: { userId }
         })
     }
     add({ userId, noteId }: Omit<LikeModel, 'id'>) {

@@ -7,7 +7,7 @@ import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 
 const { add: likeAdd, remove: likeRev } = LikesServe;
-const { add: noteAdd, getByPage: getNoteWithPage, getLikeNotesWithPage } = notesService;
+const { add: noteAdd, getByPage: getNoteWithPage } = notesService;
 const { PORT } = env;
 
 class NoteController {
@@ -47,17 +47,14 @@ class NoteController {
     }
     getWithPage(req: Request, resp: Response) {
         const { page_num, page_size, viewer_id, category } = req.query;
-        category === categories.like ?
-            getLikeNotesWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: Number(page_size) })
-            :
-            getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: Number(page_size), category: String(category) })
-                .then(res => {
-                    resp.send({ code: 200, msg: '查询成功', data: { notes: res } });
-                })
-                .catch(err => {
-                    console.log(`分页查询笔记失败：${err}`);
-                    resp.send(serviceError)
-                })
+        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: Number(page_size), category: String(category) })
+            .then(res => {
+                resp.send({ code: 200, msg: '查询成功', data: { notes: res } });
+            })
+            .catch(err => {
+                console.log(`分页查询笔记失败：${err}`);
+                resp.send(serviceError)
+            })
     }
 }
 

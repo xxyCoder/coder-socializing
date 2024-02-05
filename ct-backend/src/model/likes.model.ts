@@ -1,5 +1,5 @@
-import { DataTypes } from "sequelize";
 import seq from "@src/database/seq.database";
+import { DataTypes } from "sequelize";
 
 export interface LikeModel {
     id: number | null;
@@ -7,7 +7,7 @@ export interface LikeModel {
     userId: number;
 }
 
-const Like = seq.define('likes', {
+const Likes = seq.define('likes', {
     noteId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -23,8 +23,8 @@ const Like = seq.define('likes', {
 })
 
 // 模型同步，创建该表
-Like.sync({
+Likes.sync({
     force: false // true表示数据库如果存在该表，则先删除
 })
 
-export default Like;
+export default Likes;
