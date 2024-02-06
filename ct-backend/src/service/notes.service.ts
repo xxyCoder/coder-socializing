@@ -3,19 +3,25 @@ import { pageType } from "@src/constant/types";
 import { categories } from "@src/middleware/common.middleware";
 import Users from "@src/model/users.model";
 import Likes from "@src/model/likes.model";
+import { Op } from "sequelize";
 
 class NoteService {
-    getByPage({ userId, page_num, page_size, category }: { userId: number, category: string } & pageType) {
+    async getByPage({ userId, page_num, page_size, category }: { userId: number, category: string } & pageType) {
         const whereOp = { userId };
-        !([categories.note, categories.like] as string[]).includes(category) && Object.assign(whereOp, { tag: category })
-        const include = [Users];
-        category === categories.like && include.push(Likes);
+        const noteIds: number[] = [];
+        if (category === categories.like) {
+            const res = await Likes.findAll({ where: whereOp });
+            res.forEach(like => noteIds.push(like.dataValues.noteId));
+            if (noteIds.length === 0) return Promise.resolve([])
+            Object.assign(whereOp, { id: { [Op.in]: noteIds } })
+        }
+        !([categories.note, categories.like] as string[]).includes(category) && Object.assign(whereOp, { tag: category });
         return Note.findAll({
             where: whereOp,
             offset: page_num * page_size,
             limit: page_size,
             order: [['createdAt', 'DESC']],
-            include
+            include: [Users]
         });
     }
     add({ tag, title, content, mediaList, atUserIds, userId, isVideo }: Partial<NoteModel>) {

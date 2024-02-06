@@ -13,6 +13,7 @@ import type { NoteCardType } from '@/common/types'
 import BottomMenu from '@/components/bottom-menu.vue';
 import StickyList from '@/components/sticky-list.vue';
 import NoteCard from '@/components/note/note-card.vue';
+import NullData from '@/components/null-data.vue';
 
 const route = useRoute();
 const router = useRouter()
@@ -80,9 +81,11 @@ const reqListData = (idx: number) => {
     switch (idx) {
         case 0:
             query = `page_num=${notePageNum}`;
+            ++notePageNum;
             break;
         case 1:
             query = `page_num=${likePageNum}`;
+            ++likePageNum;
             break
     }
     const remove = useLoading()
@@ -90,7 +93,7 @@ const reqListData = (idx: number) => {
     getViewerNote(`?viewer_id=${viewerId}&${query}&page_size=${pageSize}&category=${tabName[idx]}`)
         .then(res => {
             if (res.code !== 200) throw new Error(res.msg);
-            console.log(res.data)
+            res.data && (idx ? likes.push(...res.data.notes) : notes.push(...res.data.notes))
         })
         .catch(err => {
             useToast(err.message)
@@ -121,8 +124,9 @@ const reqListData = (idx: number) => {
     <div class="note-info">
         <NoteCard v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
             :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
-        <BottomMenu />
+        <NullData style="margin-top: 50px;" v-if="!showInfos.length" />
     </div>
+    <BottomMenu />
 </template>
 
 <style scoped lang="scss">

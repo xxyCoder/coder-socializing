@@ -22,6 +22,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/publish',
     component: () => import('@/views/note/index.vue')
+  },
+  {
+    path: '/notification',
+    component: () => import('@/views/notification/index.vue')
   }
 ]
 

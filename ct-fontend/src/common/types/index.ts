@@ -25,3 +25,11 @@ export interface CustomInputComponent {
     show: () => void;
     hide: () => void;
 }
+
+export interface IntercationItemType {
+    avatarSrc: string;
+    username: string;
+    userId: number;
+    posterSrc: string;
+    noteId: number;
+}
