@@ -1,13 +1,18 @@
 import type { Request, Response } from "express";
 import LikesServe from "@src/service/likes.serve";
 import { serviceError, successObj } from "@src/constant/resp.constant";
-import notesService from "@src/service/notes.service";
-import { categories } from "@src/middleware/common.middleware";
+import NotesService from "@src/service/notes.service";
+import ConcernsService from "@src/service/concerns.service";
+import UsersService from "@src/service/users.service";
+import CommentsService from "@src/service/comments.service";
 import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 
 const { add: likeAdd, remove: likeRev } = LikesServe;
-const { add: noteAdd, getByPage: getNoteWithPage } = notesService;
+const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
+const { precisionFind } = UsersService;
+const { search: judgeIsFollower } = ConcernsService;
+const { getNoteCommentWithPage } = CommentsService;
 const { PORT } = env;
 
 class NoteController {
@@ -54,6 +59,43 @@ class NoteController {
             .catch(err => {
                 console.log(`分页查询笔记失败：${err}`);
                 resp.send(serviceError)
+            })
+    }
+    getDetail(req: Request, resp: Response) {
+        const { noteId, id = -1 } = req.query;
+        getNoteDetail(Number(noteId))
+            .then(note => {
+                if (!note || !note.dataValues) {
+                    resp.send({ code: 400, msg: '不存在该笔记' });
+                    return;
+                }
+                Promise.all([judgeIsFollower({ id: Number(id), viewer_id: note.dataValues.userId }), precisionFind({ id: note.dataValues.userId })])
+                    .then(([isFollower, user]) => {
+                        resp.send({
+                            code: 200,
+                            msg: '获取成功',
+                            data: {
+                                user: {
+                                    userId: user?.dataValues.id,
+                                    username: user?.dataValues.username,
+                                    avatarSrc: user?.dataValues.avatarSrc,
+                                    isFollower
+                                },
+                                note: {
+                                    atUserList: note.dataValues.atUserIds,
+                                    content: note.dataValues.content,
+                                    title: note.dataValues.title,
+                                    mediaList: note.dataValues.mediaList,
+                                    tag: note.dataValues.tag,
+                                    isVideo: note.dataValues.isVideo
+                                }
+                            }
+                        })
+                    })
+            })
+            .catch(err => {
+                console.log(`获取笔记详情失败：${err}`);
+                resp.send(serviceError);
             })
     }
 }

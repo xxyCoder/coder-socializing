@@ -20,3 +20,12 @@ export const checkNoteParams = (req: Request, res: Response, next: NextFunction)
     }
     next();
 }
+
+export const checkNoteIdExists = (req: Request, res: Response, next: NextFunction) => {
+    const { noteId } = req.query;
+    if (Number.isNaN(Number(noteId))) {
+        res.send(importArgsIsNull)
+        return
+    }
+    next()
+}

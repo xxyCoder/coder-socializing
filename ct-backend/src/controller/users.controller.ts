@@ -10,7 +10,7 @@ import { staticRoot } from '@src/app';
 const { create, precisionFind, update, remove, find, verify } = userService;
 const { search } = concernsService;
 const { getByPage: getUserNotesByPage } = notesService
-const { SECRET, CSRF_SECRET, PORT } = env;
+const { SECRET, PORT } = env;
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -48,7 +48,6 @@ class UserController {
                             path: "/",
                             httpOnly: true
                         })
-                        .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!)) // 会话级别
                         .send({ code: 200, msg: "登录成功", data: { username, intro, avatarSrc, account, id } });
                 } else {
                     resp.send(userIsNotExistsOrPassErr);
@@ -94,9 +93,7 @@ class UserController {
                     return;
                 }
                 const { avatarSrc, biography, username, account } = res.dataValues
-                resp
-                    .cookie('csrf_session', jwt.sign({ id }, CSRF_SECRET!))
-                    .send({ code: 200, msg: "获取个人信息成功", data: { avatarSrc, intro: biography, username, account, id } });
+                resp.send({ code: 200, msg: "获取个人信息成功", data: { avatarSrc, intro: biography, username, account, id } });
             })
             .catch(err => {
                 console.error(`获取个人信息失败：${err}`);

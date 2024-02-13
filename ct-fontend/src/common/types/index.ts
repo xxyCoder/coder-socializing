@@ -8,6 +8,10 @@ export interface NoteCardType {
     isVideo: boolean;
 }
 
+export interface NoteDetail {
+    title: string;
+}
+
 export interface viewerInfoReq {
     username: string;
     avatarSrc: string;

@@ -8,6 +8,7 @@ export interface CommentModel {
     atUsers: string;
     targetCommentId: number | null;
     noteId: number;
+    likes: number;
 }
 
 const Comments = seq.define('comments', {
@@ -25,12 +26,17 @@ const Comments = seq.define('comments', {
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: '回复的评论id'
+    },
+    like: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        comment: '评论点赞数'
     }
 }, {
     timestamps: false // 静止添加其他列（默认有插入、删除列的时间）
 })
 
-Comments.hasOne(Notes, { foreignKey: 'noteId' });
+Comments.belongsTo(Notes, { foreignKey: 'noteId' });
 
 // 模型同步，创建该表
 Comments.sync({

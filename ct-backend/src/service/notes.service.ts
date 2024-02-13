@@ -30,6 +30,9 @@ class NoteService {
         atUserIds && Object.assign(params, { atUserIds });
         return Note.create(params)
     }
+    get(noteId: number) {
+        return Note.findOne({ where: { id: noteId } });
+    }
 }
 
 export default new NoteService()

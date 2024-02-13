@@ -1,13 +1,13 @@
-import { checkLikeParams, checkNoteParams } from '@src/middleware/note.middleware'
-import { checkIdAndAccountExists } from '@src/middleware/users.middleware'
-import NotesController from '@src/controller/notes.controller'
 import express from 'express'
 import multer from 'multer'
+import { checkLikeParams, checkNoteIdExists, checkNoteParams } from '@src/middleware/note.middleware'
+import { checkIdAndAccountExists } from '@src/middleware/users.middleware'
 import { checkPageParams, checkViewerId, storage } from '@src/middleware/common.middleware'
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware'
+import NotesController from '@src/controller/notes.controller'
 
 const router = express.Router()
-const { like, publish, getWithPage } = NotesController
+const { like, publish, getWithPage, getDetail } = NotesController
 
 router.post("/like", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkLikeParams, like);
 
@@ -19,5 +19,6 @@ const uploadMedia = multer({
 })
 router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkNoteParams, publish);
 router.get("/viewer_note", verifyCSRFSession, checkPageParams, checkViewerId, getWithPage);
+router.get("/detail", verifyCSRFSession, checkNoteIdExists, getDetail)
 
 export default router

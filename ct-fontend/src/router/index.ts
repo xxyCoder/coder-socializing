@@ -26,6 +26,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/notification',
     component: () => import('@/views/notification/index.vue')
+  },
+  {
+    path: '/explore',
+    component: () => import('@/views/explore/index.vue')
+  },
+  {
+    path: '/explore/:id',
+    component: () => import('@/views/explore/note-page.vue')
   }
 ]
 
