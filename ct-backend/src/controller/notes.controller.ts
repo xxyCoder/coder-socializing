@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import LikesServe from "@src/service/likes.serve";
-import { serviceError, successObj } from "@src/constant/resp.constant";
+import { pageSize, serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
 import ConcernsService from "@src/service/concerns.service";
 import UsersService from "@src/service/users.service";
@@ -51,8 +51,8 @@ class NoteController {
             })
     }
     getWithPage(req: Request, resp: Response) {
-        const { page_num, page_size, viewer_id, category } = req.query;
-        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: Number(page_size), category: String(category) })
+        const { page_num, viewer_id, category } = req.query;
+        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: pageSize, category: String(category) })
             .then(res => {
                 resp.send({ code: 200, msg: '查询成功', data: { notes: res } });
             })

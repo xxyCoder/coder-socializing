@@ -1,6 +1,6 @@
 import express from 'express'
 import multer from 'multer'
-import { checkLikeParams, checkNoteIdExists, checkNoteParams } from '@src/middleware/note.middleware'
+import { checkLikeParams, checkNoteIdExists, checkNoteParams, checkTagIsValid } from '@src/middleware/note.middleware'
 import { checkIdAndAccountExists } from '@src/middleware/users.middleware'
 import { checkPageParams, checkViewerId, storage } from '@src/middleware/common.middleware'
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware'
@@ -17,8 +17,9 @@ const uploadMedia = multer({
         files: 6 // 限制最多上传六个文件
     }
 })
-router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkNoteParams, publish);
+router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkTagIsValid, checkNoteParams, publish);
 router.get("/viewer_note", verifyCSRFSession, checkPageParams, checkViewerId, getWithPage);
-router.get("/detail", verifyCSRFSession, checkNoteIdExists, getDetail)
+router.get("/detail", verifyCSRFSession, checkNoteIdExists, getDetail);
+router.get("/explore_note", verifyCSRFSession, checkTagIsValid, checkPageParams);
 
 export default router

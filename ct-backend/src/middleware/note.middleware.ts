@@ -10,13 +10,23 @@ export const checkLikeParams = (req: Request, res: Response, next: NextFunction)
     next()
 }
 
-const tags = ['new', 'learn', 'game', 'help', 'food']
+const tags = ['new', 'learn', 'game', 'help', 'food'];
+export const checkTagIsValid = (req: Request, res: Response, next: NextFunction) => {
+    let { tag } = req.body;
+    if (!tag) tag = req.query.tag;
+    if (!tags.includes(tag)) {
+        res.send(importArgsIsNull)
+        return
+    }
+    next();
+}
+
 export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {
-    const { tag, title, is_video } = req.body;
+    const { title, is_video } = req.body;
     const mediaList = req.files;
-    if (!tags.includes(tag) || !title || !mediaList || mediaList.length === 0 || !['false', 'true'].includes(is_video)) {
-        res.send({ code: 400, msg: '信息不完整' });
-        return;
+    if (!title || !mediaList || mediaList.length === 0 || !['false', 'true'].includes(is_video)) {
+        res.send(importArgsIsNull)
+        return
     }
     next();
 }

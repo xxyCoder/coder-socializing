@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { pageSize, tabName } from './ts/index';
+import { tabName } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
 import { getViewerInfo } from '@/api/users';
 import { getViewerNote } from '@/api/note'
@@ -27,7 +27,7 @@ const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有
 const notes: NoteCardType[] = [], likes: NoteCardType[] = [];
 const showInfos = ref<NoteCardType[]>([]);
 const remove = useLoading()
-getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&page_size=${pageSize}&category=${tabName[0]}`)
+getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&category=${tabName[0]}`)
     .then(res => {
         if (res.code !== 200) throw new Error(res.msg);
         remove();
@@ -90,7 +90,7 @@ const reqListData = (idx: number) => {
     }
     const remove = useLoading()
     showInfos.value = []
-    getViewerNote(`?viewer_id=${viewerId}&${query}&page_size=${pageSize}&category=${tabName[idx]}`)
+    getViewerNote(`?viewer_id=${viewerId}&${query}&category=${tabName[idx]}`)
         .then(res => {
             if (res.code !== 200) throw new Error(res.msg);
             res.data && (idx ? likes.push(...res.data.notes) : notes.push(...res.data.notes))

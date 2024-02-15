@@ -65,3 +65,5 @@ export const userIsNotExists = {
     code: 409,
     msg: "用户不存在"
 }
+
+export const pageSize = 20;

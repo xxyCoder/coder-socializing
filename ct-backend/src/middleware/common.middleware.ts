@@ -18,8 +18,8 @@ export const setCSRFToken = (req: Request, res: Response, next: NextFunction) =>
 }
 
 export const checkPageParams = (req: Request, res: Response, next: NextFunction) => {
-    const { page_num, page_size, category } = req.query;
-    if (!page_num || !page_size || !category) {
+    const { page_num, category } = req.query;
+    if (!page_num || !category) {
         res.send(importArgsIsNull);
         return;
     }
