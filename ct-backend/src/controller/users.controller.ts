@@ -139,10 +139,10 @@ class UserController {
             })
     }
     pageInteraction(req: Request, resp: Response) {
-        const { page_num, page_size, id, category } = req.query;
+        const { page_num, id, category } = req.query;
     }
     getViewerInfo(req: Request, resp: Response) {
-        let { id: _id, viewer_id: _vid, page_num, page_size } = req.query;
+        let { id: _id, viewer_id: _vid, page_num } = req.query;
         const id = Number(_id), viewer_id = Number(_vid)
         precisionFind({ id: viewer_id })
             .then(res => {
@@ -151,7 +151,7 @@ class UserController {
                     return;
                 }
                 // 访问主页默认tab页是notes
-                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), page_size: Number(page_size), category: 'note' })])
+                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: 'note' })])
                     .then(([isFollwer, notes]) => {
                         resp.send({
                             code: 200,

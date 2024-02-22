@@ -2,6 +2,7 @@
 import { getUserInfo } from '@/common/ts/user-info';
 
 const userInfo = getUserInfo()
+const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
 </script>
 
 <template>
@@ -9,7 +10,7 @@ const userInfo = getUserInfo()
         <router-link to="/explore">探索</router-link>
         <router-link to="/publish">发布</router-link>
         <router-link to="/notification">通知</router-link>
-        <router-link :to="'/user/' + userInfo?.id">个人</router-link>
+        <router-link :to="selfTo">个人</router-link>
     </div>
 </template>
 

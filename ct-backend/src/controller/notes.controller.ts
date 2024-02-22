@@ -7,6 +7,7 @@ import UsersService from "@src/service/users.service";
 import CommentsService from "@src/service/comments.service";
 import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
+import { NoteCardType } from "@src/constant/types";
 
 const { add: likeAdd, remove: likeRev } = LikesServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
@@ -52,7 +53,7 @@ class NoteController {
     }
     getWithPage(req: Request, resp: Response) {
         const { page_num, viewer_id, category } = req.query;
-        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), page_size: pageSize, category: String(category) })
+        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), category: String(category) })
             .then(res => {
                 resp.send({ code: 200, msg: '查询成功', data: { notes: res } });
             })
@@ -95,6 +96,28 @@ class NoteController {
             })
             .catch(err => {
                 console.log(`获取笔记详情失败：${err}`);
+                resp.send(serviceError);
+            })
+    }
+    getByTag(req: Request, resp: Response) {
+        const { page_num, category } = req.query;
+        getNoteWithPage({ page_num: Number(page_num), category: String(category) })
+            .then(res => {
+                const notes: NoteCardType[] = [];
+                res.forEach(note => {
+                    // notes.push({
+                    //     id: note.dataValues.id,
+                    //     title: note.dataValues.title,
+                    //     posterSrc: note.dataValues.mediaList.split(';')[0],
+                    //     userId: note.dataValues.userId,
+                    // })
+                    const userId = note.dataValues.userId;
+                    console.log(note)
+                })
+                resp.send({ code: 200, msg: '获取成功', data: { notes } })
+            })
+            .catch(err => {
+                console.error(`首页获取数据失败：${err}`);
                 resp.send(serviceError);
             })
     }

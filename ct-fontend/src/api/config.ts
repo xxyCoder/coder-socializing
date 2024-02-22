@@ -1,3 +1,4 @@
+import { readCookie } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
 import axios, { AxiosRequestConfig } from "axios";
 
@@ -38,7 +39,9 @@ instance.interceptors.request.use(config => {
         config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
         config.url += query;
     }
+    config.headers['X-CSRF-TOKEN'] = readCookie('XSRF-TOKEN')
 
+    console.log(config)
     return config;
 }, error => {
     console.error("请求错误: ", error);

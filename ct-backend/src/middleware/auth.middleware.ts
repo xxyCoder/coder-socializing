@@ -28,14 +28,19 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
 }
 
 export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
-    const csrf_session = req.cookies['csrf_session']
+    const xcsrf_token = req.cookies['XSRF-TOKEN']
+    const csrf_token = req.get('X-CSRF-TOKEN');
 
-    if (!csrf_session) {
+    if (!xcsrf_token) {
         resp.send(csrfSessionIsNull);
         return;
     }
-    jwt.verify(csrf_session, CSRF_SECRET!);
+    if (xcsrf_token !== csrf_token) {
+        resp.send({ code: 400, msg: '禁止csrf攻击' });
+        return;
+    }
     try {
+        jwt.verify(xcsrf_token, CSRF_SECRET!);
         next();
     } catch (err: any) {
         switch (err.name) {

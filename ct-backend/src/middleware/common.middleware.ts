@@ -7,24 +7,18 @@ import env from "@src/config/default.config"
 
 const { CSRF_SECRET } = env;
 
-export enum categories {
-    note = 'note',
-    like = 'like'
-}
-
 export const setCSRFToken = (req: Request, res: Response, next: NextFunction) => {
-    res.cookie('csrf_session', jwt.sign({ pname: 'coder-socializing' }, CSRF_SECRET!))
+    res.cookie('XSRF-TOKEN', jwt.sign({ pname: 'coder-socializing' }, CSRF_SECRET!))
     next()
 }
 
 export const checkPageParams = (req: Request, res: Response, next: NextFunction) => {
-    const { page_num, category } = req.query;
-    if (!page_num || !category) {
+    const { page_num } = req.query;
+    if (!page_num) {
         res.send(importArgsIsNull);
         return;
     }
-
-    (category as string) in categories ? next() : res.send({ code: 400, msg: '类型错误' });
+    next()
 }
 
 export const storage = multer.diskStorage({

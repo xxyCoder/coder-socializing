@@ -43,7 +43,7 @@ const handlerPublish = () => {
     }
     const formData = new FormData();
     formData.set('title', title);
-    formData.set('tag', selectTag.value.selectedOptions[0].value)
+    formData.set('category', selectTag.value.selectedOptions[0].value)
     mediaList.forEach(media => formData.append('mediaList', media, media.name))
     content && formData.set('content', content);
     uploadImgRef.value && formData.set('is_video', JSON.stringify(uploadImgRef.value.isVideo))

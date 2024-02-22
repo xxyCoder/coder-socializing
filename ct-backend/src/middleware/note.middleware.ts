@@ -1,4 +1,5 @@
 import { importArgsIsNull } from "@src/constant/resp.constant";
+import { categories } from "@src/constant/types";
 import type { NextFunction, Request, Response } from "express";
 
 export const checkLikeParams = (req: Request, res: Response, next: NextFunction) => {
@@ -10,15 +11,11 @@ export const checkLikeParams = (req: Request, res: Response, next: NextFunction)
     next()
 }
 
-const tags = ['new', 'learn', 'game', 'help', 'food'];
 export const checkTagIsValid = (req: Request, res: Response, next: NextFunction) => {
-    let { tag } = req.body;
-    if (!tag) tag = req.query.tag;
-    if (!tags.includes(tag)) {
-        res.send(importArgsIsNull)
-        return
-    }
-    next();
+    let { category } = req.body;
+    if (!category) category = req.query.category;
+
+    (category as string) in categories ? next() : res.send({ code: 400, msg: '类型错误' });
 }
 
 export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {

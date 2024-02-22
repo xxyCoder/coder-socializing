@@ -1,7 +1,8 @@
 import Users, { UserModel } from "@src/model/users.model";
 import { Op } from "sequelize";
 import bcrpty from 'bcryptjs'
-import { categories } from "@src/middleware/common.middleware";
+import { categories, pageType } from "@src/constant/types";
+import { pageSize } from "@src/constant/resp.constant";
 
 class UserService {
     create({ username, password, account }: UserModel) {
@@ -19,11 +20,11 @@ class UserService {
     remove({ id }: Partial<UserModel>) {
         return Users.destroy({ where: { id } });
     }
-    find({ page_size, page_num, username, category, id }: { page_size: number, page_num: number, category: categories } & Partial<UserModel>) {
+    find({ page_num, username, category, id }: { category: categories } & Partial<UserModel> & pageType) {
         const whereOp = {};
         username && Object.assign(whereOp, { username: { [Op.like]: `%${username}%` } });  // 实现模糊查询
         id && Object.assign(whereOp, { id });
-        return Users.findAll({ offset: (page_num - 1) * page_size, limit: page_size, where: whereOp });
+        return Users.findAll({ offset: (page_num - 1) * pageSize, limit: pageSize, where: whereOp });
     }
     precisionFind({ username, account, id }: Partial<UserModel>) {
         const whereOp = {};

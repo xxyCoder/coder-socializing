@@ -14,7 +14,7 @@ const tagPageNum: Record<string, number> = {
 }
 const getNotes = (idx: number) => {
     const tag = listMap[list[idx]];
-    getTypeAllNote(`?tag=${tag}&category=note&page_num=${tagPageNum[tag]}`)
+    getTypeAllNote(`?category=${tag}&page_num=${tagPageNum[tag]}`)
 }
 </script>
 
