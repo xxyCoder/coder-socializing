@@ -14,6 +14,7 @@ import BottomMenu from '@/components/bottom-menu.vue';
 import StickyList from '@/components/sticky-list.vue';
 import NoteCard from '@/components/note/note-card.vue';
 import NullData from '@/components/null-data.vue';
+import AllNotes from '@/components/note/all-notes.vue';
 
 const route = useRoute();
 const router = useRouter()
@@ -120,13 +121,9 @@ const reqListData = (idx: number) => {
         <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
         <div class="user-interactions"></div>
     </div>
-    <StickyList :list="list" @click="reqListData" />
-    <div class="note-info">
-        <NoteCard v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
-            :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
-        <NullData style="margin-top: 50px;" v-if="!showInfos.length" />
-    </div>
-    <BottomMenu />
+    <sticky-list :list="list" @click="reqListData" />
+    <all-notes :show-infos="showInfos" />
+    <bottom-menu />
 </template>
 
 <style scoped lang="scss">
@@ -172,10 +169,5 @@ const reqListData = (idx: number) => {
     padding: responsive(8, vh) responsive(20, vh);
     background-color: transparent;
     color: #fff;
-}
-
-.note-info {
-    display: flex;
-    flex-wrap: wrap;
 }
 </style>

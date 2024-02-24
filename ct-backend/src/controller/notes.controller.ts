@@ -33,11 +33,11 @@ class NoteController {
     }
     publish(req: Request, resp: Response) {
         const userId = req.query.id as string;
-        const { tag, title, content, atUserIds = [], is_video } = req.body;
+        const { category, title, content, atUserIds = [], is_video } = req.body;
         const mediaList = req.files as Express.Multer.File[];
 
         noteAdd({
-            tag, title, content,
+            tag: category, title, content,
             atUserIds: atUserIds.join(';'),
             userId: Number(userId),
             mediaList: mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`).join(';'),
@@ -105,14 +105,16 @@ class NoteController {
             .then(res => {
                 const notes: NoteCardType[] = [];
                 res.forEach(note => {
-                    // notes.push({
-                    //     id: note.dataValues.id,
-                    //     title: note.dataValues.title,
-                    //     posterSrc: note.dataValues.mediaList.split(';')[0],
-                    //     userId: note.dataValues.userId,
-                    // })
-                    const userId = note.dataValues.userId;
-                    console.log(note)
+                    const user = note.dataValues.user.dataValues;
+                    notes.push({
+                        id: note.dataValues.id,
+                        title: note.dataValues.title,
+                        posterSrc: note.dataValues.mediaList.split(';')[0],
+                        isVideo: note.dataValues.isVideo,
+                        userId: user.id,
+                        username: user.username,
+                        avatarSrc: user.avatarSrc
+                    })
                 })
                 resp.send({ code: 200, msg: '获取成功', data: { notes } })
             })

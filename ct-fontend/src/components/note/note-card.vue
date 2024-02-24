@@ -30,7 +30,6 @@ const handlerLike = () => {
         })
         .catch(err => {
             useToast(err.message)
-            //
         })
 }
 </script>
@@ -67,6 +66,7 @@ const handlerLike = () => {
 
 .note-card-wrapper {
     margin: responsive(20, vh);
+    width: fit-content;
 }
 
 .note-intro {

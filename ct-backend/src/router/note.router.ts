@@ -7,7 +7,7 @@ import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware'
 import NotesController from '@src/controller/notes.controller'
 
 const router = express.Router()
-const { like, publish, getWithPage, getDetail } = NotesController
+const { like, publish, getWithPage, getDetail, getByTag } = NotesController
 
 router.post("/like", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkLikeParams, like);
 
@@ -20,6 +20,6 @@ const uploadMedia = multer({
 router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkTagIsValid, checkNoteParams, publish);
 router.get("/viewer_note", verifyCSRFSession, checkPageParams, checkViewerId, getWithPage);
 router.get("/detail", verifyCSRFSession, checkNoteIdExists, getDetail);
-router.get("/explore_note", verifyCSRFSession, checkTagIsValid, checkPageParams);
+router.get("/explore_note", verifyCSRFSession, checkTagIsValid, checkPageParams, getByTag);
 
 export default router

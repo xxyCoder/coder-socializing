@@ -41,7 +41,6 @@ instance.interceptors.request.use(config => {
     }
     config.headers['X-CSRF-TOKEN'] = readCookie('XSRF-TOKEN')
 
-    console.log(config)
     return config;
 }, error => {
     console.error("请求错误: ", error);
