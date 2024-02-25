@@ -1,15 +1,29 @@
-export interface NoteCardType {
-    id: number;
-    title: string;
-    posterSrc: string;
+export interface UserInfo {
     userId: number;
     username: string;
     avatarSrc: string;
-    isVideo: boolean;
+    isFollower?: boolean
 }
 
-export interface NoteDetail {
+export type NoteCardType = {
+    id: number;
     title: string;
+    posterSrc: string;
+    isVideo: boolean;
+} & UserInfo
+
+export type NoteInfo = {
+    mediaList: string;
+    content: string;
+    atUserIds: number[];
+    isFollwer: boolean;
+    updateDate: string;
+    createDate: string;
+} & Exclude<NoteCardType, 'posterSrc' | keyof UserInfo>
+
+export type NoteDetail = {
+    user: UserInfo;
+    note: NoteInfo
 }
 
 export interface viewerInfoReq {

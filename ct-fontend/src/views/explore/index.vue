@@ -6,8 +6,6 @@ import { ref, watch } from 'vue';
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { NoteCardType } from '@/common/types';
-import NoteCard from '@/components/note/note-card.vue';
-import NullData from '@/components/null-data.vue';
 import AllNotes from '@/components/note/all-notes.vue';
 
 const list = ['新鲜', '学习', '游戏', '互助', '美食'];

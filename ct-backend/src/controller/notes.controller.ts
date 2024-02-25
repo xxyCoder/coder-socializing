@@ -88,7 +88,9 @@ class NoteController {
                                     title: note.dataValues.title,
                                     mediaList: note.dataValues.mediaList,
                                     tag: note.dataValues.tag,
-                                    isVideo: note.dataValues.isVideo
+                                    isVideo: note.dataValues.isVideo,
+                                    updateDate: note.dataValues.updatedAt,
+                                    createDate: note.dataValues.createdAt
                                 }
                             }
                         })

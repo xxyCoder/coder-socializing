@@ -25,7 +25,7 @@ const Comments = seq.define('comments', {
     targetCommentId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        comment: '回复的评论id'
+        comment: '回复的评论id，为null表示主评论'
     },
     like: {
         type: DataTypes.INTEGER,

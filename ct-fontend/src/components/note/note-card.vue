@@ -3,6 +3,7 @@ import { defineProps, ref } from 'vue'
 import { backendStatic, ip, port } from '@/api/config';
 import { noteLike } from '@/api';
 import { useToast } from '../Toast';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     posterSrc: String,
@@ -31,17 +32,19 @@ const handlerLike = () => {
         .catch(err => {
             useToast(err.message)
         })
-}
+};
+
+const router = useRouter();
 </script>
 
 <template>
     <div class="note-card-wrapper">
-        <div class="note-intro">
+        <div class="note-intro" @click="router.push(`/explore/${noteId}`)">
             <video v-if="isVideo" :src="posterSrc"></video>
             <img v-else :src="posterSrc || `${ip}:${port}${backendStatic}/default.jpg`" />
             <span class="title">{{ title }}</span>
         </div>
-        <div class="author-wrapper center">
+        <div class="author-wrapper center" @click="router.push(`/user/${userId}`)">
             <div class="author center">
                 <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
                 <span>{{ author }}</span>

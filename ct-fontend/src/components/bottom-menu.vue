@@ -27,7 +27,7 @@ const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
     display: flex;
     justify-content: space-around;
     align-items: center;
-
+    background-color: #000;
     a {
         text-decoration: none;
         color: hsla(0, 0%, 100%, 0.6);
