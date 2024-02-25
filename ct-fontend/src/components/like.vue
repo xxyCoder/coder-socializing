@@ -23,7 +23,7 @@ const handlerLike = () => {
     noteLike({ is_like: String(props.isLike), noteId: String(props.noteId) })
         .then(res => {
             if (res.code !== 200) throw new Error(res.msg)
-            emits('like', !props.isLike)
+            emits('like')
         })
         .catch(err => {
             useToast(err.message)

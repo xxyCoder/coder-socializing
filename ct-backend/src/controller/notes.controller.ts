@@ -9,7 +9,7 @@ import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 import { NoteCardType } from "@src/constant/types";
 
-const { add: likeAdd, remove: likeRev } = LikesServe;
+const { add: likeAdd, remove: likeRev, get: getIsLike, count: countLikes } = LikesServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
 const { precisionFind } = UsersService;
 const { search: judgeIsFollower } = ConcernsService;
@@ -70,8 +70,8 @@ class NoteController {
                     resp.send({ code: 400, msg: '不存在该笔记' });
                     return;
                 }
-                Promise.all([judgeIsFollower({ id: Number(id), viewer_id: note.dataValues.userId }), precisionFind({ id: note.dataValues.userId })])
-                    .then(([isFollower, user]) => {
+                Promise.all([judgeIsFollower({ id: Number(id), viewer_id: note.dataValues.userId }), precisionFind({ id: note.dataValues.userId }), getIsLike({ userId: note.dataValues.userId }), countLikes({ noteId: Number(noteId) })])
+                    .then(([isFollower, user, isLike, likeCnt]) => {
                         resp.send({
                             code: 200,
                             msg: '获取成功',
@@ -90,7 +90,10 @@ class NoteController {
                                     tag: note.dataValues.tag,
                                     isVideo: note.dataValues.isVideo,
                                     updateDate: note.dataValues.updatedAt,
-                                    createDate: note.dataValues.createdAt
+                                    createDate: note.dataValues.createdAt,
+                                    id: note.dataValues.id,
+                                    isLike: isLike.length,
+                                    likeCnt
                                 }
                             }
                         })

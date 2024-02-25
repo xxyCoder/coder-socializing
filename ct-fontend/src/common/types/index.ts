@@ -19,6 +19,8 @@ export type NoteInfo = {
     isFollwer: boolean;
     updateDate: string;
     createDate: string;
+    isLike: boolean;
+    likeCnt: number
 } & Exclude<NoteCardType, 'posterSrc' | keyof UserInfo>
 
 export type NoteDetail = {

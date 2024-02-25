@@ -10,6 +10,7 @@ import NullData from '@/components/null-data.vue';
 import Carousel from '@/components/carousel.vue';
 import { UserInfo, NoteInfo } from '@/common/types/index'
 import { backendStatic, ip, port } from '@/api/config';
+import Like from '@/components/like.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +19,8 @@ const { id } = route.params;
 const selfInfo = getUserInfo()
 const note = ref<NoteInfo>()
 const viewr = ref<UserInfo>()
+const isLike = ref(false)
+const likeCnt = ref(0)
 
 const remove = useLoading();
 getNoteDetail(`?noteId=${id}`)
@@ -25,6 +28,8 @@ getNoteDetail(`?noteId=${id}`)
         if (res.code !== 200) throw new Error(res.msg);
         remove();
         note.value = res.data?.note
+        isLike.value = note.value?.isLike || false
+        likeCnt.value = note.value?.likeCnt || 0
         viewr.value = res.data?.user
     })
     .catch(err => {
@@ -53,6 +58,11 @@ const handlerClick = () => {
         })
 }
 
+const comment = ref<string>('')
+const handlerLike = () => {
+    isLike.value = !isLike.value;
+    isLike.value ? ++likeCnt.value : --likeCnt.value;
+}
 </script>
 
 <template>
@@ -83,7 +93,8 @@ const handlerClick = () => {
             </div>
         </div>
         <div class="interaction">
-            
+            <input class="comment" v-model="comment" type="text" placeholder="评论" />
+            <like :is-like="isLike" :likes="likeCnt" :note-id="note.id" @like="handlerLike" />
         </div>
     </template>
     <null-data v-else />
@@ -144,5 +155,26 @@ const handlerClick = () => {
 .time {
     color: hsla(0, 0%, 100%, 0.6);
     font-size: 12px;
+}
+
+.interaction {
+    position: fixed;
+    box-sizing: border-box;
+    padding: responsive(12, vh) responsive(24, vw);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+}
+
+.comment {
+    border: none;
+    padding: responsive(12, vh) responsive(24, vw);
+    border-radius: responsive(12, vh);
+    color: hsla(0, 0%, 100%, 0.6);
+    background-color: hsla(0, 0%, 100%, 0.04);
+    outline: none;
 }
 </style>
