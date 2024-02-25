@@ -12,8 +12,6 @@ import { useToast } from '@/components/Toast';
 import type { NoteCardType } from '@/common/types'
 import BottomMenu from '@/components/bottom-menu.vue';
 import StickyList from '@/components/sticky-list.vue';
-import NoteCard from '@/components/note/note-card.vue';
-import NullData from '@/components/null-data.vue';
 import AllNotes from '@/components/note/all-notes.vue';
 
 const route = useRoute();

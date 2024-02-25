@@ -78,7 +78,12 @@ const handlerClick = () => {
                         new Date(note.updateDate).toLocaleString() }}
                 </span>
             </div>
-            <div class="comments"></div>
+            <div class="comments">
+
+            </div>
+        </div>
+        <div class="interaction">
+            
         </div>
     </template>
     <null-data v-else />
