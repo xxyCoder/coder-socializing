@@ -48,7 +48,7 @@ const router = useRouter();
 
 .note-card-wrapper {
     margin: responsive(20, vh);
-    width: fit-content;
+    max-width: responsive(300, vw);
 }
 
 .note-intro {
@@ -86,6 +86,9 @@ const router = useRouter();
 
 .author {
     margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
 
     img {
         margin-right: 5px;
@@ -99,5 +102,8 @@ const router = useRouter();
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+}
+.fx-1 {
+    flex: 1;
 }
 </style>

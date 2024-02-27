@@ -1,7 +1,7 @@
 import Note, { NoteModel } from "@src/model/notes.model";
 import { categories, pageType } from "@src/constant/types";
 import Users from "@src/model/users.model";
-import Likes from "@src/model/likes.model";
+import Likes from "@src/model/likes-collect.model";
 import { Op } from "sequelize";
 import { pageSize } from "@src/constant/resp.constant";
 

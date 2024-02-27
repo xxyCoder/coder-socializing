@@ -11,6 +11,7 @@ import Carousel from '@/components/carousel.vue';
 import { UserInfo, NoteInfo } from '@/common/types/index'
 import { backendStatic, ip, port } from '@/api/config';
 import Like from '@/components/like.vue';
+import Collect from '@/components/collect.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -21,6 +22,8 @@ const note = ref<NoteInfo>()
 const viewr = ref<UserInfo>()
 const isLike = ref(false)
 const likeCnt = ref(0)
+const isCollect = ref(false)
+const collectCnt = ref(0)
 
 const remove = useLoading();
 getNoteDetail(`?noteId=${id}`)
@@ -29,7 +32,9 @@ getNoteDetail(`?noteId=${id}`)
         remove();
         note.value = res.data?.note
         isLike.value = note.value?.isLike || false
+        isCollect.value = note.value?.isCollect || false
         likeCnt.value = note.value?.likeCnt || 0
+        collectCnt.value = note.value?.collectCnt || 0
         viewr.value = res.data?.user
     })
     .catch(err => {
@@ -59,10 +64,13 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
-const handlerLike = () => {
-    isLike.value = !isLike.value;
-    isLike.value ? ++likeCnt.value : --likeCnt.value;
+const handlerOpt = (type: 'like' | 'collect') => {
+    type === 'like' ?
+        (isLike.value = !isLike.value, isLike.value ? ++likeCnt.value : --likeCnt.value) :
+        (isCollect.value = !isCollect.value, isCollect.value ? ++collectCnt.value : --collectCnt.value);
+
 }
+
 </script>
 
 <template>
@@ -77,7 +85,7 @@ const handlerLike = () => {
         </header>
         <div class="note-page container">
             <div class="media-box">
-                <video v-if="note.isVideo" :src="note.mediaList"></video>
+                <video v-if="note.isVideo" :src="note.mediaList" controls></video>
                 <carousel v-else :list="note.mediaList.split(';')" />
             </div>
             <div>
@@ -94,7 +102,11 @@ const handlerLike = () => {
         </div>
         <div class="interaction">
             <input class="comment" v-model="comment" type="text" placeholder="评论" />
-            <like :is-like="isLike" :likes="likeCnt" :note-id="note.id" @like="handlerLike" />
+            <div class="opts">
+                <like :is-like="isLike" :likeCnt="likeCnt" :note-id="note.id" @like="handlerOpt('like')" />
+                <collect :is-collect="isCollect" :collect-cnt="collectCnt" :note-id="note.id"
+                    @collect="handlerOpt('collect')" />
+            </div>
         </div>
     </template>
     <null-data v-else />
@@ -166,6 +178,7 @@ const handlerLike = () => {
     right: 0;
     background-color: #000;
     display: flex;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -174,7 +187,13 @@ const handlerLike = () => {
     padding: responsive(12, vh) responsive(24, vw);
     border-radius: responsive(12, vh);
     color: hsla(0, 0%, 100%, 0.6);
-    background-color: hsla(0, 0%, 100%, 0.04);
+    background-color: hsla(0, 0%, 100%, 0.1);
     outline: none;
+    flex: 1;
+}
+
+.opts {
+    display: flex;
+    align-items: center;
 }
 </style>

@@ -2,14 +2,15 @@ import { importArgsIsNull } from "@src/constant/resp.constant";
 import { categories } from "@src/constant/types";
 import type { NextFunction, Request, Response } from "express";
 
-export const checkLikeParams = (req: Request, res: Response, next: NextFunction) => {
-    const { noteId, is_like } = req.body
-    if (Number.isNaN(Number(noteId)) || !['false', 'true'].includes(is_like)) {
+export const checkLikeOrCollectParams = (req: Request, res: Response, next: NextFunction) => {
+    const { noteId, is_like, is_collect, type } = req.body
+    if (Number.isNaN(Number(noteId)) || !['collect', 'like'].includes(type) || (type === 'collect' && !['false', 'true'].includes(is_collect)) || (type === 'like' && !['false', 'true'].includes(is_like))) {
         res.send(importArgsIsNull)
         return
     }
     next()
 }
+
 
 export const checkTagIsValid = (req: Request, res: Response, next: NextFunction) => {
     let { category } = req.body;

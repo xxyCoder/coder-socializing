@@ -1,15 +1,15 @@
 import express from 'express'
 import multer from 'multer'
-import { checkLikeParams, checkNoteIdExists, checkNoteParams, checkTagIsValid } from '@src/middleware/note.middleware'
+import { checkLikeOrCollectParams, checkNoteIdExists, checkNoteParams, checkTagIsValid } from '@src/middleware/note.middleware'
 import { checkIdAndAccountExists } from '@src/middleware/users.middleware'
 import { checkPageParams, checkViewerId, storage } from '@src/middleware/common.middleware'
 import { verifyCSRFSession, verifyToken } from '@src/middleware/auth.middleware'
 import NotesController from '@src/controller/notes.controller'
 
 const router = express.Router()
-const { like, publish, getWithPage, getDetail, getByTag } = NotesController
+const { likeOrCollect, publish, getWithPage, getDetail, getByTag } = NotesController
 
-router.post("/like", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkLikeParams, like);
+router.post("/like_or_collect", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkLikeOrCollectParams, likeOrCollect);
 
 const uploadMedia = multer({
     storage,

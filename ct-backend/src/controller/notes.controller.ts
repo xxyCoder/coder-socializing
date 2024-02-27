@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import LikesServe from "@src/service/likes.serve";
+import LikesCollectServe from "@src/service/likes-collect.serve";
 import { pageSize, serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
 import ConcernsService from "@src/service/concerns.service";
@@ -9,7 +9,7 @@ import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 import { NoteCardType } from "@src/constant/types";
 
-const { add: likeAdd, remove: likeRev, get: getIsLike, count: countLikes } = LikesServe;
+const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
 const { precisionFind } = UsersService;
 const { search: judgeIsFollower } = ConcernsService;
@@ -17,17 +17,17 @@ const { getNoteCommentWithPage } = CommentsService;
 const { PORT } = env;
 
 class NoteController {
-    like(req: Request, resp: Response) {
+    likeOrCollect(req: Request, resp: Response) {
         const userId = req.query.id as string;
-        const { noteId, is_like } = req.body;
-        const params = { userId: Number(userId), noteId: Number(noteId) };
-        (is_like === 'true' ? likeRev(params) : likeAdd(params))
+        const { noteId, is_like, type, is_collect } = req.body;
+        const params = { userId: Number(userId), noteId: Number(noteId), type };
+        ((is_like === 'true' || is_collect === 'true') ? likeOrCollectAdd(params) : likeOrCollectRev(params))
             .then(row => {
                 const ret = row ? successObj : { code: 400, msg: '不存在' }
                 resp.send(ret);
             })
             .catch(err => {
-                console.error(`操作笔记喜欢量错误：${err}`);
+                console.error(`操作笔记错误：${err}`);
                 resp.send({ code: 400, msg: '操作失败' });
             })
     }
@@ -70,8 +70,15 @@ class NoteController {
                     resp.send({ code: 400, msg: '不存在该笔记' });
                     return;
                 }
-                Promise.all([judgeIsFollower({ id: Number(id), viewer_id: note.dataValues.userId }), precisionFind({ id: note.dataValues.userId }), getIsLike({ userId: note.dataValues.userId }), countLikes({ noteId: Number(noteId) })])
-                    .then(([isFollower, user, isLike, likeCnt]) => {
+                Promise.all([
+                    judgeIsFollower({ id: Number(id), viewer_id: note.dataValues.userId }),
+                    precisionFind({ id: note.dataValues.userId }),
+                    getIsLikeOrCollect({ userId: note.dataValues.userId, noteId: Number(noteId), type: 'like' }),
+                    countLikesOrCollect({ noteId: Number(noteId), type: 'like' }),
+                    getIsLikeOrCollect({ userId: note.dataValues.userId, noteId: Number(noteId), type: 'collect' }),
+                    countLikesOrCollect({ noteId: Number(noteId), type: 'collect' }),
+                ])
+                    .then(([isFollower, user, isLike, likeCnt, isCollect, collectCnt]) => {
                         resp.send({
                             code: 200,
                             msg: '获取成功',
@@ -92,8 +99,10 @@ class NoteController {
                                     updateDate: note.dataValues.updatedAt,
                                     createDate: note.dataValues.createdAt,
                                     id: note.dataValues.id,
-                                    isLike: isLike.length,
-                                    likeCnt
+                                    isLike: !!isLike.length,
+                                    likeCnt,
+                                    isCollect: !!isCollect.length,
+                                    collectCnt
                                 }
                             }
                         })

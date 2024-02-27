@@ -20,7 +20,9 @@ export type NoteInfo = {
     updateDate: string;
     createDate: string;
     isLike: boolean;
-    likeCnt: number
+    likeCnt: number;
+    isCollect: boolean;
+    collectCnt: number;
 } & Exclude<NoteCardType, 'posterSrc' | keyof UserInfo>
 
 export type NoteDetail = {
