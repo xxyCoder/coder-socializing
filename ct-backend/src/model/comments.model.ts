@@ -8,6 +8,7 @@ export interface CommentModel {
     atUsers: string;
     targetCommentId: number | null;
     noteId: number;
+    userId: number;
     likes: number;
 }
 
@@ -37,6 +38,7 @@ const Comments = seq.define('comments', {
 })
 
 Comments.belongsTo(Notes, { foreignKey: 'noteId' });
+Comments.belongsTo(Notes, { foreignKey: 'userId' });
 
 // 模型同步，创建该表
 Comments.sync({

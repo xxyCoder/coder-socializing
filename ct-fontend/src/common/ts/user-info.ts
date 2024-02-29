@@ -21,8 +21,7 @@ export function getUserInfo() {
 export function recapUserInfo() {
     getUserInfoApi("")
         .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
-            setUserInfo(res.data!)
+            setUserInfo(res)
         })
         .catch(err => {
             // 清空localStorage信息

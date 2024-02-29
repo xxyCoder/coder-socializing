@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import { noteLikeOrCollect } from '@/api';
+import { noteLikeOrCollect } from '@/api/note';
 import { useToast } from './Toast';
 
 const props = defineProps({
@@ -21,8 +21,7 @@ const emits = defineEmits(['like'])
 
 const handlerLike = () => {
     noteLikeOrCollect({ is_like: String(!props.isLike), noteId: String(props.noteId), type: 'like' })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg)
+        .then(() => {
             emits('like')
         })
         .catch(err => {

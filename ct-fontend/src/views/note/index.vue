@@ -49,8 +49,7 @@ const handlerPublish = () => {
     uploadImgRef.value && formData.set('is_video', JSON.stringify(uploadImgRef.value.isVideo))
     const remove = useLoading();
     publishNote(formData, "", { headers: { "Content-Type": "multipart/form-data" } })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
+        .then(() => {
             remove();
             useToast('发布成功').then(() => router.replace(`/user/${userInfo.id}`))
         })

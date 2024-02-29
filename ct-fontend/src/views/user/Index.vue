@@ -5,7 +5,7 @@ import { tabName } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
 import { getViewerInfo } from '@/api/users';
 import { getViewerNote } from '@/api/note'
-import { follwerOrCancel } from '@/api/index'
+import { follwerOrCancel } from '@/api/users'
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
@@ -28,18 +28,15 @@ const showInfos = ref<NoteCardType[]>([]);
 const remove = useLoading()
 getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&category=${tabName[0]}`)
     .then(res => {
-        if (res.code !== 200) throw new Error(res.msg);
         remove();
         ++notePageNum;
-        if (res.data) {
-            const { notes: _notes, avatarSrc, username, intro, isFollwer } = res.data;
-            notes.push(..._notes);
-            showInfos.value = notes;
-            userInfo.avatarSrc = avatarSrc
-            userInfo.intro = intro
-            userInfo.username = username
-            userInfo.isFollwer = isFollwer
-        }
+        const { notes: _notes, avatarSrc, username, intro, isFollwer } = res;
+        notes.push(..._notes);
+        showInfos.value = notes;
+        userInfo.avatarSrc = avatarSrc
+        userInfo.intro = intro
+        userInfo.username = username
+        userInfo.isFollwer = isFollwer
     })
     .catch(err => {
         remove();
@@ -63,8 +60,7 @@ const handlerClick = () => {
         case 'follwer':
         case 'other':
             follwerOrCancel({ id: String(selfInfo.id), viewer_id: viewerId as string, is_follwer: String(userInfo.isFollwer) })
-                .then(res => {
-                    if (res.code !== 200) throw new Error(res.msg);
+                .then(() => {
                     userInfo.isFollwer = !userInfo.isFollwer;
                 })
                 .catch(err => {
@@ -91,8 +87,7 @@ const reqListData = (idx: number) => {
     showInfos.value = []
     getViewerNote(`?viewer_id=${viewerId}&${query}&category=${tabName[idx]}`)
         .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
-            res.data && (idx ? likes.push(...res.data.notes) : notes.push(...res.data.notes))
+            idx ? likes.push(...res.notes) : notes.push(...res.notes)
         })
         .catch(err => {
             useToast(err.message)

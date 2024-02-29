@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getNoteDetail } from '@/api/note'
+import { getNoteDetail, emitComment } from '@/api/note'
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
-import { follwerOrCancel } from '@/api';
+import { follwerOrCancel } from '@/api/users';
 import { getUserInfo } from '@/common/ts/user-info';
 import NullData from '@/components/null-data.vue';
 import Carousel from '@/components/carousel.vue';
@@ -28,14 +28,13 @@ const collectCnt = ref(0)
 const remove = useLoading();
 getNoteDetail(`?noteId=${id}`)
     .then(res => {
-        if (res.code !== 200) throw new Error(res.msg);
         remove();
-        note.value = res.data?.note
+        note.value = res.note
         isLike.value = note.value?.isLike || false
         isCollect.value = note.value?.isCollect || false
         likeCnt.value = note.value?.likeCnt || 0
         collectCnt.value = note.value?.collectCnt || 0
-        viewr.value = res.data?.user
+        viewr.value = res.user
     })
     .catch(err => {
         remove();
@@ -55,7 +54,6 @@ const handlerClick = () => {
 
     follwerOrCancel({ id: String(selfInfo.id), viewer_id: String(viewr.value.userId), is_follwer: String(viewr.value.isFollower) })
         .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
             viewr.value && (viewr.value.isFollower = !viewr.value.isFollower);
         })
         .catch(err => {
@@ -64,6 +62,22 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
+const commit = () => {
+    if (!comment.value.length) return;
+    const noteId = note.value?.id;
+    if (!noteId) {
+        useToast('网络错误');
+        return;
+    }
+    emitComment({ noteId: String(noteId), comment: comment.value })
+        .then(res => {
+            console.log(res)
+        })
+        .catch(err => {
+            useToast(err.message);
+        })
+}
+
 const handlerOpt = (type: 'like' | 'collect') => {
     type === 'like' ?
         (isLike.value = !isLike.value, isLike.value ? ++likeCnt.value : --likeCnt.value) :
@@ -102,6 +116,7 @@ const handlerOpt = (type: 'like' | 'collect') => {
         </div>
         <div class="interaction">
             <input class="comment" v-model="comment" type="text" placeholder="评论" />
+            <button class="btn" @click="commit">发送</button>
             <div class="opts">
                 <like :is-like="isLike" :likeCnt="likeCnt" :note-id="note.id" @like="handlerOpt('like')" />
                 <collect :is-collect="isCollect" :collect-cnt="collectCnt" :note-id="note.id"
@@ -184,12 +199,21 @@ const handlerOpt = (type: 'like' | 'collect') => {
 
 .comment {
     border: none;
+    margin-right: 5px;
     padding: responsive(12, vh) responsive(24, vw);
     border-radius: responsive(12, vh);
     color: hsla(0, 0%, 100%, 0.6);
     background-color: hsla(0, 0%, 100%, 0.1);
     outline: none;
     flex: 1;
+}
+
+.btn {
+    border: none;
+    background-color: #1e80ff;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 4px;
 }
 
 .opts {

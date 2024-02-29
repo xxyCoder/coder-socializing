@@ -99,10 +99,6 @@ const modifyPassword = () => {
     }
     const np = newPassword.value?.component.value, p = oldPassword.value?.component.value;
     return updateUserPass({ newPassword: cryptoPassword(np!), password: cryptoPassword(p!) })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg)
-            return res.data
-        })
 }
 const modifyProfile = () => {
     const remove = useLoading();
@@ -115,11 +111,7 @@ const modifyProfile = () => {
     const usernameValue = username.value?.component.value
     usernameValue && usernameValue !== userInfo?.username && (formData.set('username', usernameValue))
 
-    promises.push(updateUserInfo(formData, "", { headers: { "Content-Type": "multipart/form-data" } })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg)
-            return res.data
-        }))
+    promises.push(updateUserInfo(formData, "", { headers: { "Content-Type": "multipart/form-data" } }))
     Promise.all(promises)
         .then(() => {
             remove()

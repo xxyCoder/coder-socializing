@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { noteLikeOrCollect } from '@/api';
+import { noteLikeOrCollect } from '@/api/note';
 import { defineProps, defineEmits } from 'vue'
 import { useToast } from './Toast';
 
@@ -22,8 +22,7 @@ const emits = defineEmits(['collect'])
 
 const handlerCollect = () => {
     noteLikeOrCollect({ is_collect: String(!props.isCollect), noteId: String(props.noteId), type: 'collect' })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg)
+        .then(() => {
             emits('collect')
         })
         .catch(err => {

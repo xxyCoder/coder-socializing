@@ -25,9 +25,8 @@ const getNotes = () => {
     const remove = useLoading();
     getExploreNotes(`?category=${tag}&page_num=${tagPageNum[tag]}`)
         .then(res => {
-            if (res.code !== 200) throw new Error(res.msg)
             remove();
-            res.data && notes.value.push(...res.data.notes)
+            res && notes.value.push(...res.notes)
         })
         .catch(err => {
             remove();

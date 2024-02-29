@@ -25,10 +25,10 @@ const handlerLogin = () => {
     const remove = useLoading()
     userLogin({ account: acc, password: cryptoPassword(pass) })
         .then(res => {
-            if (res.code !== 200 || !res.data) throw new Error(res.msg);
+            if (!res) throw new Error('空结果');
             remove();
-            setUserInfo(res.data)
-            localStorage.setItem('user-info', JSON.stringify({ id: res.data.id, account: res.data.account }))
+            setUserInfo(res)
+            localStorage.setItem('user-info', JSON.stringify({ id: res.id, account: res.account }))
             useToast("登录成功")
                 .then(() => {
                     router.replace('/');

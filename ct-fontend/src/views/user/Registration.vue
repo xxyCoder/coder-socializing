@@ -29,8 +29,7 @@ const handlerRegistered = () => {
     }
     const remove = useLoading()
     userRegistry({ username: username.value.component.value, account: account.value.component.value, password: cryptoPassword(password.value.component.value) })
-        .then(res => {
-            if (res.code !== 200) throw new Error(res.msg);
+        .then(() => {
             remove();
             useToast("注册成功")
                 .then(() => {

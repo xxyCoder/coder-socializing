@@ -48,7 +48,10 @@ instance.interceptors.request.use(config => {
 });
 
 instance.interceptors.response.use(resp => {
-    return resp.data;
+    if (resp.data.code !== 200) {
+        return Promise.reject(resp.data.msg)
+    }
+    return resp.data.data
 }, error => {
     console.error("响应出错: ", error);
     return Promise.resolve(error);
@@ -61,12 +64,12 @@ export default {
             if (config.headers?.["Content-Type"] === 'multipart/form-data' && data instanceof FormData) {
                 _data = data
             }
-            return instance.post<D, apiResponse<D>>(url + query, _data, config);
+            return instance.post<D, D>(url + query, _data, config);
         }
     },
     get<D = IStringObj>(url: string) {
         return (query: string) => {
-            return instance.get<D, apiResponse<D>>(url + query);
+            return instance.get<D, D>(url + query);
         }
     }
 }

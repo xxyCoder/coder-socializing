@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import users from "@src/router/users.router"
 import concerns from '@src/router/concerns.router'
 import note from '@src/router/note.router'
+import comment from '@src/router/comments.router'
 import path from 'path';
 
 
@@ -24,5 +25,6 @@ app.use(bodyParser.json());
 app.use('/user', users);
 app.use('/concern', concerns);
 app.use('/note', note)
+app.use('/comment', comment)
 
 export default app;

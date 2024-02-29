@@ -1,6 +1,6 @@
 import { pageSize } from "@src/constant/resp.constant";
 import { pageType } from "@src/constant/types";
-import Comments from "@src/model/comments.model";
+import Comments, { CommentModel } from "@src/model/comments.model";
 
 class CommentService {
     getNoteCommentWithPage({ page_num, noteId }: pageType & { noteId: number }) {
@@ -10,6 +10,9 @@ class CommentService {
             limit: pageSize,
             order: [['like', 'DESC']]
         })
+    }
+    add({ noteId, userId, content, atUsers = '', targetCommentId }: Partial<CommentModel>) {
+        return Comments.create({ noteId, userId, content, atUsers, targetCommentId, likes: 0 })
     }
 }
 
