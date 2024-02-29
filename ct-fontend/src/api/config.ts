@@ -49,7 +49,7 @@ instance.interceptors.request.use(config => {
 
 instance.interceptors.response.use(resp => {
     if (resp.data.code !== 200) {
-        return Promise.reject(resp.data.msg)
+        return Promise.reject({ message: resp.data.msg })
     }
     return resp.data.data
 }, error => {

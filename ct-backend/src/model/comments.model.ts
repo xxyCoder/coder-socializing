@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import seq from "@src/database/seq.database";
 import Notes from "./notes.model";
+import Users from "./users.model";
 
 export interface CommentModel {
     id: number | null;
@@ -9,7 +10,7 @@ export interface CommentModel {
     targetCommentId: number | null;
     noteId: number;
     userId: number;
-    likes: number;
+    replies: number;
 }
 
 const Comments = seq.define('comments', {
@@ -28,17 +29,17 @@ const Comments = seq.define('comments', {
         allowNull: true,
         comment: '回复的评论id，为null表示主评论'
     },
-    like: {
+    replies: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
-        comment: '评论点赞数'
+        comment: '评论回复数'
     }
 }, {
-    timestamps: false // 静止添加其他列（默认有插入、删除列的时间）
+    timestamps: true
 })
 
 Comments.belongsTo(Notes, { foreignKey: 'noteId' });
-Comments.belongsTo(Notes, { foreignKey: 'userId' });
+Comments.belongsTo(Users, { foreignKey: 'userId' });
 
 // 模型同步，创建该表
 Comments.sync({

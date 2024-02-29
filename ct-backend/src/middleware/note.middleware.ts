@@ -30,7 +30,8 @@ export const checkNoteParams = (req: Request, res: Response, next: NextFunction)
 }
 
 export const checkNoteIdExists = (req: Request, res: Response, next: NextFunction) => {
-    const { noteId } = req.query;
+    let { noteId } = req.query;
+    !noteId && ({ noteId } = req.body);
     if (Number.isNaN(Number(noteId))) {
         res.send(importArgsIsNull)
         return

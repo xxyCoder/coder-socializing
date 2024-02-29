@@ -55,3 +55,13 @@ export interface IntercationItemType {
     posterSrc: string;
     noteId: number;
 }
+
+export interface Comment {
+    id: number;
+    content: string;
+    atUsers: string;
+    targetCommentId: null | number;
+    replies: number;
+    createdAt: string;
+    user: UserInfo;
+}

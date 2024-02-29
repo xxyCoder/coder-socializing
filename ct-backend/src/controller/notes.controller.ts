@@ -1,10 +1,9 @@
 import type { Request, Response } from "express";
 import LikesCollectServe from "@src/service/likes-collect.serve";
-import { pageSize, serviceError, successObj } from "@src/constant/resp.constant";
+import { serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
 import ConcernsService from "@src/service/concerns.service";
 import UsersService from "@src/service/users.service";
-import CommentsService from "@src/service/comments.service";
 import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 import { NoteCardType } from "@src/constant/types";
@@ -13,7 +12,6 @@ const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
 const { precisionFind } = UsersService;
 const { search: judgeIsFollower } = ConcernsService;
-const { getNoteCommentWithPage } = CommentsService;
 const { PORT } = env;
 
 class NoteController {

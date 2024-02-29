@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getNoteDetail, emitComment } from '@/api/note'
+import { getNoteDetail, emitComment, getNoteComment } from '@/api/note'
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { follwerOrCancel } from '@/api/users';
 import { getUserInfo } from '@/common/ts/user-info';
 import NullData from '@/components/null-data.vue';
 import Carousel from '@/components/carousel.vue';
-import { UserInfo, NoteInfo } from '@/common/types/index'
+import type { UserInfo, NoteInfo, Comment } from '@/common/types/index'
 import { backendStatic, ip, port } from '@/api/config';
 import Like from '@/components/like.vue';
 import Collect from '@/components/collect.vue';
+import CommentItem from '@/components/note/comment-item.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -27,19 +28,28 @@ const collectCnt = ref(0)
 
 const remove = useLoading();
 getNoteDetail(`?noteId=${id}`)
-    .then(res => {
+    .then(({ note: _note, user }) => {
         remove();
-        note.value = res.note
-        isLike.value = note.value?.isLike || false
-        isCollect.value = note.value?.isCollect || false
-        likeCnt.value = note.value?.likeCnt || 0
-        collectCnt.value = note.value?.collectCnt || 0
-        viewr.value = res.user
+        note.value = _note
+        isLike.value = _note.isLike || false
+        isCollect.value = _note.isCollect || false
+        likeCnt.value = _note.likeCnt || 0
+        collectCnt.value = _note.collectCnt || 0
+        viewr.value = user
     })
     .catch(err => {
         remove();
         useToast(err.message);
     });
+
+const commentList = ref<Comment[]>([])
+let pageNum = 0;
+getNoteComment(`?noteId=${id}&page_num=${pageNum}`)
+    .then(({ comments: _comments }) => {
+        commentList.value = _comments
+        ++pageNum;
+    })
+
 
 const handlerClick = () => {
     if (!selfInfo || !selfInfo.id) {
@@ -70,8 +80,8 @@ const commit = () => {
         return;
     }
     emitComment({ noteId: String(noteId), comment: comment.value })
-        .then(res => {
-            console.log(res)
+        .then(() => {
+            comment.value = ''
         })
         .catch(err => {
             useToast(err.message);
@@ -111,7 +121,9 @@ const handlerOpt = (type: 'like' | 'collect') => {
                 </span>
             </div>
             <div class="comments">
-
+                <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
+                    :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
+                    :date="new Date(item.createdAt).toDateString()" />
             </div>
         </div>
         <div class="interaction">

@@ -12,4 +12,7 @@ body, div {
   color: #fff;
   box-sizing: border-box;
 }
+a {
+  text-decoration: none;
+}
 </style>
