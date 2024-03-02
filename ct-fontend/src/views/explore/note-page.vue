@@ -13,6 +13,8 @@ import { backendStatic, ip, port } from '@/api/config';
 import Like from '@/components/like.vue';
 import Collect from '@/components/collect.vue';
 import CommentItem from '@/components/note/comment-item.vue';
+import InTheEnd from '@/components/common/in-the-end.vue';
+import { ReplyInfo } from '@/common/types';
 
 const route = useRoute();
 const router = useRouter();
@@ -42,13 +44,30 @@ getNoteDetail(`?noteId=${id}`)
         useToast(err.message);
     });
 
+const commentListRef = ref<HTMLDivElement>()
 const commentList = ref<Comment[]>([])
-let pageNum = 0;
-getNoteComment(`?noteId=${id}&page_num=${pageNum}`)
-    .then(({ comments: _comments }) => {
-        commentList.value = _comments
-        ++pageNum;
-    })
+let pageNum = 0, commentHeight = 0, startY = 0, req = true // 初始值为true因为第一次需要手动请求
+const reqComment = () => {
+    getNoteComment(`?noteId=${id}&page_num=${pageNum}`)
+        .then(({ comments: _comments }) => {
+            if (_comments.length) {
+                commentList.value.push(..._comments)
+                ++pageNum, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
+                req = false; // 放此处同时避免没有数据了继续请求
+            }
+        })
+}
+reqComment();
+const handlerTouchStart = (e: TouchEvent) => {
+    startY = e.touches[0].pageY;
+}
+const handlerTouchMove = (e: TouchEvent) => {
+    const endY = 2 * startY - e.touches[0].pageY;
+    if (endY + 200 >= commentHeight && !req) {
+        req = true;
+        reqComment();
+    }
+}
 
 
 const handlerClick = () => {
@@ -72,20 +91,28 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
+const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '' })
 const commit = () => {
-    if (!comment.value.length) return;
+    if (!comment.value.length || !selfInfo) return;
     const noteId = note.value?.id;
     if (!noteId) {
         useToast('网络错误');
         return;
     }
-    emitComment({ noteId: String(noteId), comment: comment.value })
-        .then(() => {
+    emitComment({ noteId, comment: comment.value, targetCommentId: replyInfo.value.targetCommentId })
+        .then(res => {
+            commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
             comment.value = ''
         })
         .catch(err => {
             useToast(err.message);
         })
+    replyInfo.value.targetCommentId = null
+}
+
+const handlerReply = (info: ReplyInfo) => {
+    replyInfo.value = info
+    console.log(replyInfo.value)
 }
 
 const handlerOpt = (type: 'like' | 'collect') => {
@@ -94,7 +121,6 @@ const handlerOpt = (type: 'like' | 'collect') => {
         (isCollect.value = !isCollect.value, isCollect.value ? ++collectCnt.value : --collectCnt.value);
 
 }
-
 </script>
 
 <template>
@@ -107,7 +133,7 @@ const handlerOpt = (type: 'like' | 'collect') => {
             </div>
             <button class="follower-btn" @click="handlerClick">{{ viewr.isFollower ? '取消关注' : '关注' }}</button>
         </header>
-        <div class="note-page container">
+        <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
             <div class="media-box">
                 <video v-if="note.isVideo" :src="note.mediaList" controls></video>
                 <carousel v-else :list="note.mediaList.split(';')" />
@@ -115,24 +141,34 @@ const handlerOpt = (type: 'like' | 'collect') => {
             <div>
                 <h3 class="title">{{ note.title }}</h3>
                 <p class="content">{{ note.content }}</p>
-                <span class="time">
+                <span class="time">s
                     {{ (note.updateDate === note.createDate ? '发布于' : '编辑于') + ' ' +
-                        new Date(note.updateDate).toLocaleString() }}
+        new Date(note.updateDate).toLocaleString() }}
                 </span>
             </div>
-            <div class="comments">
+            <div ref="commentListRef" class="comments">
                 <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
                     :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
-                    :date="new Date(item.createdAt).toDateString()" />
+                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" @reply="handlerReply" />
+                <in-the-end />
             </div>
         </div>
         <div class="interaction">
-            <input class="comment" v-model="comment" type="text" placeholder="评论" />
-            <button class="btn" @click="commit">发送</button>
-            <div class="opts">
-                <like :is-like="isLike" :likeCnt="likeCnt" :note-id="note.id" @like="handlerOpt('like')" />
-                <collect :is-collect="isCollect" :collect-cnt="collectCnt" :note-id="note.id"
-                    @collect="handlerOpt('collect')" />
+            <div class="reply-box" v-show="replyInfo.targetCommentId">
+                <div class="flex-box">
+                    <span>回复 {{ replyInfo.username }}</span>
+                    <button @click="replyInfo.targetCommentId = null">取消</button>
+                </div>
+                <p>{{ replyInfo.comment }}</p>
+            </div>
+            <div class="flex-box">
+                <input class="comment" v-model="comment" type="text" placeholder="评论" />
+                <button class="btn" @click="commit">发送</button>
+                <div class="opts">
+                    <like :is-like="isLike" :likeCnt="likeCnt" :note-id="note.id" @like="handlerOpt('like')" />
+                    <collect :is-collect="isCollect" :collect-cnt="collectCnt" :note-id="note.id"
+                        @collect="handlerOpt('collect')" />
+                </div>
             </div>
         </div>
     </template>
@@ -151,6 +187,7 @@ const handlerOpt = (type: 'like' | 'collect') => {
     position: sticky;
     top: 0;
     z-index: 1;
+    background-color: #000;
 }
 
 .author-info {
@@ -204,9 +241,40 @@ const handlerOpt = (type: 'like' | 'collect') => {
     left: 0;
     right: 0;
     background-color: #000;
+}
+
+.reply-box {
+    box-sizing: border-box;
+    font-size: 14px;
+
+    div {
+        color: hsla(0, 0%, 100%, 0.6)
+    }
+
+    button {
+        border: none;
+        border-radius: responsive(20, vw);
+        padding: responsive(6, vh) responsive(20, vw);
+        background-color: #1e80ff;
+        color: #fff;
+    }
+
+    p {
+        color: hsla(0, 0%, 100%, 0.8);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
+}
+
+.flex-box {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.comments {
+    margin: 10px 0 responsive(100, vw);
 }
 
 .comment {

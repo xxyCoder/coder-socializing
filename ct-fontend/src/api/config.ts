@@ -2,10 +2,10 @@ import { readCookie } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
 import axios, { AxiosRequestConfig } from "axios";
 
-type IStringObj = Record<string, string>;
+type IAnyObj = Record<string, any>;
 export type PostFirstArg = Record<string, string | number>
 
-export interface apiResponse<T = IStringObj> {
+export interface apiResponse<T = IAnyObj> {
     code: number;
     msg?: string;
     data?: T;
@@ -58,7 +58,7 @@ instance.interceptors.response.use(resp => {
 })
 
 export default {
-    post<D = PostFirstArg, T = IStringObj>(url: string) {
+    post<D = PostFirstArg, T = IAnyObj>(url: string) {
         return (data: T, query = "", config: AxiosRequestConfig<T> = {}) => {
             let _data: string | FormData = JSON.stringify(data)
             if (config.headers?.["Content-Type"] === 'multipart/form-data' && data instanceof FormData) {
@@ -67,7 +67,7 @@ export default {
             return instance.post<D, D>(url + query, _data, config);
         }
     },
-    get<D = IStringObj>(url: string) {
+    get<D = IAnyObj>(url: string) {
         return (query: string) => {
             return instance.get<D, D>(url + query);
         }

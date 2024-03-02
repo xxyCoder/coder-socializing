@@ -9,8 +9,8 @@ class CommentController {
         const { comment: content, noteId, atUsers, targetCommentId } = req.body;
         const { id: userId } = req.query;
         add({ noteId, userId: Number(userId), content, atUsers, targetCommentId })
-            .then(() => {
-                resp.send({ code: 200, msg: '评论成功' })
+            .then(res => {
+                resp.send({ code: 200, msg: '评论成功', data: res })
             })
             .catch(err => {
                 console.error(`发布评论失败：${err}`)

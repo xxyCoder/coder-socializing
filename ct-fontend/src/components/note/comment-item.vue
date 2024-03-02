@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { backendStatic, ip, port } from '@/api/config';
-import { defineProps } from 'vue'
-defineProps({
+import { backendStatic, ip, port } from '@/api/config'
+import { defineProps, defineEmits } from 'vue'
+import { ReplyInfo } from '@/common/types';
+
+const props = defineProps({
     isReply: {
         type: Boolean,
         default: false
+    },
+    commentId: {
+        type: Number,
+        required: true
     },
     avatarSrc: {
         type: String
@@ -28,6 +34,13 @@ defineProps({
         default: 0
     }
 })
+
+const emits = defineEmits<{
+    reply: [ReplyInfo]
+}>()
+const handlerReply = (e: MouseEvent) => {
+    emits('reply', { targetCommentId: props.commentId, username: props.username, comment: props.content })
+}
 </script>
 
 <template>
@@ -40,7 +53,7 @@ defineProps({
             <p class="content">{{ content }}</p>
             <div class="text-12px">
                 <span class="date">{{ date }}</span>
-                <span class="reply">回复（{{ commentCnt }}）</span>
+                <span @click="handlerReply" class="reply">回复（{{ commentCnt }}）</span>
             </div>
         </div>
     </div>
@@ -53,6 +66,7 @@ defineProps({
 .comment-item {
     display: flex;
     font-size: 14px;
+    margin-bottom: 10px;
 
     img {
         width: responsive(70, vw);

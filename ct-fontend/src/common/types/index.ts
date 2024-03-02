@@ -1,7 +1,7 @@
 export interface UserInfo {
     userId: number;
     username: string;
-    avatarSrc: string;
+    avatarSrc?: string;
     isFollower?: boolean
 }
 
@@ -64,4 +64,10 @@ export interface Comment {
     replies: number;
     createdAt: string;
     user: UserInfo;
+}
+
+export interface ReplyInfo {
+    targetCommentId: number | null;
+    username: string;
+    comment: string;
 }
