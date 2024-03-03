@@ -28,3 +28,18 @@ export interface NoteCardType {
     isLike: boolean;
     likeCnt: number;
 }
+
+export interface CommentInfo {
+    id: number;
+    content: string;
+    atUsers: string;
+    targetCommentId: number | null;
+    createdAt: string;
+    replyCnt: number;
+    user: {
+        id: number;
+        username: string;
+        avatarSrc: string;
+    },
+    childs: CommentInfo[]
+}

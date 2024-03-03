@@ -46,12 +46,29 @@ getNoteDetail(`?noteId=${id}`)
 
 const commentListRef = ref<HTMLDivElement>()
 const commentList = ref<Comment[]>([])
+const commentChildList = ref<Map<number, Comment[]>>(new Map())
 let pageNum = 0, commentHeight = 0, startY = 0, req = true // 初始值为true因为第一次需要手动请求
-const reqComment = () => {
-    getNoteComment(`?noteId=${id}&page_num=${pageNum}`)
+const reqComment = (targetCommentId: number | null = null) => {
+    getNoteComment(`?noteId=${id}&page_num=${pageNum}&targetCommentId=${targetCommentId}`)
         .then(({ comments: _comments }) => {
             if (_comments.length) {
-                commentList.value.push(..._comments)
+                _comments.forEach(({ childs, ...others }) => {
+                    commentList.value.push(others);
+                    if (targetCommentId) {
+                        const arr = commentChildList.value.get(targetCommentId) || [];
+                        arr.push(others)
+                        commentChildList.value.set(targetCommentId, arr);
+                    } else {
+                        commentList.value.push(others)
+                    }
+
+                    if (childs && childs.length) {
+                        const id = others.id
+                        const arr = commentChildList.value.get(id) || [];
+                        arr.push(...childs);
+                        commentChildList.value.set(id, arr);
+                    }
+                })
                 ++pageNum, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
                 req = false; // 放此处同时避免没有数据了继续请求
             }
@@ -99,9 +116,16 @@ const commit = () => {
         useToast('网络错误');
         return;
     }
-    emitComment({ noteId, comment: comment.value, targetCommentId: replyInfo.value.targetCommentId })
+    const targetCommentId = replyInfo.value.targetCommentId
+    emitComment({ noteId, comment: comment.value, targetCommentId })
         .then(res => {
-            commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
+            if (targetCommentId) {
+                const arr = commentChildList.value.get(targetCommentId) || [];
+                arr.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
+                commentChildList.value.set(targetCommentId, arr)
+            } else {
+                commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
+            }
             comment.value = ''
         })
         .catch(err => {
@@ -112,7 +136,6 @@ const commit = () => {
 
 const handlerReply = (info: ReplyInfo) => {
     replyInfo.value = info
-    console.log(replyInfo.value)
 }
 
 const handlerOpt = (type: 'like' | 'collect') => {
@@ -141,15 +164,17 @@ const handlerOpt = (type: 'like' | 'collect') => {
             <div>
                 <h3 class="title">{{ note.title }}</h3>
                 <p class="content">{{ note.content }}</p>
-                <span class="time">s
-                    {{ (note.updateDate === note.createDate ? '发布于' : '编辑于') + ' ' +
+                <span class="time">
+                    {{ (note.updateDate === note.createDate ? '发布于' : '编辑于') +
+        ' ' +
         new Date(note.updateDate).toLocaleString() }}
                 </span>
             </div>
             <div ref="commentListRef" class="comments">
                 <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
                     :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
-                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" @reply="handlerReply" />
+                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id"
+                    :reply-comments="commentChildList.get(item.id)" @reply="handlerReply" />
                 <in-the-end />
             </div>
         </div>

@@ -66,6 +66,8 @@ export interface Comment {
     replies: number;
     createdAt: string;
     user: UserInfo;
+    replyCnt?: number;
+    childs?: Comment[]
 }
 
 export interface ReplyInfo {

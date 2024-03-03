@@ -4,17 +4,21 @@ import Comments, { CommentModel } from "@src/model/comments.model";
 import Users from "@src/model/users.model";
 
 class CommentService {
-    getWithPage({ page_num, noteId }: pageType & { noteId: number }) {
+    getWithPage({ page_num, noteId, targetCommentId }: pageType & { noteId: number, targetCommentId: number | null }) {
         return Comments.findAll({
-            where: { noteId },
+            where: { noteId, targetCommentId },
             offset: page_num * pageSize,
             limit: pageSize,
-            order: [['replies', 'DESC']],
             include: [Users]
         })
     }
     add({ noteId, userId, content, atUsers = '', targetCommentId }: Partial<CommentModel>) {
-        return Comments.create({ noteId, userId, content, atUsers, targetCommentId, replies: 0 })
+        return Comments.create({ noteId, userId, content, atUsers, targetCommentId })
+    }
+    count({ noteId, targetCommentId }: { noteId: number, targetCommentId: number }) {
+        return Comments.count({
+            where: { noteId, targetCommentId }
+        });
     }
 }
 

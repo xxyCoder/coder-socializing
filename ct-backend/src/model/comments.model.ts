@@ -10,7 +10,6 @@ export interface CommentModel {
     targetCommentId: number | null;
     noteId: number;
     userId: number;
-    replies: number;
 }
 
 const Comments = seq.define('comments', {
@@ -28,11 +27,6 @@ const Comments = seq.define('comments', {
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: '回复的评论id，为null表示主评论'
-    },
-    replies: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-        comment: '评论回复数'
     }
 }, {
     timestamps: true
