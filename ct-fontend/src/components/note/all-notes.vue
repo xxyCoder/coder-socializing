@@ -17,8 +17,9 @@ defineProps({
 
 <template>
     <div class="note-info">
-        <note-card v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title" :note-id="item.id"
-            :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc" :is-video="item.isVideo" />
+        <note-card v-for="item in showInfos" :key="item.id" :author="item.username" :title="item.title"
+            :note-id="item.id" :user-id="item.userId" :poster-src="item.posterSrc" :avatar-src="item.avatarSrc"
+            :is-video="item.isVideo" :likes="item.likeCnt" :is-like="item.isLike" />
         <null-data style="margin-top: 50px;" v-if="!showInfos.length" />
     </div>
 </template>

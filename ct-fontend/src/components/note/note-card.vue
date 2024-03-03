@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue'
+import { defineProps } from 'vue'
 import { useRouter } from 'vue-router';
 import { backendStatic, ip, port } from '@/api/config';
 import like from '@/components/like.vue';
@@ -11,6 +11,10 @@ defineProps({
     avatarSrc: String,
     userId: [String, Number],
     noteId: [String, Number],
+    isLike: {
+        type: Boolean,
+        default: false
+    },
     likes: {
         type: Number,
         default: 0
@@ -21,7 +25,6 @@ defineProps({
     }
 });
 
-const isLike = ref(true) // 能出现在喜欢列表的都是true，只有点击之后才会不喜欢
 
 const router = useRouter();
 </script>
@@ -38,7 +41,7 @@ const router = useRouter();
                 <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
                 <span>{{ author }}</span>
             </div>
-            <like :is-like="isLike" :note-id="noteId!" class="center"/>
+            <like :is-like="isLike" :like-cnt="likes" :note-id="noteId!" class="center" />
         </div>
     </div>
 </template>
@@ -103,6 +106,7 @@ const router = useRouter();
         white-space: nowrap;
     }
 }
+
 .fx-1 {
     flex: 1;
 }

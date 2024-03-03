@@ -10,6 +10,8 @@ export type NoteCardType = {
     title: string;
     posterSrc: string;
     isVideo: boolean;
+    isLike: boolean;
+    likeCnt: number;
 } & UserInfo
 
 export type NoteInfo = {

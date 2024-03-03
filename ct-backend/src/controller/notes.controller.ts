@@ -50,10 +50,30 @@ class NoteController {
             })
     }
     getWithPage(req: Request, resp: Response) {
-        const { page_num, viewer_id, category } = req.query;
+        const { page_num, viewer_id, category, id } = req.query;
         getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), category: String(category) })
-            .then(res => {
-                resp.send({ code: 200, msg: '查询成功', data: { notes: res } });
+            .then(notes => {
+                Promise.all(notes.map(note => new Promise(resolve => {
+                    const user = note.dataValues.user.dataValues;
+                    Promise.all([
+                        getIsLikeOrCollect({ userId: Number(id), noteId: Number(note.dataValues.id), type: 'like' }),
+                        countLikesOrCollect({ noteId: Number(note.dataValues.id), type: 'like' })
+                    ]).then(([isLike, likeCnt]) => {
+                        resolve({
+                            isLike: !!isLike.length,
+                            likeCnt,
+                            id: note.dataValues.id,
+                            title: note.dataValues.title,
+                            posterSrc: note.dataValues.mediaList.split(';')[0],
+                            isVideo: note.dataValues.isVideo,
+                            userId: user.id,
+                            username: user.username,
+                            avatarSrc: user.avatarSrc
+                        })
+                    })
+                }))).then((infos) => {
+                    resp.send({ code: 200, msg: '查询成功', data: { notes: infos } });
+                })
             })
             .catch(err => {
                 console.log(`分页查询笔记失败：${err}`);
@@ -113,22 +133,34 @@ class NoteController {
     }
     getByTag(req: Request, resp: Response) {
         const { page_num, category } = req.query;
+
         getNoteWithPage({ page_num: Number(page_num), category: String(category) })
             .then(res => {
                 const notes: NoteCardType[] = [];
-                res.forEach(note => {
+                Promise.all(res.map(note => new Promise(resolve => {
                     const user = note.dataValues.user.dataValues;
-                    notes.push({
-                        id: note.dataValues.id,
-                        title: note.dataValues.title,
-                        posterSrc: note.dataValues.mediaList.split(';')[0],
-                        isVideo: note.dataValues.isVideo,
-                        userId: user.id,
-                        username: user.username,
-                        avatarSrc: user.avatarSrc
+                    Promise.all([
+                        getIsLikeOrCollect({ userId: user.id, noteId: Number(note.dataValues.id), type: 'like' }),
+                        countLikesOrCollect({ noteId: Number(note.dataValues.id), type: 'like' })
+                    ]).then(([isLike, likeCnt]) => {
+                        const info = {
+                            id: note.dataValues.id,
+                            title: note.dataValues.title,
+                            posterSrc: note.dataValues.mediaList.split(';')[0],
+                            isVideo: note.dataValues.isVideo,
+                            isLike: !!isLike.length,
+                            likeCnt,
+                            userId: user.id,
+                            username: user.username,
+                            avatarSrc: user.avatarSrc
+                        }
+                        notes.push(info)
+                        resolve(info);
                     })
+
+                }))).then(() => {
+                    resp.send({ code: 200, msg: '获取成功', data: { notes } })
                 })
-                resp.send({ code: 200, msg: '获取成功', data: { notes } })
             })
             .catch(err => {
                 console.error(`首页获取数据失败：${err}`);

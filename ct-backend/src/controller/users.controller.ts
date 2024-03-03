@@ -6,8 +6,10 @@ import notesService from '@src/service/notes.service';
 import { modifySuc, serviceError, successObj, userIsNotExists, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
 import env from "@src/config/default.config"
 import { staticRoot } from '@src/app';
+import likesCollectServe from '@src/service/likes-collect.serve';
 
 const { create, precisionFind, update, remove, find, verify } = userService;
+const { get: getIsLikeOrCollect, count: countLikesOrCollect } = likesCollectServe;
 const { search } = concernsService;
 const { getByPage: getUserNotesByPage } = notesService
 const { SECRET, PORT } = env;
@@ -151,8 +153,25 @@ class UserController {
                     return;
                 }
                 // 访问主页默认tab页是notes
-                Promise.all([search({ id, viewer_id }), getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: 'note' })])
-                    .then(([isFollwer, notes]) => {
+                Promise.all([
+                    search({ id, viewer_id }),
+                    getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: 'note' })
+                ]).then(([isFollwer, notes]) => {
+                    Promise.all(notes.map(note => new Promise(resolve => {
+                        Promise.all([
+                            getIsLikeOrCollect({ userId: id, noteId: Number(note.dataValues.id), type: 'like' }),
+                            countLikesOrCollect({ noteId: Number(note.dataValues.id), type: 'like' })
+                        ]).then(([isLike, likeCnt]) => {
+                            resolve({
+                                id: note.dataValues.id, title: note.dataValues.title,
+                                posterSrc: note.dataValues.mediaList.split(';')[0],
+                                userId: note.dataValues.userId, avatarSrc: note.dataValues.user.avatarSrc,
+                                username: note.dataValues.user.username, isVideo: note.dataValues.isVideo,
+                                isLike: !!isLike.length,
+                                likeCnt
+                            })
+                        })
+                    }))).then(notes => {
                         resp.send({
                             code: 200,
                             msg: '获取成功',
@@ -161,19 +180,14 @@ class UserController {
                                 intro: res.dataValues.biography,
                                 avatarSrc: res.dataValues.avatarSrc,
                                 isFollwer,
-                                notes: notes.map(note => ({
-                                    id: note.dataValues.id, title: note.dataValues.title,
-                                    posterSrc: note.dataValues.mediaList.split(';')[0],
-                                    userId: note.dataValues.userId, avatarSrc: note.dataValues.user.avatarSrc,
-                                    username: note.dataValues.user.username, isVideo: note.dataValues.isVideo
-                                }))
+                                notes
                             }
                         })
                     })
-                    .catch(err => {
-                        console.log(`搜索失败：${err}`);
-                        resp.send(serviceError);
-                    })
+                }).catch(err => {
+                    console.log(`搜索失败：${err}`);
+                    resp.send(serviceError);
+                })
 
             })
             .catch(err => {

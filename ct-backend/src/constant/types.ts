@@ -25,4 +25,6 @@ export interface NoteCardType {
     username: string;
     avatarSrc: string;
     isVideo: boolean;
+    isLike: boolean;
+    likeCnt: number;
 }
