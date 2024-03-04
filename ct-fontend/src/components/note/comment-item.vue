@@ -3,7 +3,7 @@ import { backendStatic, ip, port } from '@/api/config'
 import { defineProps, defineEmits, PropType } from 'vue'
 import { Comment, ReplyInfo } from '@/common/types';
 
-const props = defineProps({
+defineProps({
     replyComments: {
         type: Array as PropType<Comment[]>,
         default() {
@@ -59,7 +59,7 @@ const handlerReply = (info: ReplyInfo) => {
             <p class="content">{{ content }}</p>
             <div class="text-12px">
                 <span class="date">{{ date }}</span>
-                <span @click="handlerReply({ targetCommentId: commentId, username: username, comment: content })"
+                <span @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, isRoot: true })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>
@@ -69,12 +69,13 @@ const handlerReply = (info: ReplyInfo) => {
         <div class="user-info">
             <div class="author">
                 <router-link :to="`/user/${userId}`">{{ item.user.username }}</router-link>
+                <span v-if="item.replyUsername">回复{{ item.replyUsername }}</span>
             </div>
             <p class="content">{{ item.content }}</p>
             <div class="text-12px">
                 <span class="date">{{ new Date(item.createdAt).toDateString() }}</span>
                 <span
-                    @click="handlerReply({ targetCommentId: item.targetCommentId, username: item.user.username, comment: item.content })"
+                    @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, isRoot: false })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>

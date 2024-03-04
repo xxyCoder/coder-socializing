@@ -20,12 +20,11 @@ class CommentController {
     }
     list(req: Request, resp: Response) {
         const { noteId, page_num, targetCommentId } = req.query;
-        const tcd = Number(targetCommentId)
-
-        getWithPage({ page_num: Number(page_num), noteId: Number(noteId), targetCommentId: Number.isNaN(tcd) ? null : tcd }) // 找“根”评论
+        const tcd = Number(targetCommentId), isNaN = Number.isNaN(tcd);
+        getWithPage({ page_num: Number(page_num), noteId: Number(noteId), targetCommentId: isNaN ? null : tcd }) // 找“根”评论
             .then(res => {
                 Promise.all(res.map(({ dataValues: dv }) => new Promise(async resolve => {
-                    const replyCnt = await (!Number.isNaN(tcd) ? 0 : count({ noteId: Number(noteId), targetCommentId: dv.id }));
+                    const replyCnt = await (!isNaN ? 0 : count({ noteId: Number(noteId), targetCommentId: dv.id }));
                     getWithPage({ page_num: Number(page_num), noteId: Number(noteId), targetCommentId: dv.id }) // 找子级评论
                         .then((res2) => {
                             const childs: CommentInfo[] = [];
@@ -37,6 +36,7 @@ class CommentController {
                                     targetCommentId: dv2.targetCommentId,
                                     createdAt: dv2.createdAt,
                                     replyCnt: replyCnt - Number(page_num) * pageSize,
+                                    replyUsername: dv.targetCommentId ? dv.user.username : "",
                                     user: {
                                         id: dv2.user.id,
                                         username: dv2.user.username,

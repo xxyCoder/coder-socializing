@@ -35,7 +35,8 @@ export interface CommentInfo {
     atUsers: string;
     targetCommentId: number | null;
     createdAt: string;
-    replyCnt: number;
+    replyCnt?: number;
+    replyUsername?: string;
     user: {
         id: number;
         username: string;

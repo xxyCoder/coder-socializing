@@ -53,7 +53,6 @@ const reqComment = (targetCommentId: number | null = null) => {
         .then(({ comments: _comments }) => {
             if (_comments.length) {
                 _comments.forEach(({ childs, ...others }) => {
-                    commentList.value.push(others);
                     if (targetCommentId) {
                         const arr = commentChildList.value.get(targetCommentId) || [];
                         arr.push(others)
@@ -72,6 +71,7 @@ const reqComment = (targetCommentId: number | null = null) => {
                 ++pageNum, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
                 req = false; // 放此处同时避免没有数据了继续请求
             }
+            console.log(commentList.value)
         })
 }
 reqComment();
@@ -108,7 +108,7 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
-const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '' })
+const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', isRoot: true })
 const commit = () => {
     if (!comment.value.length || !selfInfo) return;
     const noteId = note.value?.id;
@@ -121,7 +121,7 @@ const commit = () => {
         .then(res => {
             if (targetCommentId) {
                 const arr = commentChildList.value.get(targetCommentId) || [];
-                arr.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
+                arr.unshift({ ...res, replyUsername: replyInfo.value.isRoot ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
                 commentChildList.value.set(targetCommentId, arr)
             } else {
                 commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })

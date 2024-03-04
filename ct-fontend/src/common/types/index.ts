@@ -66,6 +66,7 @@ export interface Comment {
     replies: number;
     createdAt: string;
     user: UserInfo;
+    replyUsername: string;
     replyCnt?: number;
     childs?: Comment[]
 }
@@ -74,4 +75,5 @@ export interface ReplyInfo {
     targetCommentId: number | null;
     username: string;
     comment: string;
+    isRoot: boolean;
 }

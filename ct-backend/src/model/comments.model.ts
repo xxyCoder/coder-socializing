@@ -27,6 +27,11 @@ const Comments = seq.define('comments', {
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: '回复的评论id，为null表示主评论'
+    },
+    rootCommentId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: '回复的评论id的顶级id'
     }
 }, {
     timestamps: true
@@ -37,7 +42,7 @@ Comments.belongsTo(Users, { foreignKey: 'userId' });
 
 // 模型同步，创建该表
 Comments.sync({
-    force: false // true表示数据库如果存在该表，则先删除
+    force: true // true表示数据库如果存在该表，则先删除
 })
 
 export default Comments;
