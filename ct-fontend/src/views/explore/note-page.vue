@@ -47,31 +47,27 @@ getNoteDetail(`?noteId=${id}`)
 const commentListRef = ref<HTMLDivElement>()
 const commentList = ref<Comment[]>([])
 const commentChildList = ref<Map<number, Comment[]>>(new Map())
+const commentChildPageNums: Map<number, number> = new Map()
 let pageNum = 0, commentHeight = 0, startY = 0, req = true // 初始值为true因为第一次需要手动请求
-const reqComment = (targetCommentId: number | null = null) => {
-    getNoteComment(`?noteId=${id}&page_num=${pageNum}&targetCommentId=${targetCommentId}`)
+const reqComment = (rootCommentId: number | null = null) => {
+    let pn = pageNum;
+    if (rootCommentId) {
+        pn = commentChildPageNums.get(rootCommentId) || 0;
+    }
+    getNoteComment(`?noteId=${id}&page_num=${pn}&rootCommentId=${rootCommentId}`)
         .then(({ comments: _comments }) => {
             if (_comments.length) {
-                _comments.forEach(({ childs, ...others }) => {
-                    if (targetCommentId) {
-                        const arr = commentChildList.value.get(targetCommentId) || [];
-                        arr.push(others)
-                        commentChildList.value.set(targetCommentId, arr);
-                    } else {
-                        commentList.value.push(others)
-                    }
-
-                    if (childs && childs.length) {
-                        const id = others.id
-                        const arr = commentChildList.value.get(id) || [];
-                        arr.push(...childs);
-                        commentChildList.value.set(id, arr);
-                    }
-                })
-                ++pageNum, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
+                if (rootCommentId) {
+                    const arr = commentChildList.value.get(rootCommentId) || [];
+                    arr.push(..._comments);
+                    commentChildList.value.set(rootCommentId, arr);
+                } else {
+                    commentList.value.push(..._comments)
+                }
+                ++pn, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
                 req = false; // 放此处同时避免没有数据了继续请求
+                rootCommentId ? commentChildPageNums.set(rootCommentId, pn) : (pageNum = pn);
             }
-            console.log(commentList.value)
         })
 }
 reqComment();
@@ -108,7 +104,7 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
-const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', isRoot: true })
+const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null })
 const commit = () => {
     if (!comment.value.length || !selfInfo) return;
     const noteId = note.value?.id;
@@ -116,13 +112,13 @@ const commit = () => {
         useToast('网络错误');
         return;
     }
-    const targetCommentId = replyInfo.value.targetCommentId
-    emitComment({ noteId, comment: comment.value, targetCommentId })
+    const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
+    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId })
         .then(res => {
-            if (targetCommentId) {
-                const arr = commentChildList.value.get(targetCommentId) || [];
-                arr.unshift({ ...res, replyUsername: replyInfo.value.isRoot ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
-                commentChildList.value.set(targetCommentId, arr)
+            if (rootCommentId) {
+                const arr = commentChildList.value.get(rootCommentId) || [];
+                arr.unshift({ ...res, replyUsername: targetCommentId === rootCommentId ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
+                commentChildList.value.set(rootCommentId, arr)
             } else {
                 commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
             }
@@ -131,11 +127,16 @@ const commit = () => {
         .catch(err => {
             useToast(err.message);
         })
-    replyInfo.value.targetCommentId = null
+    replyInfo.value.targetCommentId = replyInfo.value.rootCommentId = null;
 }
 
 const handlerReply = (info: ReplyInfo) => {
     replyInfo.value = info
+}
+
+const cancelReply = () => {
+    replyInfo.value.targetCommentId = null
+    comment.value = ''
 }
 
 const handlerOpt = (type: 'like' | 'collect') => {
@@ -173,8 +174,8 @@ const handlerOpt = (type: 'like' | 'collect') => {
             <div ref="commentListRef" class="comments">
                 <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
                     :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
-                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id"
-                    :reply-comments="commentChildList.get(item.id)" @reply="handlerReply" />
+                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" :reply-cnt="item.replyCnt"
+                    :reply-comments="commentChildList.get(item.id)" @reply="handlerReply" @extend="reqComment" />
                 <in-the-end />
             </div>
         </div>
@@ -182,7 +183,7 @@ const handlerOpt = (type: 'like' | 'collect') => {
             <div class="reply-box" v-show="replyInfo.targetCommentId">
                 <div class="flex-box">
                     <span>回复 {{ replyInfo.username }}</span>
-                    <button @click="replyInfo.targetCommentId = null">取消</button>
+                    <button @click="cancelReply">取消</button>
                 </div>
                 <p>{{ replyInfo.comment }}</p>
             </div>

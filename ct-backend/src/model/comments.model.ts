@@ -10,6 +10,7 @@ export interface CommentModel {
     targetCommentId: number | null;
     noteId: number;
     userId: number;
+    rootCommentId: number | null;
 }
 
 const Comments = seq.define('comments', {
@@ -34,7 +35,7 @@ const Comments = seq.define('comments', {
         comment: '回复的评论id的顶级id'
     }
 }, {
-    timestamps: true
+    createdAt: true
 })
 
 Comments.belongsTo(Notes, { foreignKey: 'noteId' });
@@ -42,7 +43,7 @@ Comments.belongsTo(Users, { foreignKey: 'userId' });
 
 // 模型同步，创建该表
 Comments.sync({
-    force: true // true表示数据库如果存在该表，则先删除
+    force: false // true表示数据库如果存在该表，则先删除
 })
 
 export default Comments;

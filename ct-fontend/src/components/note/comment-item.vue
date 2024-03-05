@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { backendStatic, ip, port } from '@/api/config'
-import { defineProps, defineEmits, PropType } from 'vue'
+import { defineProps, defineEmits, PropType, computed } from 'vue'
 import { Comment, ReplyInfo } from '@/common/types';
 
-defineProps({
+const props = defineProps({
     replyComments: {
         type: Array as PropType<Comment[]>,
         default() {
@@ -41,11 +41,17 @@ defineProps({
     }
 })
 
+const remainCnt = computed(() => Math.max(0, props.replyCnt - props.replyComments.length))
+
 const emits = defineEmits<{
-    reply: [ReplyInfo]
+    reply: [ReplyInfo],
+    extend: [number]
 }>()
 const handlerReply = (info: ReplyInfo) => {
     emits('reply', info)
+}
+const extendRemain = (rootCommentId: number) => {
+    emits('extend', rootCommentId)
 }
 </script>
 
@@ -59,7 +65,8 @@ const handlerReply = (info: ReplyInfo) => {
             <p class="content">{{ content }}</p>
             <div class="text-12px">
                 <span class="date">{{ date }}</span>
-                <span @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, isRoot: true })"
+                <span
+                    @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, rootCommentId: commentId })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>
@@ -75,12 +82,14 @@ const handlerReply = (info: ReplyInfo) => {
             <div class="text-12px">
                 <span class="date">{{ new Date(item.createdAt).toDateString() }}</span>
                 <span
-                    @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, isRoot: false })"
+                    @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, rootCommentId: commentId })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>
     </div>
-    <div v-show="replyCnt" class="show-more">展开剩余{{ replyCnt }}回复</div>
+    <div v-show="remainCnt" class="show-more" @click="extendRemain(commentId)">
+        展开剩余{{ remainCnt }}回复
+    </div>
 </template>
 
 <style scoped lang="scss">
@@ -129,6 +138,7 @@ const handlerReply = (info: ReplyInfo) => {
 
 .show-more {
     margin-left: responsive(180, vw);
+    margin-bottom: responsive(20, vw);
     color: #c7daef;
     font-size: 14px;
 }
