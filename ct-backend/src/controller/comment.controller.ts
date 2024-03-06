@@ -1,8 +1,8 @@
-import { pageSize, serviceError } from "@src/constant/resp.constant";
+import { serviceError } from "@src/constant/resp.constant";
 import CommentsService from "@src/service/comments.service";
 import type { Request, Response } from "express";
 
-const { add, getWithPage, count } = CommentsService
+const { add, getWithPage, count, findUser } = CommentsService
 
 class CommentController {
     emit(req: Request, resp: Response) {
@@ -26,13 +26,15 @@ class CommentController {
                 Promise.all(res.map(({ dataValues: dv }) => new Promise(async resolve => {
                     // 如果rootCommentid为nulll则需要计算剩余多少子评论
                     const replyCnt = await (!isNaN ? 0 : count({ noteId: Number(noteId), rootCommentId: dv.id }));
+                    const targetCommentId = dv.targetCommentId, rootCommentId = dv.rootCommentId
+                    const replyUsername = (targetCommentId && targetCommentId !== rootCommentId ? (await findUser(targetCommentId))?.dataValues.user.username : '')
                     resolve({
                         id: dv.id,
                         content: dv.content,
                         atUsers: dv.atUsers,
-                        targetCommentId: dv.targetCommentId,
-                        rootCommentId: dv.rootCommentId,
-                        // replyUsername: dv.targetCommentId !== dv.rootCommentId ? dv. : '',
+                        targetCommentId,
+                        rootCommentId,
+                        replyUsername,
                         createdAt: dv.createdAt,
                         replyCnt,
                         user: {

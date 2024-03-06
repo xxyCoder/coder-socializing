@@ -20,6 +20,12 @@ class CommentService {
             where: { noteId, rootCommentId }
         });
     }
+    findUser(targetCommentId: number) {
+        return Comments.findOne({
+            where: { id: targetCommentId },
+            include: [Users]
+        })
+    }
 }
 
 export default new CommentService();
