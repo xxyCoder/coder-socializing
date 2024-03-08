@@ -1,15 +1,33 @@
 import { serviceError } from "@src/constant/resp.constant";
+import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
+import UsersService from "@src/service/users.service";
 import type { Request, Response } from "express";
 
-const { add, getWithPage, count, findUser } = CommentsService
+const { add, getWithPage, count, findUser, find } = CommentsService
+const { precisionFind } = UsersService
 
 class CommentController {
     emit(req: Request, resp: Response) {
-        const { comment: content, noteId, atUsers, targetCommentId = null, rootCommentId = null } = req.body;
-        const { id: userId } = req.query;
-        add({ noteId, userId: Number(userId), content, atUsers, targetCommentId, rootCommentId })
-            .then(res => {
+        const { comment: content, noteId, atUsers, targetCommentId = null, rootCommentId = null, replyUserId } = req.body;
+        const { id } = req.query;
+        const userId = Number(id)
+        add({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
+            .then(async res => {
+                // 如果在线就通知
+                const sse = getSSEConn(String(replyUserId))
+                if (sse) {
+                    const user = await precisionFind({ id: userId })
+                    const comment = await find({ targetCommentId })
+                    user && comment && sse.write({
+                        data: {
+                            noteId, userId,
+                            username: user.dataValues.username, avatarSrc: user.dataValues.avatarSrc,
+                            replyContent: content,
+                            content: comment.dataValues.content
+                        }
+                    })
+                }
                 resp.send({ code: 200, msg: '评论成功', data: res })
             })
             .catch(err => {
@@ -38,7 +56,7 @@ class CommentController {
                         createdAt: dv.createdAt,
                         replyCnt,
                         user: {
-                            id: dv.user.id,
+                            userId: dv.user.id,
                             username: dv.user.username,
                             avatarSrc: dv.user.avatarSrc
                         }

@@ -18,7 +18,8 @@ const props = defineProps({
         type: String
     },
     userId: {
-        type: Number
+        type: Number,
+        required: true
     },
     username: {
         type: String,
@@ -66,7 +67,7 @@ const extendRemain = (rootCommentId: number) => {
             <div class="text-12px">
                 <span class="date">{{ date }}</span>
                 <span
-                    @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, rootCommentId: commentId })"
+                    @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, rootCommentId: commentId, replyUserId: userId })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>
@@ -75,14 +76,14 @@ const extendRemain = (rootCommentId: number) => {
         <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
         <div class="user-info">
             <div class="author">
-                <router-link :to="`/user/${userId}`">{{ item.user.username }}</router-link>
+                <router-link :to="`/user/${item.user.userId}`">{{ item.user.username }}</router-link>
                 <span v-if="item.replyUsername">回复{{ item.replyUsername }}</span>
             </div>
             <p class="content">{{ item.content }}</p>
             <div class="text-12px">
                 <span class="date">{{ new Date(item.createdAt).toDateString() }}</span>
                 <span
-                    @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, rootCommentId: commentId })"
+                    @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, rootCommentId: commentId, replyUserId: item.user.userId })"
                     class="reply" v-html="'回复'" />
             </div>
         </div>

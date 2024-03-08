@@ -26,6 +26,15 @@ class CommentService {
             include: [Users]
         })
     }
+    find({ targetCommentId, userId }: Partial<CommentModel>) {
+        const whereOp = {};
+        targetCommentId && Object.assign(whereOp, { targetCommentId })
+        userId && Object.assign(whereOp, { userId })
+
+        return Comments.findOne({
+            where: whereOp
+        })
+    }
 }
 
 export default new CommentService();

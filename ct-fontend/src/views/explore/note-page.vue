@@ -104,7 +104,7 @@ const handlerClick = () => {
 }
 
 const comment = ref<string>('')
-const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null })
+const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
 const commit = () => {
     if (!comment.value.length || !selfInfo) return;
     const noteId = note.value?.id;
@@ -113,7 +113,7 @@ const commit = () => {
         return;
     }
     const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
-    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId })
+    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId })
         .then(res => {
             if (rootCommentId) {
                 const arr = commentChildList.value.get(rootCommentId) || [];
@@ -175,7 +175,8 @@ const handlerOpt = (type: 'like' | 'collect') => {
                 <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
                     :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
                     :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" :reply-cnt="item.replyCnt"
-                    :reply-comments="commentChildList.get(item.id)" @reply="handlerReply" @extend="reqComment" />
+                    :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)" @reply="handlerReply"
+                    @extend="reqComment" />
                 <in-the-end />
             </div>
         </div>

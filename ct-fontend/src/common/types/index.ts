@@ -76,4 +76,5 @@ export interface ReplyInfo {
     username: string;
     comment: string;
     rootCommentId: number | null;
+    replyUserId: number | null;
 }
