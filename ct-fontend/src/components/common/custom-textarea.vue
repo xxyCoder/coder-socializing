@@ -36,7 +36,7 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-@import "../common/style/func.scss";
+@import "../../common/style/func.scss";
 
 .custom {
     position: relative;

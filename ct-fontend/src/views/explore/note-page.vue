@@ -6,12 +6,12 @@ import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { follwerOrCancel } from '@/api/users';
 import { getUserInfo } from '@/common/ts/user-info';
-import NullData from '@/components/null-data.vue';
-import Carousel from '@/components/carousel.vue';
+import NullData from '@/components/common/null-data.vue';
+import Carousel from '@/components/common/carousel.vue';
 import type { UserInfo, NoteInfo, Comment } from '@/common/types/index'
 import { backendStatic, ip, port } from '@/api/config';
-import Like from '@/components/like.vue';
-import Collect from '@/components/collect.vue';
+import Like from '@/components/common/like.vue';
+import Collect from '@/components/common/collect.vue';
 import CommentItem from '@/components/note/comment-item.vue';
 import InTheEnd from '@/components/common/in-the-end.vue';
 import { ReplyInfo } from '@/common/types';

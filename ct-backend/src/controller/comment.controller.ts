@@ -2,10 +2,12 @@ import { serviceError } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
 import UsersService from "@src/service/users.service";
+import NotesService from "@src/service/notes.service";
 import type { Request, Response } from "express";
 
 const { add, getWithPage, count, findUser, find } = CommentsService
 const { precisionFind } = UsersService
+const { get: getNoteInfo } = NotesService
 
 class CommentController {
     emit(req: Request, resp: Response) {
@@ -19,12 +21,16 @@ class CommentController {
                 if (sse) {
                     const user = await precisionFind({ id: userId })
                     const comment = await find({ targetCommentId })
+                    const note = await getNoteInfo(noteId)
                     user && comment && sse.write({
                         data: {
                             noteId, userId,
                             username: user.dataValues.username, avatarSrc: user.dataValues.avatarSrc,
                             replyContent: content,
-                            content: comment.dataValues.content
+                            title: note?.dataValues.title,
+                            content: comment.dataValues.content,
+                            isReply: !!targetCommentId,
+                            type: 'comment'
                         }
                     })
                 }

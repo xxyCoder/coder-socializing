@@ -14,7 +14,7 @@ const emits = defineEmits(['click']);
 </template>
 
 <style scoped lang="scss">
-@import "../common/style/func.scss";
+@import "../../common/style/func.scss";
 
 .save {
     position: fixed;

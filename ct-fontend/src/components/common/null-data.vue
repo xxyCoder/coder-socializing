@@ -10,7 +10,7 @@
 </template>
 
 <style lang="scss" scoped>
-@import '../common/style/func.scss';
+@import '../../common/style/func.scss';
 
 .no-data {
     display: flex;

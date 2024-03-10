@@ -15,7 +15,7 @@ const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
 </template>
 
 <style lang="scss" scoped>
-@import '../common/style/func.scss';
+@import '../../common/style/func.scss';
 
 .menu {
     position: fixed;

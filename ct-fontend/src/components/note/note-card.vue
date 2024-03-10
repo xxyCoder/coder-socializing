@@ -2,7 +2,7 @@
 import { defineProps } from 'vue'
 import { useRouter } from 'vue-router';
 import { backendStatic, ip, port } from '@/api/config';
-import like from '@/components/like.vue';
+import like from '@/components/common/like.vue';
 
 defineProps({
     posterSrc: String,

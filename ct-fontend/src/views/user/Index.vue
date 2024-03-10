@@ -10,8 +10,8 @@ import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import type { NoteCardType } from '@/common/types'
-import BottomMenu from '@/components/bottom-menu.vue';
-import StickyList from '@/components/sticky-list.vue';
+import BottomMenu from '@/components/common/bottom-menu.vue';
+import StickyList from '@/components/common/sticky-list.vue';
 import AllNotes from '@/components/note/all-notes.vue';
 
 const route = useRoute();

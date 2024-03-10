@@ -4,16 +4,16 @@ import { useRouter } from 'vue-router';
 import { debounce } from 'lodash';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
-import CustomInput from '@/components/custom-input.vue';
-import NullState from '@/components/null-state.vue';
+import CustomInput from '@/components/common/custom-input.vue';
+import NullState from '@/components/common/null-state.vue';
 import { updateUserInfo, updateUserPass } from '@/api/users'
 import { cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
 import { backendStatic, ip, port } from '@/api/config';
-import CustomTextarea from '@/components/custom-textarea.vue';
+import CustomTextarea from '@/components/common/custom-textarea.vue';
 import { CustomComponent, CustomInputComponent } from '@/common/types';
-import BottomButton from '@/components/bottom-button.vue';
+import BottomButton from '@/components/common/bottom-button.vue';
 
 const userInfo = getUserInfo();
 

@@ -1,5 +1,6 @@
 import { Comment, NoteCardType, NoteDetail } from "@/common/types";
-import instance, { PostFirstArg } from "./config";
+import instance from "./config";
+import { PostFirstArg } from './types'
 
 export const publishNote = instance.post<PostFirstArg, FormData>("/note/publish");
 

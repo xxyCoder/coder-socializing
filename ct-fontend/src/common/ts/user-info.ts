@@ -1,5 +1,7 @@
 import { ip, port } from "@/api/config";
+import { getCommentNotifyList } from "@/api/notify";
 import { getUserInfo as getUserInfoApi } from "@/api/users";
+import { useCommentNotifyStore } from '@/store'
 
 export interface UserInfo {
     avatarSrc?: string;
@@ -24,10 +26,20 @@ export function recapUserInfo() {
     getUserInfoApi("")
         .then(res => {
             setUserInfo(res)
+            const { addCommentNotify, setCommentNotifyList } = useCommentNotifyStore();
+            // 拿到所有未删除的评论通知
+            getCommentNotifyList('')
+                .then(setCommentNotifyList)
             // 建立sse连接
             eventSource = new EventSource(`${ip}:${port}/sse/${res.id}`)
             eventSource.onmessage = (event) => {
-                console.log(event.data, 'rec')
+                const { type, ...others } = event.data;
+                switch (type) {
+                    case 'comment':
+                        addCommentNotify(others)
+                        break;
+                }
+
             }
             eventSource.onerror = (error) => {
                 console.error(`sse error: ${error}`)

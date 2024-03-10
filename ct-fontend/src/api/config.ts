@@ -1,9 +1,7 @@
 import { readCookie } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
 import axios, { AxiosRequestConfig } from "axios";
-
-type IAnyObj = Record<string, any>;
-export type PostFirstArg = Record<string, string | number>
+import { IAnyObj, PostFirstArg } from './types'
 
 export interface apiResponse<T = IAnyObj> {
     code: number;

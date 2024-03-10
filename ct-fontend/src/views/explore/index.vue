@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BottomMenu from '@/components/bottom-menu.vue';
-import StickyList from '@/components/sticky-list.vue';
+import BottomMenu from '@/components/common/bottom-menu.vue';
+import StickyList from '@/components/common/sticky-list.vue';
 import { getExploreNotes } from '@/api/note'
 import { ref, watch } from 'vue';
 import { useToast } from '@/components/Toast';
@@ -43,7 +43,7 @@ watch(tabId, () => {
 </script>
 
 <template>
-    <sticky-list :list="list" @click="(id) => tabId = id" />
+    <sticky-list :list="list" @click="(id: number) => tabId = id" />
     <all-notes :show-infos="notes" />
     <bottom-menu />
 </template>

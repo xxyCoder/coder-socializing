@@ -63,7 +63,7 @@ const changeIdx = (e: MouseEvent) => {
 </template>
 
 <style scoped lang="scss">
-@import '../common/style/func.scss';
+@import '../../common/style/func.scss';
 
 .banner {
     overflow: hidden;

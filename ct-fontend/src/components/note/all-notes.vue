@@ -2,7 +2,7 @@
 import { NoteCardType } from '@/common/types';
 import { PropType, defineProps } from 'vue';
 import NoteCard from './note-card.vue';
-import NullData from '../null-data.vue';
+import NullData from '@/components/common/null-data.vue';
 
 defineProps({
     showInfos: {

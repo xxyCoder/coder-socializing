@@ -39,7 +39,7 @@ const handlerClick = (idx: number) => {
 </template>
 
 <style scoped lang="scss">
-@import '../common/style/func.scss';
+@import '../../common/style/func.scss';
 
 .sticky-list {
     position: relative;

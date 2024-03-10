@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineProps, ref } from 'vue';
 import { noteLikeOrCollect } from '@/api/note';
-import { useToast } from './Toast';
+import { useToast } from '../Toast';
 
 const props = defineProps({
     isLike: {
@@ -56,4 +56,4 @@ const handlerLike = () => {
 .mt-5 {
     margin: 0 5px;
 }
-</style>
+</style>../Toast

@@ -1,5 +1,6 @@
 import { UserInfo } from "@/common/ts/user-info";
-import instance, { type PostFirstArg } from "./config";
+import instance from "./config";
+import { PostFirstArg } from './types'
 import { viewerInfoReq } from "@/common/types";
 
 export const userLogin = instance.post<{ token: string } & UserInfo>("/user/login");

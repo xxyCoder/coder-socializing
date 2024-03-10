@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BottomMenu from '@/components/bottom-menu.vue';
-import StickyList from '@/components/sticky-list.vue';
+import BottomMenu from '@/components/common/bottom-menu.vue';
+import StickyList from '@/components/common/sticky-list.vue';
 
 const list = ['评论和@', '关注', '点赞', '私信']
 </script>

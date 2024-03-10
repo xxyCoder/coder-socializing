@@ -5,7 +5,7 @@ import { debounce } from 'lodash'
 import { userRegistry } from '@/api/users';
 import { useToast } from '@/components/Toast/index';
 import { useLoading } from '@/components/Loading/index'
-import CustomInput from '@/components/custom-input.vue';
+import CustomInput from '@/components/common/custom-input.vue';
 import { debounceTime, InputMap, initNotPass, cryptoPassword } from './ts/index'
 import { CustomInputComponent } from '@/common/types';
 

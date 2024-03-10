@@ -3,10 +3,10 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import UploadImg from '@/components/note/upload-img.vue';
 import { UploadImgComp } from './ts/type'
-import CustomInput from '@/components/custom-input.vue';
-import CustomTextarea from '@/components/custom-textarea.vue';
-import BottomButton from '@/components/bottom-button.vue';
-import NullState from '@/components/null-state.vue'
+import CustomInput from '@/components/common/custom-input.vue';
+import CustomTextarea from '@/components/common/custom-textarea.vue';
+import BottomButton from '@/components/common/bottom-button.vue';
+import NullState from '@/components/common/null-state.vue'
 import { useToast } from '@/components/Toast';
 import { CustomComponent, CustomInputComponent } from '@/common/types';
 import { publishNote } from '@/api/note';
