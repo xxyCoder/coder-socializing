@@ -1,7 +1,8 @@
 import { ip, port } from "@/api/config";
-import { getCommentNotifyList } from "@/api/notify";
+import { getCommentAndAtNotifyList } from "@/api/notify";
 import { getUserInfo as getUserInfoApi } from "@/api/users";
-import { useCommentNotifyStore } from '@/store'
+import { useToast } from "@/components/Toast";
+import { useCommentAndAtNotifyStore } from '@/store'
 
 export interface UserInfo {
     avatarSrc?: string;
@@ -26,17 +27,17 @@ export function recapUserInfo() {
     getUserInfoApi("")
         .then(res => {
             setUserInfo(res)
-            const { addCommentNotify, setCommentNotifyList } = useCommentNotifyStore();
+            const { addCommentAtNotify, setCommentAtNotifyList } = useCommentAndAtNotifyStore();
             // 拿到所有未删除的评论通知
-            getCommentNotifyList('')
-                .then(setCommentNotifyList)
+            getCommentAndAtNotifyList('?type=comment-at')
+                .then(setCommentAtNotifyList)
             // 建立sse连接
             eventSource = new EventSource(`${ip}:${port}/sse/${res.id}`)
             eventSource.onmessage = (event) => {
                 const { type, ...others } = event.data;
                 switch (type) {
-                    case 'comment':
-                        addCommentNotify(others)
+                    case 'comment-at':
+                        addCommentAtNotify(others)
                         break;
                 }
 
@@ -48,6 +49,7 @@ export function recapUserInfo() {
         })
         .catch(err => {
             // 清空localStorage信息
+            useToast('请登录')
             localStorage.removeItem('user-info')
             // 埋点
         })

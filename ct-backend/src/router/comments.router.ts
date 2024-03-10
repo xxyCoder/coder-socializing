@@ -12,5 +12,6 @@ const { emit, list } = CommentController;
 
 router.get('/note_comments', verifyCSRFSession, checkNoteIdExists, checkPageParams, list)
 router.post('/emit_comment', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkNoteIdExists, checkCommentContent, emit)
+router.get('/notify_list', verifyCSRFSession, verifyToken, checkIdAndAccountExists)
 
 export default router;

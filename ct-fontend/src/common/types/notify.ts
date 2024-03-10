@@ -1,10 +1,15 @@
-export interface CommentNotify {
-    noteId: number;
+export interface Notify {
+    id: number;
     userId: number;
     username: string;
-    avatarSrc: string | null;
-    replyContent: string;
-    title: string;
-    content: string;
-    isReply: boolean;
+    avatarSrc: string;
+    noteId?: number;
+    title?: string;
+    commentId?: number;
+    replyCommentId?: number;
+    content?: string;
+    replyContent?: string;
+    time: number;
+    status: number;
+    type: number;
 }

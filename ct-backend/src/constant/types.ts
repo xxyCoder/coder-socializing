@@ -44,3 +44,19 @@ export interface CommentInfo {
     },
     childs: CommentInfo[]
 }
+
+export interface Notify {
+    id: number;
+    userId: number;
+    username: string;
+    avatarSrc: string | null;
+    noteId?: number | null;
+    title?: string;
+    commentId?: number | null;
+    replyCommentId?: number | null;
+    content?: string;
+    replyContent?: string;
+    time: Number;
+    status: number;
+    type: number;
+}

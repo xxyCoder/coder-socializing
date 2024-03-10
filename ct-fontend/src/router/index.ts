@@ -33,6 +33,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/explore',
+    name: 'explore',
     component: () => import('@/views/explore/index.vue')
   },
   {

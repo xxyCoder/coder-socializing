@@ -7,6 +7,7 @@ import concerns from '@src/router/concerns.router'
 import note from '@src/router/note.router'
 import comment from '@src/router/comments.router'
 import sse from '@src/router/sse.router'
+import notify from '@src/router/notify.router'
 import path from 'path';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/concern', concerns);
 app.use('/note', note)
 app.use('/comment', comment)
 app.use('/sse', sse)
+app.use('/notify', notify)
 
 
 export default app;

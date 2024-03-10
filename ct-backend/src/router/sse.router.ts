@@ -1,4 +1,3 @@
-import { verifyCSRFSession } from "@src/middleware/auth.middleware";
 import express, { type Request, Response } from "express";
 import SseStream from "ssestream";
 

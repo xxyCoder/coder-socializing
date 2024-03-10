@@ -1,4 +1,4 @@
-import { CommentNotify } from "@/common/types/notify";
+import { Notify } from "@/common/types/notify";
 import instance from "./config";
 
-export const getCommentNotifyList = instance.get<CommentNotify[]>('/comment/notify');
+export const getCommentAndAtNotifyList = instance.get<Notify[]>('/notify/notify_list');

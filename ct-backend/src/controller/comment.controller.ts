@@ -3,11 +3,14 @@ import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
 import UsersService from "@src/service/users.service";
 import NotesService from "@src/service/notes.service";
+import NotifyService from '@src/service/notifies.service'
 import type { Request, Response } from "express";
+import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add, getWithPage, count, findUser, find } = CommentsService
 const { precisionFind } = UsersService
 const { get: getNoteInfo } = NotesService
+const { add: addNotify } = NotifyService
 
 class CommentController {
     emit(req: Request, resp: Response) {
@@ -15,25 +18,37 @@ class CommentController {
         const { id } = req.query;
         const userId = Number(id)
         add({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
-            .then(async res => {
-                // 如果在线就通知
-                const sse = getSSEConn(String(replyUserId))
-                if (sse) {
-                    const user = await precisionFind({ id: userId })
-                    const comment = await find({ targetCommentId })
-                    const note = await getNoteInfo(noteId)
-                    user && comment && sse.write({
-                        data: {
-                            noteId, userId,
-                            username: user.dataValues.username, avatarSrc: user.dataValues.avatarSrc,
-                            replyContent: content,
-                            title: note?.dataValues.title,
-                            content: comment.dataValues.content,
-                            isReply: !!targetCommentId,
-                            type: 'comment'
+            .then(res => {
+                // 存储起来
+                addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
+                    .then(async () => {
+                        // 如果在线就通知
+                        const sse = getSSEConn(String(replyUserId))
+                        if (sse) {
+                            const user = await precisionFind({ id: userId })
+                            const comment = await find({ targetCommentId })
+                            const note = await getNoteInfo(noteId)
+                            user && comment && sse.write({
+                                data: {
+                                    userId,
+                                    username: user.dataValues.username,
+                                    avatarSrc: user.dataValues.avatarSrc,
+                                    noteId,
+                                    title: note?.dataValues.title,
+                                    commentId: res.dataValues.id,
+                                    replyCommentId: targetCommentId,
+                                    content: comment.dataValues.content,
+                                    replyContent: content,
+                                    type: 'comment',
+                                    state: NotifyStateMap.unread
+                                }
+                            })
                         }
                     })
-                }
+                    .catch(err => {
+                        console.error(`${userId}通知失败:${err}`)
+                    })
+
                 resp.send({ code: 200, msg: '评论成功', data: res })
             })
             .catch(err => {
