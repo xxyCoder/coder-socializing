@@ -26,10 +26,11 @@ class CommentService {
             include: [Users]
         })
     }
-    find({ targetCommentId, userId }: Partial<CommentModel>) {
+    find({ targetCommentId, userId, id }: Partial<CommentModel>) {
         const whereOp = {};
         targetCommentId && Object.assign(whereOp, { targetCommentId })
         userId && Object.assign(whereOp, { userId })
+        id && Object.assign(whereOp, { id })
 
         return Comments.findOne({
             where: whereOp

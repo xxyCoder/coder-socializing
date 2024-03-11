@@ -28,5 +28,5 @@ const notifyList = computed(() => {
     <notify-item v-for="item in notifyList" :key="item.id" :user-id="item.userId" :username="item.username"
         :avatar-src="item.avatarSrc" :note-id="item.noteId" :title="item.title" :comment-id="item.commentId"
         :reply-comment-id="item.replyCommentId" :content="item.content" :reply-content="item.replyContent"
-        :time="item.time" :status="item.status" :type="item.type" />
+        :time="item.time" :status="item.status" :type="item.tinyType" />
 </template>

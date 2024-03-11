@@ -26,7 +26,7 @@ class CommentController {
                         const sse = getSSEConn(String(replyUserId))
                         if (sse) {
                             const user = await precisionFind({ id: userId })
-                            const comment = await find({ targetCommentId })
+                            const comment = targetCommentId ? await find({ id: targetCommentId }) : { dataValues: {} }
                             const note = await getNoteInfo(noteId)
                             user && comment && sse.write({
                                 data: {
@@ -38,8 +38,10 @@ class CommentController {
                                     commentId: res.dataValues.id,
                                     replyCommentId: targetCommentId,
                                     content: comment.dataValues.content,
+                                    time: +new Date(res.dataValues.createdAt),
                                     replyContent: content,
-                                    type: 'comment',
+                                    tinyType: NotifyTypeMap.comment,
+                                    type: 'comment-at',
                                     state: NotifyStateMap.unread
                                 }
                             })

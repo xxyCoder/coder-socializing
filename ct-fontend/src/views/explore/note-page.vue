@@ -113,7 +113,7 @@ const commit = () => {
         return;
     }
     const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
-    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId })
+    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
         .then(res => {
             if (rootCommentId) {
                 const arr = commentChildList.value.get(rootCommentId) || [];

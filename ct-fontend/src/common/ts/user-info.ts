@@ -34,7 +34,7 @@ export function recapUserInfo() {
             // 建立sse连接
             eventSource = new EventSource(`${ip}:${port}/sse/${res.id}`)
             eventSource.onmessage = (event) => {
-                const { type, ...others } = event.data;
+                const { type, ...others } = JSON.parse(event.data);
                 switch (type) {
                     case 'comment-at':
                         addCommentAtNotify(others)

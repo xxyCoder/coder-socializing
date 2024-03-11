@@ -117,8 +117,8 @@ const handlerClick = () => {
         </div>
         <div class="container">
             <div class="content">
-                <p>{{ content }}</p>
-                <p class="reply">{{ replyContent }}</p>
+                <p>{{ replyContent }}</p>
+                <p class="reply">{{ content }}</p>
                 <span v-html="date" />
             </div>
             <i v-if="!status" class="red-dot" />

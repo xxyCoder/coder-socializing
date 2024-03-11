@@ -40,7 +40,8 @@ class NotiftController {
                             replyContent: comment2?.dataValues.content,
                             time: +new Date(notify.dataValues.createdAt),
                             status: NotifyStateMap.unread,
-                            type: notify.dataValues.type
+                            tinyType: notify.dataValues.type,
+                            type: FrontNotifyTypeMap["comment-at"]
                         })
                     }
                     break
