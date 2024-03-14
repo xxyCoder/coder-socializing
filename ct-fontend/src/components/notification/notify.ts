@@ -16,3 +16,8 @@ export const enum NotifyTypeMap {
     concern,
     'thumb-collect'
 }
+
+export const enum NotifyItem {
+    user,
+    content
+}

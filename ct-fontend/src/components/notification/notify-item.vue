@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { computed, defineProps } from 'vue'
 import { backendStatic, ip, port } from '@/api/config';
-import { NotifyItemTypeMap } from './notify';
+import { NotifyItem, NotifyItemStateMap, NotifyItemTypeMap } from './notify';
 import { useRouter } from 'vue-router';
 import { useNoteInfoStore } from '@/store';
+import { changeNotifyState } from '@/api/notify';
 
 const props = defineProps({
+    notifyId: {
+        type: Number,
+        default: 0
+    },
     avatarSrc: {
         type: String
     },
@@ -88,8 +93,14 @@ const date = computed(() => {
 })
 
 const router = useRouter()
-const handlerClick = () => {
-    const { type, replyCommentId, noteId, commentId } = props
+const handlerClick = (viewType: NotifyItem) => {
+    const { notifyId, userId, type, replyCommentId, noteId, commentId } = props;
+    // 未读则标记已读
+    props.status === NotifyItemStateMap.unread && changeNotifyState({ notifyId }).catch(console.error)
+    if (viewType === NotifyItem.user) {
+        router.push(`/user/${userId}`)
+        return
+    }
     const { setNoteInfo } = useNoteInfoStore()
     switch (type) {
         case NotifyItemTypeMap.comment:
@@ -109,13 +120,13 @@ const handlerClick = () => {
 </script>
 
 <template>
-    <div class="notify" @click="handlerClick">
-        <div class="header">
+    <div class="notify">
+        <div class="header" @click="handlerClick(NotifyItem.user)">
             <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
-            <router-link :to="'/user/' + userId">{{ username }}</router-link>
+            <span class="name">{{ username }}</span>
             <span>{{ tips }}</span>
         </div>
-        <div class="container">
+        <div class="container" @click="handlerClick(NotifyItem.content)">
             <div class="content">
                 <p>{{ replyContent }}</p>
                 <p class="reply">{{ content }}</p>
@@ -143,11 +154,11 @@ const handlerClick = () => {
         height: responsive(60, vw);
         border-radius: 50%;
     }
+}
 
-    a {
-        color: #fff;
-        margin: 0 responsive(20, vw)
-    }
+.name {
+    color: #fff;
+    margin: 0 responsive(20, vw)
 }
 
 .container {

@@ -21,7 +21,7 @@ class CommentController {
             .then(res => {
                 // 存储起来
                 addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
-                    .then(async () => {
+                    .then(async (res) => {
                         // 如果在线就通知
                         const sse = getSSEConn(String(replyUserId))
                         if (sse) {
@@ -30,6 +30,7 @@ class CommentController {
                             const note = await getNoteInfo(noteId)
                             user && comment && sse.write({
                                 data: {
+                                    id: res.dataValues.id,
                                     userId,
                                     username: user.dataValues.username,
                                     avatarSrc: user.dataValues.avatarSrc,

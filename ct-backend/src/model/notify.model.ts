@@ -3,6 +3,7 @@ import seq from "@src/database/seq.database";
 import Users from "./users.model";
 
 export interface NotifyModel {
+    id: number | null
     noteId: number | null;
     userId: number;
     commentId: number | null;

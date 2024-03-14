@@ -66,7 +66,7 @@ export default {
         }
     },
     get<D = IAnyObj>(url: string) {
-        return (query: string) => {
+        return (query = "") => {
             return instance.get<D, D>(url + query);
         }
     }

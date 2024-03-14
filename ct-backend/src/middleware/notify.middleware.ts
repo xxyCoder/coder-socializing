@@ -10,3 +10,12 @@ export const checkTypeRight = (req: Request, resp: Response, next: NextFunction)
     }
     next()
 }
+
+export const checkNotifyIdExists = (req: Request, resp: Response, next: NextFunction) => {
+    const { notifyId } = req.body;
+    if (!notifyId) {
+        resp.send(importArgsIsNull)
+        return
+    }
+    next()
+}
