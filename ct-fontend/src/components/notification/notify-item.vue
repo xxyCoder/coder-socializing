@@ -95,12 +95,13 @@ const date = computed(() => {
 const router = useRouter()
 const handlerClick = (viewType: NotifyItem) => {
     const { notifyId, userId, type, replyCommentId, noteId, commentId } = props;
-    // 未读则标记已读
-    props.status === NotifyItemStateMap.unread && changeNotifyState({ notifyId }).catch(console.error)
+    
     if (viewType === NotifyItem.user) {
         router.push(`/user/${userId}`)
         return
     }
+    // 未读则标记已读
+    props.status === NotifyItemStateMap.unread && changeNotifyState({ notifyId }).catch(console.error)
     const { setNoteInfo } = useNoteInfoStore()
     switch (type) {
         case NotifyItemTypeMap.comment:
@@ -128,8 +129,8 @@ const handlerClick = (viewType: NotifyItem) => {
         </div>
         <div class="container" @click="handlerClick(NotifyItem.content)">
             <div class="content">
-                <p>{{ replyContent }}</p>
-                <p class="reply">{{ content }}</p>
+                <p>{{ content }}</p>
+                <p class="reply">{{ replyContent }}</p>
                 <span v-html="date" />
             </div>
             <i v-if="!status" class="red-dot" />

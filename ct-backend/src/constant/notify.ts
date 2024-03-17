@@ -12,7 +12,7 @@ export const enum NotifyTypeMap {
 }
 
 export const enum FrontNotifyTypeMap {
-    'comment-at' = 'comment-at',
-    'thumb-collet' = 'thumb-collet',
-    concern = 'concern'
+    'comment-at',
+    'thumb-collet',
+    concern
 }

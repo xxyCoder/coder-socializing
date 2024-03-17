@@ -11,6 +11,5 @@ export interface Notify {
     replyContent?: string;
     time: number;
     status: number;
-    tinyType: number;
-    type: string;
+    type: number;
 }

@@ -1,8 +1,7 @@
 import { ip, port } from "@/api/config";
-import { getCommentAndAtNotifyList } from "@/api/notify";
 import { getUserInfo as getUserInfoApi } from "@/api/users";
 import { useToast } from "@/components/Toast";
-import { useCommentAndAtNotifyStore } from '@/store'
+import { useNotityCountStore } from "@/store";
 
 export interface UserInfo {
     avatarSrc?: string;
@@ -27,20 +26,15 @@ export function recapUserInfo() {
     getUserInfoApi("")
         .then(res => {
             setUserInfo(res)
-            const { addCommentAtNotify, setCommentAtNotifyList } = useCommentAndAtNotifyStore();
-            // 拿到所有未删除的评论通知
-            getCommentAndAtNotifyList('?type=comment-at')
-                .then(setCommentAtNotifyList)
             // 建立sse连接
             eventSource = new EventSource(`${ip}:${port}/sse/${res.id}`)
             eventSource.onmessage = (event) => {
-                const { type, ...others } = JSON.parse(event.data);
-                switch (type) {
-                    case 'comment-at':
-                        addCommentAtNotify(others)
-                        break;
+                const { type } = JSON.parse(event.data);
+                console.log(event.data)
+                if (type === 'notify') {
+                    const { addCount } = useNotityCountStore()
+                    addCount()
                 }
-
             }
             eventSource.onerror = (error) => {
                 console.error(`sse error: ${error}`)

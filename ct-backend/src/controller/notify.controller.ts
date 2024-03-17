@@ -12,7 +12,7 @@ const { find: getCommentInfo } = CommentsService;
 
 class NotiftController {
     async list(req: Request, resp: Response) {
-        const { type } = req.query
+        const type = Number(req.query.type)
         let notifies, data: Notify[] = []
 
         try {
@@ -25,7 +25,7 @@ class NotiftController {
                         const { username, avatarSrc } = notify.dataValues.user
                         const [comment1, comment2, noteInfo] = await Promise.all([
                             getCommentInfo({ id: commentId }),
-                            getCommentInfo({ id: replyCommentId }),
+                            replyCommentId ? getCommentInfo({ id: replyCommentId }) : Promise.resolve(null),
                             getNoteInfo(notify.dataValues.noteId)
                         ])
                         data.push({
@@ -41,8 +41,7 @@ class NotiftController {
                             replyContent: comment2?.dataValues.content,
                             time: +new Date(notify.dataValues.createdAt),
                             status: notify.dataValues.state,
-                            tinyType: notify.dataValues.type,
-                            type: FrontNotifyTypeMap["comment-at"]
+                            type: notify.dataValues.type,
                         })
                     }
                     break

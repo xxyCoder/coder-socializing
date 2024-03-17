@@ -1,15 +1,11 @@
 import { serviceError } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
-import UsersService from "@src/service/users.service";
-import NotesService from "@src/service/notes.service";
 import NotifyService from '@src/service/notifies.service'
 import type { Request, Response } from "express";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
-const { add, getWithPage, count, findUser, find } = CommentsService
-const { precisionFind } = UsersService
-const { get: getNoteInfo } = NotesService
+const { add, getWithPage, count, findUser } = CommentsService
 const { add: addNotify } = NotifyService
 
 class CommentController {
@@ -21,32 +17,10 @@ class CommentController {
             .then(res => {
                 // 存储起来
                 addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
-                    .then(async (res) => {
+                    .then(() => {
                         // 如果在线就通知
                         const sse = getSSEConn(String(replyUserId))
-                        if (sse) {
-                            const user = await precisionFind({ id: userId })
-                            const comment = targetCommentId ? await find({ id: targetCommentId }) : { dataValues: {} }
-                            const note = await getNoteInfo(noteId)
-                            user && comment && sse.write({
-                                data: {
-                                    id: res.dataValues.id,
-                                    userId,
-                                    username: user.dataValues.username,
-                                    avatarSrc: user.dataValues.avatarSrc,
-                                    noteId,
-                                    title: note?.dataValues.title,
-                                    commentId: res.dataValues.id,
-                                    replyCommentId: targetCommentId,
-                                    content: comment.dataValues.content,
-                                    time: +new Date(res.dataValues.createdAt),
-                                    replyContent: content,
-                                    tinyType: NotifyTypeMap.comment,
-                                    type: 'comment-at',
-                                    state: NotifyStateMap.unread
-                                }
-                            })
-                        }
+                        sse && sse.write({ data: { type: 'notify' } })
                     })
                     .catch(err => {
                         console.error(`${userId}通知失败:${err}`)

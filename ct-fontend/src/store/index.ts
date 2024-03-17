@@ -1,19 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { Notify } from '@/common/types/notify'
 import { NoteInfo } from './types'
-
-export const useCommentAndAtNotifyStore = defineStore('comment-at-notify', () => {
-    const commentAtNofityList = ref<Notify[]>([])
-    function addCommentAtNotify(notify: Notify) {
-        commentAtNofityList.value.unshift(notify)
-    }
-    function setCommentAtNotifyList(notifyList: Notify[]) {
-        commentAtNofityList.value.push(...notifyList);
-    }
-
-    return { commentAtNofityList, addCommentAtNotify, setCommentAtNotifyList }
-})
 
 export const useNoteInfoStore = defineStore('note-info', () => {
     const noteInfo = ref({} as NoteInfo)
@@ -21,4 +8,12 @@ export const useNoteInfoStore = defineStore('note-info', () => {
         noteInfo.value = info
     }
     return { noteInfo, setNoteInfo }
+})
+
+export const useNotityCountStore = defineStore('notify-count', () => {
+    const count = ref(0)
+    function addCount() {
+        ++count.value
+    }
+    return { count, addCount }
 })

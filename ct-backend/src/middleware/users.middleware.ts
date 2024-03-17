@@ -33,7 +33,7 @@ export const checkPassParams = (req: Request, res: Response, next: NextFunction)
 export const checkIdAndAccountExists = (req: Request, res: Response, next: NextFunction) => {
     const { id, account } = req.query;
     if (!id || !account) {
-        res.send(importArgsIsNull);
+        res.send({ code: 400, msg: '请先登录' });
         return;
     }
     req.body.id = Number(id), req.body.account = String(account)
