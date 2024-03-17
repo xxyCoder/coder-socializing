@@ -4,23 +4,38 @@ import { serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
 import ConcernsService from "@src/service/concerns.service";
 import UsersService from "@src/service/users.service";
+import NotifyService from '@src/service/notifies.service'
 import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 import { NoteCardType } from "@src/constant/types";
+import { getSSEConn } from "@src/router/sse.router";
+import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
 const { precisionFind } = UsersService;
+const { add: addNotify } = NotifyService
 const { search: judgeIsFollower } = ConcernsService;
 const { PORT } = env;
 
 class NoteController {
     likeOrCollect(req: Request, resp: Response) {
         const userId = req.query.id as string;
-        const { noteId, is_like, type, is_collect } = req.body;
-        const params = { userId: Number(userId), noteId: Number(noteId), type };
-        ((is_like === 'true' || is_collect === 'true') ? likeOrCollectAdd(params) : likeOrCollectRev(params))
+        const { noteId, is_like, type, is_collect, authorId } = req.body;
+        const params = { userId: Number(userId), noteId, type };
+        ((is_like || is_collect) ? likeOrCollectAdd(params) : likeOrCollectRev(params))
             .then(row => {
+                if (is_like || is_collect) {
+                    addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId: authorId })
+                        .then(() => {
+                            // 如果在线就通知
+                            const sse = getSSEConn(String(authorId))
+                            sse && sse.write({ data: { type: 'notify' } })
+                        })
+                        .catch(err => {
+                            console.error(`${authorId}通知失败:${err}`)
+                        })
+                }
                 const ret = row ? successObj : { code: 400, msg: '不存在' }
                 resp.send(ret);
             })

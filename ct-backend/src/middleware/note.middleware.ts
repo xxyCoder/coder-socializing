@@ -3,8 +3,8 @@ import { categories } from "@src/constant/types";
 import type { NextFunction, Request, Response } from "express";
 
 export const checkLikeOrCollectParams = (req: Request, res: Response, next: NextFunction) => {
-    const { noteId, is_like, is_collect, type } = req.body
-    if (Number.isNaN(Number(noteId)) || !['collect', 'like'].includes(type) || (type === 'collect' && !['false', 'true'].includes(is_collect)) || (type === 'like' && !['false', 'true'].includes(is_like))) {
+    const { noteId, is_like, is_collect, type, authorId } = req.body
+    if (Number.isNaN(Number(noteId)) || Number.isNaN(Number(authorId)) || !['collect', 'like'].includes(type) || (type === 'collect' && ![false, true].includes(is_collect)) || (type === 'like' && ![false, true].includes(is_like))) {
         res.send(importArgsIsNull)
         return
     }

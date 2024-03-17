@@ -59,7 +59,7 @@ const handlerClick = () => {
         case 'self': router.push('/user-info'); break;
         case 'follwer':
         case 'other':
-            follwerOrCancel({ id: String(selfInfo.id), viewer_id: viewerId as string, is_follwer: String(userInfo.isFollwer) })
+            follwerOrCancel({ id: selfInfo.id, viewer_id: viewerId, is_follwer: userInfo.isFollwer })
                 .then(() => {
                     userInfo.isFollwer = !userInfo.isFollwer;
                 })

@@ -6,6 +6,7 @@ const router = express.Router();
 const connectedUsers: Map<string, SseStream> = new Map()
 
 export function getSSEConn(userId: string) {
+    console.log(userId)
     return connectedUsers.get(userId)
 }
 

@@ -24,20 +24,12 @@ const { id } = route.params;
 const selfInfo = getUserInfo()
 const note = ref<NoteInfo>()
 const viewr = ref<UserInfo>()
-const isLike = ref(false)
-const likeCnt = ref(0)
-const isCollect = ref(false)
-const collectCnt = ref(0)
 
 const remove = useLoading();
 getNoteDetail(`?noteId=${id}`)
     .then(({ note: _note, user }) => {
         remove();
         note.value = _note
-        isLike.value = _note.isLike || false
-        isCollect.value = _note.isCollect || false
-        likeCnt.value = _note.likeCnt || 0
-        collectCnt.value = _note.collectCnt || 0
         viewr.value = user
     })
     .catch(err => {
@@ -116,8 +108,8 @@ const handlerClick = () => {
         return;
     }
 
-    follwerOrCancel({ id: String(selfInfo.id), viewer_id: String(viewr.value.userId), is_follwer: String(viewr.value.isFollower) })
-        .then(res => {
+    follwerOrCancel({ id: selfInfo.id, viewer_id: viewr.value.userId, is_follwer: viewr.value.isFollower })
+        .then(() => {
             viewr.value && (viewr.value.isFollower = !viewr.value.isFollower);
         })
         .catch(err => {
@@ -159,13 +151,6 @@ const handlerReply = (info: ReplyInfo) => {
 const cancelReply = () => {
     replyInfo.value.targetCommentId = null
     comment.value = ''
-}
-
-const handlerOpt = (type: 'like' | 'collect') => {
-    type === 'like' ?
-        (isLike.value = !isLike.value, isLike.value ? ++likeCnt.value : --likeCnt.value) :
-        (isCollect.value = !isCollect.value, isCollect.value ? ++collectCnt.value : --collectCnt.value);
-
 }
 
 onUpdated(() => {
@@ -221,9 +206,9 @@ onBeforeUnmount(() => {
                 <input class="comment" v-model="comment" type="text" placeholder="评论" />
                 <button class="btn" @click="commit">发送</button>
                 <div class="opts">
-                    <like :is-like="isLike" :likeCnt="likeCnt" :note-id="note.id" @like="handlerOpt('like')" />
-                    <collect :is-collect="isCollect" :collect-cnt="collectCnt" :note-id="note.id"
-                        @collect="handlerOpt('collect')" />
+                    <like :is-like="note.isLike" :likeCnt="note.likeCnt" :note-id="note.id" :author-id="viewr.userId" />
+                    <collect :is-collect="note.isCollect" :collect-cnt="note.collectCnt" :author-id="viewr.userId"
+                        :note-id="note.id" />
                 </div>
             </div>
         </div>

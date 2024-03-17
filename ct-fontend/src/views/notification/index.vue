@@ -4,7 +4,7 @@ import StickyList from '@/components/common/sticky-list.vue';
 import Notify from '@/components/notification/notify.vue';
 import { ref } from 'vue';
 
-const list = ['评论和@', '关注', '点赞和收藏', '私信']
+const list = ['评论和@', '点赞和收藏', '关注', '私信']
 const tabIdx = ref(0)
 </script>
 

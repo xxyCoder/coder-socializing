@@ -116,11 +116,9 @@ const handlerClick = (viewType: NotifyItem) => {
             break
         case NotifyItemTypeMap.at:
             break
-        case NotifyItemTypeMap.collect:
-            break
-        case NotifyItemTypeMap.concern:
-            break
         case NotifyItemTypeMap.thumb:
+        case NotifyItemTypeMap.collect:
+            router.push(`/explore/${noteId}`)
             break
     }
 }

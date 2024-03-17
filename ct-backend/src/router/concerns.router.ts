@@ -7,6 +7,6 @@ const { follwerOrCancel } = concernController;
 
 const router = express.Router();
 
-router.post('/follower_or_cancel', checkFollwerParams, verifyToken, verifyCSRFSession, follwerOrCancel)
+router.post('/follower_or_cancel', verifyToken, verifyCSRFSession, checkFollwerParams, follwerOrCancel)
 
 export default router;

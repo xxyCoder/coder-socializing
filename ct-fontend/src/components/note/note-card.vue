@@ -25,7 +25,6 @@ defineProps({
     }
 });
 
-
 const router = useRouter();
 </script>
 
@@ -41,7 +40,7 @@ const router = useRouter();
                 <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
                 <span>{{ author }}</span>
             </div>
-            <like :is-like="isLike" :like-cnt="likes" :note-id="noteId!" class="center" />
+            <like :is-like="isLike" :like-cnt="likes" :note-id="noteId!" :author-id="userId!" class="center" />
         </div>
     </div>
 </template>

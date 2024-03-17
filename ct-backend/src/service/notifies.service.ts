@@ -6,9 +6,9 @@ class NotifyService {
     add({ type, userId, replyCommentId, commentId, noteId, state }: Partial<NotifyModel>) {
         return Notifies.create({ type, userId, replyCommentId, commentId, noteId, state })
     }
-    list({ type }: { type: number[] }) {
+    list({ type, userId }: { type: number[], userId: number }) {
         return Notifies.findAll({
-            where: { type: { [Op.in]: type } },
+            where: { type: { [Op.in]: type }, userId },
             order: [['createdAt', 'DESC']],
             include: [Users]
         })
