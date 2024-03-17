@@ -3,11 +3,11 @@ import { ref } from 'vue'
 import { NoteInfo } from './types'
 
 export const useNoteInfoStore = defineStore('note-info', () => {
-    const noteInfo = ref({} as NoteInfo)
+    const comment = ref({} as NoteInfo)
     function setNoteInfo(info: NoteInfo) {
-        noteInfo.value = info
+        comment.value = info
     }
-    return { noteInfo, setNoteInfo }
+    return { comment, setNoteInfo }
 })
 
 export const useNotityCountStore = defineStore('notify-count', () => {
@@ -15,5 +15,8 @@ export const useNotityCountStore = defineStore('notify-count', () => {
     function addCount() {
         ++count.value
     }
-    return { count, addCount }
+    function clearCount() {
+        count.value = 0
+    }
+    return { count, addCount, clearCount }
 })

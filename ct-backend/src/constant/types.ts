@@ -52,6 +52,7 @@ export interface Notify {
     avatarSrc: string | null;
     noteId?: number | null;
     title?: string;
+    rootCommentId: number | null;
     commentId?: number | null;
     replyCommentId?: number | null;
     content?: string;

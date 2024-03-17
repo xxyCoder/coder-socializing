@@ -5,6 +5,7 @@ export interface Notify {
     avatarSrc: string;
     noteId?: number;
     title?: string;
+    rootCommentId?: number;
     commentId?: number;
     replyCommentId?: number;
     content?: string;

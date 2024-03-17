@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { getUserInfo } from '@/common/ts/user-info';
+import { useNotityCountStore } from '@/store';
+import { computed } from 'vue';
 
 const userInfo = getUserInfo()
 const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
+
+const notifyCnt = useNotityCountStore()
+const cnt = computed(() => notifyCnt.count > 99 ? `x99` : `x${notifyCnt.count}`)
 </script>
 
 <template>
     <div class="menu">
         <router-link to="/explore">探索</router-link>
         <router-link to="/publish">发布</router-link>
-        <router-link to="/notification">通知</router-link>
+        <router-link to="/notification">
+            通知<i class="count" v-html="cnt" v-if="notifyCnt.count" />
+        </router-link>
         <router-link :to="selfTo">个人</router-link>
     </div>
 </template>
@@ -28,7 +35,9 @@ const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
     justify-content: space-around;
     align-items: center;
     background-color: #000;
+
     a {
+        position: relative;
         text-decoration: none;
         color: hsla(0, 0%, 100%, 0.6);
     }
@@ -36,5 +45,15 @@ const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
     ::v-deep(.router-link-active) {
         color: #fff
     }
+}
+
+.count {
+    position: absolute;
+    background-color: brown;
+    border-radius: 50%;
+    padding: responsive(5, vw) responsive(12, vw);
+    top: responsive(-20, vw);
+    right: responsive(-40, vw);
+    font-size: 12px;
 }
 </style>

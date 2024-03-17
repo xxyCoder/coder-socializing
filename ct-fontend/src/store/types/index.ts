@@ -1,4 +1,5 @@
 export interface NoteInfo {
-    commentId: number;
-    replyCommentId: number;
+    commentId: number | null;
+    replyCommentId: number | null;
+    rootCommentId: number | null;
 }

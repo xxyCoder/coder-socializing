@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, onUpdated, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getNoteDetail, emitComment, getNoteComment } from '@/api/note'
+import { getNoteDetail, emitComment, getNoteComment, getNotifyComment } from '@/api/note'
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { follwerOrCancel } from '@/api/users';
@@ -15,6 +15,7 @@ import Collect from '@/components/common/collect.vue';
 import CommentItem from '@/components/note/comment-item.vue';
 import InTheEnd from '@/components/common/in-the-end.vue';
 import { ReplyInfo } from '@/common/types';
+import { useNoteInfoStore } from '@/store';
 
 const route = useRoute();
 const router = useRouter();
@@ -44,6 +45,7 @@ getNoteDetail(`?noteId=${id}`)
         useToast(err.message);
     });
 
+
 const commentListRef = ref<HTMLDivElement>()
 const commentList = ref<Comment[]>([])
 const commentChildList = ref<Map<number, Comment[]>>(new Map())
@@ -64,13 +66,33 @@ const reqComment = (rootCommentId: number | null = null) => {
                 } else {
                     commentList.value.push(..._comments)
                 }
-                ++pn, commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
+                ++pn
                 req = false; // 放此处同时避免没有数据了继续请求
                 rootCommentId ? commentChildPageNums.set(rootCommentId, pn) : (pageNum = pn);
             }
         })
+        .catch(err => {
+            console.error(err);
+            useToast('拉取失败')
+        })
 }
+const { comment: { commentId }, setNoteInfo } = useNoteInfoStore()
+commentId && getNotifyComment(`?commentId=${commentId}`)
+    .then(({ comments: _comments }) => {
+        const rootComment = _comments[0], replyComment = _comments[1], comment = _comments[2]
+        commentList.value.unshift(rootComment)
+
+        const arr = commentChildList.value.get(rootComment.id) || [];
+        replyComment.id && arr.unshift(replyComment);
+        comment.id && arr.unshift(comment);
+        commentChildList.value.set(rootComment.id, arr);
+    })
+    .catch(err => {
+        console.error(err)
+        useToast('获取通知评论失败请重新尝试')
+    })
 reqComment();
+
 const handlerTouchStart = (e: TouchEvent) => {
     startY = e.touches[0].pageY;
 }
@@ -145,6 +167,13 @@ const handlerOpt = (type: 'like' | 'collect') => {
         (isCollect.value = !isCollect.value, isCollect.value ? ++collectCnt.value : --collectCnt.value);
 
 }
+
+onUpdated(() => {
+    commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
+})
+onBeforeUnmount(() => {
+    setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
+})
 </script>
 
 <template>

@@ -15,14 +15,14 @@ class CommentService {
     add({ noteId, userId, content, atUsers = '', targetCommentId, rootCommentId }: Partial<CommentModel>) {
         return Comments.create({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
     }
-    count({ noteId, rootCommentId }: { noteId: number, rootCommentId: number }) {
+    count({ rootCommentId }: { rootCommentId: number }) {
         return Comments.count({
-            where: { noteId, rootCommentId }
+            where: { rootCommentId }
         });
     }
-    findUser(targetCommentId: number) {
+    findUser(id: number) {
         return Comments.findOne({
-            where: { id: targetCommentId },
+            where: { id },
             include: [Users]
         })
     }
@@ -30,7 +30,7 @@ class CommentService {
         const whereOp = {};
         targetCommentId && Object.assign(whereOp, { targetCommentId })
         userId && Object.assign(whereOp, { userId })
-        id && Object.assign(whereOp, { id })
+        if (id || id === null) Object.assign(whereOp, { id })
 
         return Comments.findOne({
             where: whereOp

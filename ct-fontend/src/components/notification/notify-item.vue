@@ -27,10 +27,12 @@ const props = defineProps({
         default: 0
     },
     commentId: {
-        type: Number
+        type: Number,
+        default: null
     },
     replyCommentId: {
-        type: Number
+        type: Number,
+        default: null
     },
     title: {
         type: String,
@@ -54,6 +56,10 @@ const props = defineProps({
     },
     type: {
         type: Number
+    },
+    rootCommentId: {
+        type: Number,
+        default: null
     }
 })
 
@@ -94,8 +100,8 @@ const date = computed(() => {
 
 const router = useRouter()
 const handlerClick = (viewType: NotifyItem) => {
-    const { notifyId, userId, type, replyCommentId, noteId, commentId } = props;
-    
+    const { notifyId, userId, type, replyCommentId, noteId, commentId, rootCommentId } = props;
+
     if (viewType === NotifyItem.user) {
         router.push(`/user/${userId}`)
         return
@@ -105,7 +111,7 @@ const handlerClick = (viewType: NotifyItem) => {
     const { setNoteInfo } = useNoteInfoStore()
     switch (type) {
         case NotifyItemTypeMap.comment:
-            setNoteInfo({ replyCommentId: replyCommentId!, commentId: commentId! })
+            setNoteInfo({ replyCommentId: replyCommentId, commentId: commentId, rootCommentId })
             router.push(`/explore/${noteId}`)
             break
         case NotifyItemTypeMap.at:

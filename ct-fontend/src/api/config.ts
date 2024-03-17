@@ -28,11 +28,7 @@ instance.interceptors.request.use(config => {
         userinfo = JSON.parse(localStorage.getItem('user-info') || '{}') // 避免第一次进入没有登录过
     }
     let query = "";
-    userinfo?.id && (query += `id=${userinfo.id}`);
-    if (userinfo?.account) {
-        if (query) query += '&';
-        query += `account=${userinfo.account}`
-    }
+    userinfo && (query = `id=${userinfo.id}&account=${userinfo.account}`)
     if (query && config.url) {
         config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
         config.url += query;
