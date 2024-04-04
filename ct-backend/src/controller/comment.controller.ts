@@ -11,21 +11,22 @@ const { addNotify } = NotifyController
 class CommentController {
     emit(req: Request, resp: Response) {
         const { comment: content, noteId, atUsers, targetCommentId = null, rootCommentId = null, replyUserId } = req.body;
-        const { id } = req.query;
-        const userId = Number(id)
+        const userId = Number(req.query.id)
         add({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
             .then(res => {
-                // 存储起来
-                addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
-                    .then(() => {
-                        // 如果在线就通知
-                        const sse = getSSEConn(String(replyUserId))
-                        sse && sse.write({ data: { type: 'notify' } })
-                    })
-                    .catch(err => {
-                        console.error(`${userId}通知失败:${err}`)
-                    })
-
+                // 自己的操作不必通知自己
+                if (replyUserId !== userId) {
+                    // 存储起来
+                    addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
+                        .then(() => {
+                            // 如果在线就通知
+                            const sse = getSSEConn(String(replyUserId))
+                            sse && sse.write({ data: { type: 'notify' } })
+                        })
+                        .catch(err => {
+                            console.error(`${userId}通知失败:${err}`)
+                        })
+                }
                 resp.send({ code: 200, msg: '评论成功', data: res })
             })
             .catch(err => {

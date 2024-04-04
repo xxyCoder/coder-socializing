@@ -169,7 +169,7 @@ onBeforeUnmount(() => {
                 <img :src="viewr.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="avatar">
                 <span>{{ viewr.username }}</span>
             </div>
-            <button class="follower-btn" @click="handlerClick">{{ viewr.isFollower ? '取消关注' : '关注' }}</button>
+            <button v-if="viewr.userId !== selfInfo?.id" class="follower-btn" @click="handlerClick">{{ viewr.isFollower ? '取消关注' : '关注' }}</button>
         </header>
         <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
             <div class="media-box">

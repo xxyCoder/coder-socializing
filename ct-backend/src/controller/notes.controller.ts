@@ -20,12 +20,12 @@ const { PORT } = env;
 
 class NoteController {
     likeOrCollect(req: Request, resp: Response) {
-        const userId = req.query.id as string;
+        const userId = Number(req.query.id);
         const { noteId, is_like, type, is_collect, authorId } = req.body;
-        const params = { userId: Number(userId), noteId, type };
+        const params = { userId, noteId, type };
         ((is_like || is_collect) ? likeOrCollectAdd(params) : likeOrCollectRev(params))
             .then(row => {
-                if (is_like || is_collect) {
+                if ((is_like || is_collect) && authorId !== userId) {
                     addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId: authorId })
                         .then(() => {
                             // 如果在线就通知
@@ -45,14 +45,14 @@ class NoteController {
             })
     }
     publish(req: Request, resp: Response) {
-        const userId = req.query.id as string;
+        const userId = Number(req.query.id);
         const { category, title, content, atUserIds = [], is_video } = req.body;
         const mediaList = req.files as Express.Multer.File[];
 
         noteAdd({
             tag: category, title, content,
             atUserIds: atUserIds.join(';'),
-            userId: Number(userId),
+            userId,
             mediaList: mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`).join(';'),
             isVideo: JSON.parse(is_video)
         })
