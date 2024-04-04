@@ -11,7 +11,6 @@ export const checkLikeOrCollectParams = (req: Request, res: Response, next: Next
     next()
 }
 
-
 export const checkTagIsValid = (req: Request, res: Response, next: NextFunction) => {
     let { category } = req.body;
     if (!category) category = req.query.category;

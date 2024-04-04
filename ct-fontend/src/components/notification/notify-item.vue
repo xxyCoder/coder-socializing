@@ -77,7 +77,7 @@ const tips = computed(() => {
         case NotifyItemTypeMap.thumb:
             return `给你的笔记《${title}》点赞`
         default:
-            return ''
+            return `在《${title}》中${replyCommentId ? '回复' : '评论'}`
     }
 })
 
@@ -111,6 +111,7 @@ const handlerClick = (viewType: NotifyItem) => {
     const { setNoteInfo } = useNoteInfoStore()
     switch (type) {
         case NotifyItemTypeMap.comment:
+        case NotifyItemTypeMap.selfComment:
             setNoteInfo({ replyCommentId: replyCommentId, commentId: commentId, rootCommentId })
             router.push(`/explore/${noteId}`)
             break

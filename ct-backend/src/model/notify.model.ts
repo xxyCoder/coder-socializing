@@ -44,7 +44,8 @@ const Notifies = seq.define('notifies', {
         comment: '已读或者未读'
     }
 }, {
-    createdAt: true
+    createdAt: true,
+    deletedAt: true
 })
 
 Notifies.belongsTo(Users, { foreignKey: 'userId' });

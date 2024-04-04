@@ -43,7 +43,7 @@ const handlerTouchEnd = () => {
 }
 
 const changeIdx = (e: MouseEvent) => {
-    tabIdx.value = Number((e.target as HTMLDivElement).dataset.idx!)
+    tabIdx.value = Number((e.target as HTMLDivElement).dataset.idx)
     offset.value && (cordX.value = -tabIdx.value * offset.value)
 }
 </script>

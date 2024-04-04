@@ -20,7 +20,7 @@ const showPublish = computed(() => (uploadImgRef.value?.mediaList.length || 0) >
 const inputComp = ref<CustomInputComponent>();
 const textareaComp = ref<CustomComponent>();
 const selectTag = ref<HTMLSelectElement>();
-const atUsers = ref<string[]>([]);
+// const atUsers = ref<string[]>([]);
 
 const handlerPublish = () => {
     if (!userInfo || !userInfo.id) {

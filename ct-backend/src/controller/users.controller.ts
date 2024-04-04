@@ -7,6 +7,7 @@ import { modifySuc, serviceError, successObj, userIsNotExists, userIsNotExistsOr
 import env from "@src/config/default.config"
 import { staticRoot } from '@src/app';
 import likesCollectServe from '@src/service/likes-collect.serve';
+import { categories } from '@src/constant/types';
 
 const { create, precisionFind, update, remove, find, verify } = userService;
 const { get: getIsLikeOrCollect, count: countLikesOrCollect } = likesCollectServe;
@@ -155,7 +156,7 @@ class UserController {
                 // 访问主页默认tab页是notes
                 Promise.all([
                     search({ id, viewer_id }),
-                    getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: 'note' })
+                    getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: categories.note })
                 ]).then(([isFollwer, notes]) => {
                     Promise.all(notes.map(note => new Promise(resolve => {
                         Promise.all([

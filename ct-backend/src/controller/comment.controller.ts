@@ -1,12 +1,12 @@
 import { serviceError } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
-import NotifyService from '@src/service/notifies.service'
+import NotifyController from '@src/controller/notify.controller'
 import type { Request, Response } from "express";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add, getWithPage, count, findUser, find } = CommentsService
-const { add: addNotify } = NotifyService
+const { addNotify } = NotifyController
 
 class CommentController {
     emit(req: Request, resp: Response) {

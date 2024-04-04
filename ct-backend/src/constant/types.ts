@@ -10,6 +10,8 @@ export interface FollwerType {
 export enum categories {
     note = 'note',
     like = 'like',
+    collect = 'collect',
+    comment = 'comment',
     new = 'new',
     learn = 'learn',
     game = 'game',

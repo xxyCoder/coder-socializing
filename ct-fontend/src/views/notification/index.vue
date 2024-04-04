@@ -4,13 +4,13 @@ import StickyList from '@/components/common/sticky-list.vue';
 import Notify from '@/components/notification/notify.vue';
 import { ref } from 'vue';
 
-const list = ['评论和@', '点赞和收藏', '关注', '私信']
+const list = ['评论和@', '点赞和收藏', '关注', '发出的评论']
 const tabIdx = ref(0)
 </script>
 
 <template>
     <sticky-list :list="list" @click="(idx: number) => tabIdx = idx" />
-    <notify :type="tabIdx" />
+    <notify :type="tabIdx" :total="list.length" />
     <BottomMenu />
 </template>
 

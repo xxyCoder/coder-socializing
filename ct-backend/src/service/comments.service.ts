@@ -36,6 +36,18 @@ class CommentService {
             where: whereOp
         })
     }
+    findAll({ userId, page_num }: Partial<CommentModel> & pageType) {
+        const whereOp = {}
+        userId && Object.assign(whereOp, { userId })
+
+        return Comments.findAll({
+            where: whereOp,
+            order: [['createdAt', 'DESC']],
+            offset: page_num * pageSize,
+            limit: pageSize,
+            include: [Users]
+        })
+    }
 }
 
 export default new CommentService();

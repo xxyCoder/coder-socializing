@@ -25,8 +25,11 @@ defineProps({
 </template>
 
 <style scoped lang="scss">
+@import '../../common/style/func.scss';
+
 .note-info {
     display: flex;
     flex-wrap: wrap;
+    padding-bottom: responsive(100, vw)
 }
 </style>

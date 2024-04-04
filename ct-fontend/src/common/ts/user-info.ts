@@ -41,7 +41,7 @@ export function recapUserInfo() {
             }
             // 获取评论、点赞和关注的通知
         })
-        .catch(err => {
+        .catch(() => {
             // 清空localStorage信息
             useToast('请登录')
             localStorage.removeItem('user-info')

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { noteLikeOrCollect } from '@/api/note';
-import { defineProps, defineEmits } from 'vue'
+import { defineProps } from 'vue'
 import { useToast } from '../Toast';
 import { useIsAndCnt } from '@/common/ts/use-is-cnt';
 

@@ -98,7 +98,7 @@ const modifyPassword = () => {
         return Promise.reject('密码校验不通过，密码无法修改')
     }
     const np = newPassword.value?.component.value, p = oldPassword.value?.component.value;
-    return updateUserPass({ newPassword: cryptoPassword(np!), password: cryptoPassword(p!) })
+    return updateUserPass({ newPassword: cryptoPassword(np ?? ''), password: cryptoPassword(p ?? '') })
 }
 const modifyProfile = () => {
     const remove = useLoading();

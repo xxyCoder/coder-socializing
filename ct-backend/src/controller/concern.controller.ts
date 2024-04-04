@@ -2,11 +2,11 @@ import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 import { serviceError } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import concernsService from "@src/service/concerns.service";
-import NotifyService from '@src/service/notifies.service'
+import NotifyController from '@src/controller/notify.controller'
 import type { Request, Response } from "express";
 
 const { remove, add } = concernsService;
-const { add: addNotify } = NotifyService
+const { addNotify } = NotifyController
 
 class ConcernController {
     follwerOrCancel(req: Request, resp: Response) {

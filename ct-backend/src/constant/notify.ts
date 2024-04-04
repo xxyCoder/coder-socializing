@@ -8,11 +8,13 @@ export const enum NotifyTypeMap {
     at,
     thumb,
     collect,
-    concern
+    concern,
+    'self-comment'
 }
 
-export const enum FrontNotifyTypeMap {
+export const enum InteractionTypeMap {
     'comment-at',
     'thumb-collet',
-    concern
+    concern,
+    'self-comment'
 }

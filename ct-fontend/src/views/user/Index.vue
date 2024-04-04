@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { tabName } from './ts/index';
+import { listMap, userStateMap, userStateEnum } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
 import { getViewerInfo } from '@/api/users';
 import { getViewerNote } from '@/api/note'
@@ -19,20 +19,39 @@ const router = useRouter()
 const selfInfo = getUserInfo();
 
 const { id: viewerId } = route.params;
-let notePageNum = 0, likePageNum = 0;
+
+const list = ['笔记', '点赞', '收藏'];
+const pageNumObj = {
+    note: 0,
+    like: 0,
+    collect: 0
+}
+const cards = reactive<{ note: NoteCardType[], like: NoteCardType[], collect: NoteCardType[] }>({
+    note: [],
+    like: [],
+    collect: [],
+})
+function chooseGetOrStore({ idx, getQuery = false, cardData }: { idx: 0 | 1 | 2, getQuery?: boolean, cardData?: NoteCardType[] }) {
+    let name = listMap[idx]
+    if (getQuery) return `page_num=${pageNumObj[name]}`
+    ++pageNumObj[name]
+    cardData && (cards[name].push(...cardData))
+
+    return cards[name]
+}
 
 const userExists = ref(true)
 const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollwer: false });
-const notes: NoteCardType[] = [], likes: NoteCardType[] = [];
 const showInfos = ref<NoteCardType[]>([]);
 const remove = useLoading()
-getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&category=${tabName[0]}`)
+getViewerInfo(`?viewer_id=${viewerId}&page_num=${pageNumObj.note}&category=${listMap[0]}`)
     .then(res => {
         remove();
-        ++notePageNum;
+        ++pageNumObj.note;
         const { notes: _notes, avatarSrc, username, intro, isFollwer } = res;
-        notes.push(..._notes);
-        showInfos.value = notes;
+        _notes
+        chooseGetOrStore({ idx: 0, cardData: _notes })
+        showInfos.value = _notes;
         userInfo.avatarSrc = avatarSrc
         userInfo.intro = intro
         userInfo.username = username
@@ -44,21 +63,17 @@ getViewerInfo(`?viewer_id=${viewerId}&page_num=${notePageNum}&category=${tabName
         userExists.value = false;
     })
 
-const userStateMap = {
-    self: '修改信息',
-    follwer: '已关注',
-    other: '关注'
-};
+
 const userState = computed(() => {
-    if (Number(viewerId) === selfInfo?.id) return 'self'
-    return userInfo.isFollwer ? 'follwer' : 'other';
+    if (Number(viewerId) === selfInfo?.id) return userStateEnum.self
+    return userInfo.isFollwer ? userStateEnum.follwer : userStateEnum.other;
 });
 const handlerClick = () => {
     if (!selfInfo || !selfInfo.id) return;
     switch (userState.value) {
-        case 'self': router.push('/user-info'); break;
-        case 'follwer':
-        case 'other':
+        case userStateEnum.self: router.push('/user-info'); break;
+        case userStateEnum.follwer:
+        case userStateEnum.other:
             follwerOrCancel({ id: selfInfo.id, viewer_id: viewerId, is_follwer: userInfo.isFollwer })
                 .then(() => {
                     userInfo.isFollwer = !userInfo.isFollwer;
@@ -70,31 +85,19 @@ const handlerClick = () => {
     }
 };
 
-const list = ['笔记', '点赞'];
-const reqListData = (idx: number) => {
-    let query = ''
-    switch (idx) {
-        case 0:
-            query = `page_num=${notePageNum}`;
-            ++notePageNum;
-            break;
-        case 1:
-            query = `page_num=${likePageNum}`;
-            ++likePageNum;
-            break
-    }
+const reqListData = (idx: 0 | 1 | 2) => {
     const remove = useLoading()
     showInfos.value = []
-    getViewerNote(`?viewer_id=${viewerId}&${query}&category=${tabName[idx]}`)
+    getViewerNote(`?viewer_id=${viewerId}&${chooseGetOrStore({ idx, getQuery: true })}&category=${listMap[idx]}`)
         .then(res => {
-            idx ? likes.push(...res.notes) : notes.push(...res.notes)
+            chooseGetOrStore({ idx, cardData: res.notes })
         })
         .catch(err => {
             useToast(err.message)
         })
         .finally(() => {
             remove()
-            showInfos.value = idx ? likes : notes;
+            showInfos.value = chooseGetOrStore({ idx }) as NoteCardType[]
         })
 }
 </script>

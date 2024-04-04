@@ -8,7 +8,8 @@ export enum NotifyItemTypeMap {
     at,
     thumb,
     collect,
-    concern
+    concern,
+    selfComment
 }
 
 export const enum NotifyTypeMap {

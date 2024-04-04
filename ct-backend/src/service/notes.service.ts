@@ -1,22 +1,24 @@
 import Note, { NoteModel } from "@src/model/notes.model";
 import { categories, pageType } from "@src/constant/types";
 import Users from "@src/model/users.model";
-import Likes from "@src/model/likes-collect.model";
+import LikeAndCollect from "@src/model/likes-collect.model";
 import { Op } from "sequelize";
 import { pageSize } from "@src/constant/resp.constant";
 
 class NoteService {
-    async getByPage({ userId, page_num, category }: { userId?: number, category: string } & pageType) {
+    async getByPage({ userId, page_num, category }: { userId?: number, category: categories } & pageType) {
         const whereOp = {};
         userId && Object.assign(whereOp, { userId });
         const noteIds: number[] = [];
-        if (category === categories.like) {
-            const res = await Likes.findAll({ where: whereOp });
-            res.forEach(like => noteIds.push(like.dataValues.noteId));
+        if ([categories.like, categories.collect].includes(category)) {
+            console.log(category)
+            const res = await LikeAndCollect.findAll({ where: { ...whereOp, type: category } });
+            console.log(res)
+            res.forEach(likeOrCollect => noteIds.push(likeOrCollect.dataValues.noteId));
             if (noteIds.length === 0) return Promise.resolve([])
             Object.assign(whereOp, { id: { [Op.in]: noteIds } })
         }
-        !([categories.note, categories.like] as string[]).includes(category) && Object.assign(whereOp, { tag: category });
+        !([categories.note, categories.like, categories.collect] as string[]).includes(category) && Object.assign(whereOp, { tag: category });
         return Note.findAll({
             where: whereOp,
             offset: page_num * pageSize,

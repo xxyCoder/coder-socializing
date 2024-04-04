@@ -4,17 +4,17 @@ import { serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
 import ConcernsService from "@src/service/concerns.service";
 import UsersService from "@src/service/users.service";
-import NotifyService from '@src/service/notifies.service'
+import NotifyController from '@src/controller/notify.controller'
 import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
-import { NoteCardType } from "@src/constant/types";
+import { NoteCardType, categories } from "@src/constant/types";
 import { getSSEConn } from "@src/router/sse.router";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
 const { precisionFind } = UsersService;
-const { add: addNotify } = NotifyService
+const { addNotify } = NotifyController
 const { search: judgeIsFollower } = ConcernsService;
 const { PORT } = env;
 
@@ -66,7 +66,7 @@ class NoteController {
     }
     getWithPage(req: Request, resp: Response) {
         const { page_num, viewer_id, category, id } = req.query;
-        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), category: String(category) })
+        getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), category: String(category) as categories })
             .then(notes => {
                 Promise.all(notes.map(note => new Promise(resolve => {
                     const user = note.dataValues.user.dataValues;
@@ -149,7 +149,7 @@ class NoteController {
     getByTag(req: Request, resp: Response) {
         const { page_num, category } = req.query;
 
-        getNoteWithPage({ page_num: Number(page_num), category: String(category) })
+        getNoteWithPage({ page_num: Number(page_num), category: String(category) as categories })
             .then(res => {
                 const notes: NoteCardType[] = [];
                 Promise.all(res.map(note => new Promise(resolve => {
