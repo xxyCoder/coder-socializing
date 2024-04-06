@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { listMap, userStateMap, userStateEnum } from './ts/index';
+import { listMap, userStateMap, userStateEnum, userOptMap } from './ts/index';
 import { ip, port, backendStatic } from '@/api/config';
-import { getViewerInfo } from '@/api/users';
+import { getViewerInfo, signOut } from '@/api/users';
 import { getViewerNote } from '@/api/note'
 import { follwerOrCancel } from '@/api/users'
 import { useLoading } from '@/components/Loading';
@@ -13,6 +13,7 @@ import type { NoteCardType } from '@/common/types'
 import BottomMenu from '@/components/common/bottom-menu.vue';
 import StickyList from '@/components/common/sticky-list.vue';
 import AllNotes from '@/components/note/all-notes.vue';
+import { useviewerStore } from '@/store';
 
 const route = useRoute();
 const router = useRouter()
@@ -41,21 +42,21 @@ function chooseGetOrStore({ idx, getQuery = false, cardData }: { idx: 0 | 1 | 2,
 }
 
 const userExists = ref(true)
-const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollwer: false });
+const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollower: false, userId: Number(viewerId) });
 const showInfos = ref<NoteCardType[]>([]);
 const remove = useLoading()
 getViewerInfo(`?viewer_id=${viewerId}&page_num=${pageNumObj.note}&category=${listMap[0]}`)
     .then(res => {
         remove();
         ++pageNumObj.note;
-        const { notes: _notes, avatarSrc, username, intro, isFollwer } = res;
+        const { notes: _notes, avatarSrc, username, intro, isFollower } = res;
         _notes
         chooseGetOrStore({ idx: 0, cardData: _notes })
         showInfos.value = _notes;
         userInfo.avatarSrc = avatarSrc
         userInfo.intro = intro
         userInfo.username = username
-        userInfo.isFollwer = isFollwer
+        userInfo.isFollower = isFollower
     })
     .catch(err => {
         remove();
@@ -66,7 +67,7 @@ getViewerInfo(`?viewer_id=${viewerId}&page_num=${pageNumObj.note}&category=${lis
 
 const userState = computed(() => {
     if (Number(viewerId) === selfInfo?.id) return userStateEnum.self
-    return userInfo.isFollwer ? userStateEnum.follwer : userStateEnum.other;
+    return userInfo.isFollower ? userStateEnum.follwer : userStateEnum.other;
 });
 const handlerClick = () => {
     if (!selfInfo || !selfInfo.id) return;
@@ -74,9 +75,9 @@ const handlerClick = () => {
         case userStateEnum.self: router.push('/user-info'); break;
         case userStateEnum.follwer:
         case userStateEnum.other:
-            follwerOrCancel({ id: selfInfo.id, viewer_id: viewerId, is_follwer: userInfo.isFollwer })
+            follwerOrCancel({ id: selfInfo.id, viewer_id: viewerId, is_follwer: userInfo.isFollower })
                 .then(() => {
-                    userInfo.isFollwer = !userInfo.isFollwer;
+                    userInfo.isFollower = !userInfo.isFollower;
                 })
                 .catch(err => {
                     useToast(err.message);
@@ -84,6 +85,21 @@ const handlerClick = () => {
             break;
     }
 };
+
+const handlerOpt = () => {
+    if (userState.value === userStateEnum.self) {
+        signOut({})
+        localStorage.removeItem('user-info')
+        router.replace('/login')
+        return
+    }
+    if (!selfInfo?.id) {
+        useToast('请先登录')
+        return
+    }
+    useviewerStore().setViewerInfo(userInfo)
+    router.push(`/chat/${viewerId}`)
+}
 
 const reqListData = (idx: 0 | 1 | 2) => {
     const remove = useLoading()
@@ -112,7 +128,10 @@ const reqListData = (idx: 0 | 1 | 2) => {
                     <span>ct号：{{ viewerId }}</span>
                 </div>
             </div>
-            <button class="user-state" @click="handlerClick">{{ userStateMap[userState] }}</button>
+            <div class="opt">
+                <button class="user-state" @click="handlerClick">{{ userStateMap[userState] }}</button>
+                <button class="user-state" @click="handlerOpt">{{ userOptMap[userState] }}</button>
+            </div>
         </div>
         <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
         <div class="user-interactions"></div>
@@ -165,5 +184,11 @@ const reqListData = (idx: 0 | 1 | 2) => {
     padding: responsive(8, vh) responsive(20, vh);
     background-color: transparent;
     color: #fff;
+}
+
+.opt {
+    display: flex;
+    flex-direction: column;
+    row-gap: 3px;
 }
 </style>

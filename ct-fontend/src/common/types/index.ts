@@ -18,7 +18,7 @@ export type NoteInfo = {
     mediaList: string;
     content: string;
     atUserIds: number[];
-    isFollwer: boolean;
+    isFollower: boolean;
     updateDate: string;
     createDate: string;
     isLike: boolean;
@@ -36,7 +36,7 @@ export interface viewerInfoReq {
     username: string;
     avatarSrc: string;
     intro: string;
-    isFollwer: boolean;
+    isFollower: boolean;
     notes: NoteCardType[]
 }
 

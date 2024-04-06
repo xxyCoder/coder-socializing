@@ -45,7 +45,7 @@ const router = useRouter();
     </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import '../../common/style/func.scss';
 
 .note-card-wrapper {
@@ -81,7 +81,7 @@ const router = useRouter();
 }
 
 .author-wrapper {
-    margin-top: 5px;
+    margin-top: responsive(10, vw);
     color: hsla(0, 0%, 100%, 0.8);
     font-size: 12px;
 }

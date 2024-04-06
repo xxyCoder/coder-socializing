@@ -11,9 +11,7 @@ class NoteService {
         userId && Object.assign(whereOp, { userId });
         const noteIds: number[] = [];
         if ([categories.like, categories.collect].includes(category)) {
-            console.log(category)
             const res = await LikeAndCollect.findAll({ where: { ...whereOp, type: category } });
-            console.log(res)
             res.forEach(likeOrCollect => noteIds.push(likeOrCollect.dataValues.noteId));
             if (noteIds.length === 0) return Promise.resolve([])
             Object.assign(whereOp, { id: { [Op.in]: noteIds } })

@@ -7,7 +7,8 @@ const userInfo = getUserInfo()
 const selfTo = userInfo?.id ? `/user/${userInfo.id}` : '/login';
 
 const notifyCnt = useNotityCountStore()
-const cnt = computed(() => notifyCnt.count > 99 ? `x99` : `x${notifyCnt.count}`)
+const interactionCnt = computed(() => notifyCnt.count > 99 ? `x99` : `x${notifyCnt.count}`)
+const chatCnt = computed(() => notifyCnt.count > 99 ? `x99` : `x${notifyCnt.count}`)
 </script>
 
 <template>
@@ -15,7 +16,10 @@ const cnt = computed(() => notifyCnt.count > 99 ? `x99` : `x${notifyCnt.count}`)
         <router-link to="/explore">探索</router-link>
         <router-link to="/publish">发布</router-link>
         <router-link to="/notification">
-            通知<i class="count" v-html="cnt" v-if="notifyCnt.count" />
+            互动<i class="count" v-html="interactionCnt" v-if="notifyCnt.count" />
+        </router-link>
+        <router-link to="/chat">
+            消息<i class="count" v-html="chatCnt" v-if="notifyCnt.count" />
         </router-link>
         <router-link :to="selfTo">个人</router-link>
     </div>

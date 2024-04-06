@@ -6,6 +6,7 @@ import { cryptoPassword } from './ts/index'
 import { useToast } from "@/components/Toast/index";
 import { useLoading } from '@/components/Loading/index';
 import { setUserInfo } from '@/common/ts/user-info';
+import { useEventSource } from '@/common/ts/correspondence';
 
 const account = ref<HTMLInputElement>();
 const password = ref<HTMLInputElement>();
@@ -29,6 +30,7 @@ const handlerLogin = () => {
             remove();
             setUserInfo(res)
             localStorage.setItem('user-info', JSON.stringify({ id: res.id, account: res.account }))
+            useEventSource(res.id)
             useToast("登录成功")
                 .then(() => {
                     router.replace('/');

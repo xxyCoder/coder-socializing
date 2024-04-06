@@ -141,9 +141,6 @@ class UserController {
                 resp.send(serviceError);
             })
     }
-    pageInteraction(req: Request, resp: Response) {
-        const { page_num, id, category } = req.query;
-    }
     getViewerInfo(req: Request, resp: Response) {
         let { id: _id, viewer_id: _vid, page_num } = req.query;
         const id = Number(_id), viewer_id = Number(_vid)
@@ -157,7 +154,7 @@ class UserController {
                 Promise.all([
                     search({ id, viewer_id }),
                     getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: categories.note })
-                ]).then(([isFollwer, notes]) => {
+                ]).then(([isFollower, notes]) => {
                     Promise.all(notes.map(note => new Promise(resolve => {
                         Promise.all([
                             getIsLikeOrCollect({ userId: id, noteId: Number(note.dataValues.id), type: 'like' }),
@@ -180,7 +177,7 @@ class UserController {
                                 username: res.dataValues.username,
                                 intro: res.dataValues.biography,
                                 avatarSrc: res.dataValues.avatarSrc,
-                                isFollwer,
+                                isFollower,
                                 notes
                             }
                         })
@@ -195,6 +192,9 @@ class UserController {
                 console.error(`获取用户信息失败：${err}`);
                 resp.send(serviceError);
             })
+    }
+    quit(req: Request, resp: Response) {
+        resp.clearCookie('ct_token').send(successObj)
     }
 }
 

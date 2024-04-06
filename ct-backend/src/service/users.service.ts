@@ -1,7 +1,7 @@
 import Users, { UserModel } from "@src/model/users.model";
 import { Op } from "sequelize";
 import bcrpty from 'bcryptjs'
-import { categories, pageType } from "@src/constant/types";
+import { pageType } from "@src/constant/types";
 import { pageSize } from "@src/constant/resp.constant";
 
 class UserService {
@@ -20,7 +20,7 @@ class UserService {
     remove({ id }: Partial<UserModel>) {
         return Users.destroy({ where: { id } });
     }
-    find({ page_num, username, category, id }: { category: categories } & Partial<UserModel> & pageType) {
+    find({ page_num, username, id }: Partial<UserModel> & pageType) {
         const whereOp = {};
         username && Object.assign(whereOp, { username: { [Op.like]: `%${username}%` } });  // 实现模糊查询
         id && Object.assign(whereOp, { id });
@@ -34,18 +34,16 @@ class UserService {
 
         return Users.findOne({ where: whereOp });
     }
-    verify({ account, id, password }: Partial<UserModel>) {
+    async verify({ account, id, password }: Partial<UserModel>) {
         if (!password) return Promise.resolve({ sc: false, id: null, username: "", intro: "", avatarSrc: "", account: "" });
         const whereOp = {};
         account && Object.assign(whereOp, { account });
         id && Object.assign(whereOp, { id });
 
-        return Users.findOne({ where: whereOp })
-            .then(res => {
-                if (!res || !res.dataValues) return { sc: false, id: null, username: "" };
-                const sc = bcrpty.compareSync(password, res.dataValues.password);
-                return { sc, id: res.dataValues.id, username: res.dataValues.username, intro: res.dataValues.biography, avatarSrc: res.dataValues.avatarSrc, account: res.dataValues.account };
-            })
+        const res = await Users.findOne({ where: whereOp });
+        if (!res || !res.dataValues) return { sc: false, id: null, username: "" };
+        const sc = bcrpty.compareSync(password, res.dataValues.password);
+        return { sc, id: res.dataValues.id, username: res.dataValues.username, intro: res.dataValues.biography, avatarSrc: res.dataValues.avatarSrc, account: res.dataValues.account };
     }
 }
 

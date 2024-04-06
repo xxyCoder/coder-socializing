@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, reactive, ref, watchEffect } from 'vue';
+import { defineProps, reactive, watchEffect } from 'vue';
 import NotifyItem from './notify-item.vue';
 import nullData from '@/components/common/null-data.vue';
 import { getNotifyList } from '@/api/notify';

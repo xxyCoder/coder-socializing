@@ -20,7 +20,7 @@ class CommentController {
                     addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
                         .then(() => {
                             // 如果在线就通知
-                            const sse = getSSEConn(String(replyUserId))
+                            const sse = getSSEConn(replyUserId)
                             sse && sse.write({ data: { type: 'notify' } })
                         })
                         .catch(err => {

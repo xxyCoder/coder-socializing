@@ -29,7 +29,7 @@ class NoteController {
                     addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId: authorId })
                         .then(() => {
                             // 如果在线就通知
-                            const sse = getSSEConn(String(authorId))
+                            const sse = getSSEConn(authorId)
                             sse && sse.write({ data: { type: 'notify' } })
                         })
                         .catch(err => {

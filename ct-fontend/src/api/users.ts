@@ -18,3 +18,5 @@ export const dynamicGetDatas = instance.get("/user/dynamic_datas");
 export const getViewerInfo = instance.get<viewerInfoReq>("/user/user_info");
 
 export const follwerOrCancel = instance.post("/concern/follower_or_cancel");
+
+export const signOut = instance.post('/user/quit')

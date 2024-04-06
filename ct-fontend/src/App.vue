@@ -7,6 +7,8 @@ body, div {
   margin: 0;
 }
 #app {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background-color: #000;
   color: #fff;

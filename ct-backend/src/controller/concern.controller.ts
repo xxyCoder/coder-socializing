@@ -17,7 +17,7 @@ class ConcernController {
                     addNotify({ type: NotifyTypeMap.concern, state: NotifyStateMap.unread, userId: viewer_id })
                         .then(() => {
                             // 如果在线就通知
-                            const sse = getSSEConn(String(viewer_id))
+                            const sse = getSSEConn(viewer_id)
                             sse && sse.write({ data: { type: 'notify' } })
                         })
                         .catch(err => {

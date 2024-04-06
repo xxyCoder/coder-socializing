@@ -12,6 +12,7 @@ export interface apiResponse<T = IAnyObj> {
 export const ip = 'http://localhost';
 export const port = 3000;
 export const backendStatic = '/uploads'
+export const SOCKETPORT = 8808
 
 const instance = axios.create({
     baseURL: `${ip}:${port}`,
@@ -48,7 +49,7 @@ instance.interceptors.response.use(resp => {
     return resp.data.data
 }, error => {
     console.error("响应出错: ", error);
-    return Promise.resolve(error);
+    return Promise.reject(error);
 })
 
 export default {

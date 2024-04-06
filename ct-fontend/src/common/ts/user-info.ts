@@ -1,7 +1,7 @@
-import { ip, port } from "@/api/config";
 import { getUserInfo as getUserInfoApi } from "@/api/users";
 import { useToast } from "@/components/Toast";
-import { useNotityCountStore } from "@/store";
+import { useEventSource } from "./correspondence";
+
 
 export interface UserInfo {
     avatarSrc?: string;
@@ -21,25 +21,11 @@ export function getUserInfo() {
     return _userInfo;
 }
 
-let eventSource
 export function recapUserInfo() {
     getUserInfoApi("")
         .then(res => {
             setUserInfo(res)
-            // 建立sse连接
-            eventSource = new EventSource(`${ip}:${port}/sse/${res.id}`)
-            eventSource.onmessage = (event) => {
-                const { type } = JSON.parse(event.data);
-                console.log(event.data)
-                if (type === 'notify') {
-                    const { addCount } = useNotityCountStore()
-                    addCount()
-                }
-            }
-            eventSource.onerror = (error) => {
-                console.error(`sse error: ${error}`)
-            }
-            // 获取评论、点赞和关注的通知
+            useEventSource(res.id)
         })
         .catch(() => {
             // 清空localStorage信息

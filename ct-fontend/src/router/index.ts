@@ -39,6 +39,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/explore/:id',
     component: () => import('@/views/explore/note-page.vue')
+  },
+  {
+    path: '/chat',
+    component: () => import('@/views/chat/index.vue')
+  },
+  {
+    path: '/chat/:recevierId',
+    component: () => import('@/views/chat/chat-page.vue')
   }
 ]
 

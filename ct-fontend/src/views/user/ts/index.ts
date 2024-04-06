@@ -43,3 +43,9 @@ export const userStateMap = {
     [userStateEnum.follwer]: '已关注',
     [userStateEnum.other]: '关注'
 }
+
+export const userOptMap = {
+    [userStateEnum.self]: '退出',
+    [userStateEnum.follwer]: '私信',
+    [userStateEnum.other]: '私信'
+}

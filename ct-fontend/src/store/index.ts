@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { NoteInfo } from './types'
+import { NoteInfo, ViewerInfo } from './types'
 
 export const useNoteInfoStore = defineStore('note-info', () => {
     const comment = ref({} as NoteInfo)
@@ -19,4 +19,18 @@ export const useNotityCountStore = defineStore('notify-count', () => {
         count.value = 0
     }
     return { count, addCount, clearCount }
+})
+
+export const useviewerStore = defineStore('viewer', () => {
+    const viewer = ref<ViewerInfo>({
+        username: '',
+        avatarSrc: '',
+        userId: NaN,
+        isFollower: false
+    })
+    function setViewerInfo(info: ViewerInfo) {
+        viewer.value = info
+    }
+
+    return { viewer, setViewerInfo }
 })

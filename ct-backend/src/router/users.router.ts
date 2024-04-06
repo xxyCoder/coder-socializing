@@ -6,12 +6,13 @@ import UsersController from "@src/controller/users.controller"
 import { checkPageParams, setCSRFToken } from '@src/middleware/common.middleware';
 import { storage } from '@src/middleware/common.middleware'
 
-const { registry, login, getSelfInfo, uploadPass, uploadInfo, getViewerInfo } = UsersController;
+const { registry, login, getSelfInfo, uploadPass, uploadInfo, getViewerInfo, quit } = UsersController;
 
 const router = express.Router();
 
 router.post("/registry", checkFormParams, crpytPassword, registry);
 router.post("/login", checkFormParams, login);
+router.post('/quit', verifyToken, verifyCSRFSession, quit)
 // 拿到用户个人信息
 router.get("/info", setCSRFToken, checkIdAndAccountExists, verifyToken, getSelfInfo);
 // 修改密码
