@@ -147,7 +147,7 @@ class NoteController {
             })
     }
     getByTag(req: Request, resp: Response) {
-        const { page_num, category } = req.query;
+        const { page_num, category, id } = req.query;
 
         getNoteWithPage({ page_num: Number(page_num), category: String(category) as categories })
             .then(res => {
@@ -155,7 +155,7 @@ class NoteController {
                 Promise.all(res.map(note => new Promise(resolve => {
                     const user = note.dataValues.user.dataValues;
                     Promise.all([
-                        getIsLikeOrCollect({ userId: user.id, noteId: Number(note.dataValues.id), type: 'like' }),
+                        getIsLikeOrCollect({ userId: Number(id), noteId: Number(note.dataValues.id), type: 'like' }),
                         countLikesOrCollect({ noteId: Number(note.dataValues.id), type: 'like' })
                     ]).then(([isLike, likeCnt]) => {
                         const info = {
