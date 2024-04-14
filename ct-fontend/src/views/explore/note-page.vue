@@ -24,16 +24,15 @@ const note = ref<NoteInfo>()
 const viewr = ref<UserInfo>()
 
 const remove = useLoading();
-getNoteDetail(`?noteId=${id}`)
-    .then(({ note: _note, user }) => {
-        remove();
-        note.value = _note
-        viewr.value = user
-    })
-    .catch(err => {
-        remove();
-        useToast(err.message);
-    });
+getNoteDetail({ noteId: id })
+  .then(({ note: _note, user }) => {
+    remove();
+    note.value = _note
+    viewr.value = user
+  })
+  .catch(() => {
+    remove();
+  });
 
 
 const commentListRef = ref<HTMLDivElement>()
@@ -42,148 +41,142 @@ const commentChildList = ref<Map<number, Comment[]>>(new Map())
 const commentChildPageNums: Map<number, number> = new Map()
 let pageNum = 0, commentHeight = 0, startY = 0, req = true // 初始值为true因为第一次需要手动请求
 const reqComment = (rootCommentId: number | null = null) => {
-    let pn = pageNum;
-    if (rootCommentId) {
-        pn = commentChildPageNums.get(rootCommentId) || 0;
-    }
-    getNoteComment(`?noteId=${id}&page_num=${pn}&rootCommentId=${rootCommentId}`)
-        .then(({ comments: _comments }) => {
-            if (_comments.length) {
-                if (rootCommentId) {
-                    const arr = commentChildList.value.get(rootCommentId) || [];
-                    arr.push(..._comments);
-                    commentChildList.value.set(rootCommentId, arr);
-                } else {
-                    commentList.value.push(..._comments)
-                }
-                ++pn
-                req = false; // 放此处同时避免没有数据了继续请求
-                rootCommentId ? commentChildPageNums.set(rootCommentId, pn) : (pageNum = pn);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            useToast('拉取失败')
-        })
+  let pn = pageNum;
+  if (rootCommentId) {
+    pn = commentChildPageNums.get(rootCommentId) || 0;
+  }
+  getNoteComment({
+    noteId: id,
+    page_num: pn,
+    rootCommentId
+  })
+    .then(({ comments: _comments }) => {
+      if (_comments.length) {
+        if (rootCommentId) {
+          const arr = commentChildList.value.get(rootCommentId) || [];
+          arr.push(..._comments);
+          commentChildList.value.set(rootCommentId, arr);
+        } else {
+          commentList.value.push(..._comments)
+        }
+        ++pn
+        req = false; // 放此处同时避免没有数据了继续请求
+        rootCommentId ? commentChildPageNums.set(rootCommentId, pn) : (pageNum = pn);
+      }
+    })
 }
 const { comment: { commentId }, setNoteInfo } = useNoteInfoStore()
-commentId && getNotifyComment(`?commentId=${commentId}`)
-    .then(({ comments: _comments }) => {
-        const rootComment = _comments[0], replyComment = _comments[1], comment = _comments[2]
-        commentList.value.unshift(rootComment)
+commentId && getNotifyComment({ commentId })
+  .then(({ comments: _comments }) => {
+    const rootComment = _comments[0], replyComment = _comments[1], comment = _comments[2]
+    commentList.value.unshift(rootComment)
 
-        const arr = commentChildList.value.get(rootComment.id) || [];
-        replyComment.id && arr.unshift(replyComment);
-        comment.id && arr.unshift(comment);
-        commentChildList.value.set(rootComment.id, arr);
-    })
-    .catch(err => {
-        console.error(err)
-        useToast('获取通知评论失败请重新尝试')
-    })
+    const arr = commentChildList.value.get(rootComment.id) || [];
+    replyComment.id && arr.unshift(replyComment);
+    comment.id && arr.unshift(comment);
+    commentChildList.value.set(rootComment.id, arr);
+  })
+
 reqComment();
 
 const handlerTouchStart = (e: TouchEvent) => {
-    startY = e.touches[0].pageY;
+  startY = e.touches[0].pageY;
 }
 const handlerTouchMove = (e: TouchEvent) => {
-    const endY = 2 * startY - e.touches[0].pageY;
-    if (endY + 200 >= commentHeight && !req) {
-        req = true;
-        reqComment();
-    }
+  const endY = 2 * startY - e.touches[0].pageY;
+  if (endY + 200 >= commentHeight && !req) {
+    req = true;
+    reqComment();
+  }
 }
 
 const comment = ref<string>('')
 const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
 const commit = () => {
-    if (!comment.value.length || !selfInfo) return;
-    const noteId = note.value?.id;
-    if (!noteId) {
-        useToast('网络错误');
-        return;
-    }
-    const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
-    emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
-        .then(res => {
-            if (rootCommentId) {
-                const arr = commentChildList.value.get(rootCommentId) || [];
-                arr.unshift({ ...res, replyUsername: targetCommentId === rootCommentId ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
-                commentChildList.value.set(rootCommentId, arr)
-            } else {
-                commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
-            }
-            comment.value = ''
-        })
-        .catch(err => {
-            useToast(err.message);
-        })
-    replyInfo.value.targetCommentId = replyInfo.value.rootCommentId = null;
+  if (!comment.value.length || !selfInfo) return;
+  const noteId = note.value?.id;
+  if (!noteId) {
+    useToast('网络错误');
+    return;
+  }
+  const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
+  emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
+    .then(res => {
+      if (rootCommentId) {
+        const arr = commentChildList.value.get(rootCommentId) || [];
+        arr.unshift({ ...res, replyUsername: targetCommentId === rootCommentId ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
+        commentChildList.value.set(rootCommentId, arr)
+      } else {
+        commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
+      }
+      comment.value = ''
+    })
+  replyInfo.value.targetCommentId = replyInfo.value.rootCommentId = null;
 }
 
 const handlerReply = (info: ReplyInfo) => {
-    replyInfo.value = info
+  replyInfo.value = info
 }
 
 const cancelReply = () => {
-    replyInfo.value.targetCommentId = null
-    comment.value = ''
+  replyInfo.value.targetCommentId = null
+  comment.value = ''
 }
 
 onUpdated(() => {
-    commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
+  commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
 })
 onBeforeUnmount(() => {
-    setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
+  setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
 })
 </script>
 
 <template>
-    <template v-if="note && viewr">
-        <user-header :user="viewr" />
-        <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
-            <div class="media-box">
-                <video v-if="note.isVideo" :src="note.mediaList" controls></video>
-                <carousel v-else :list="note.mediaList.split(';')" />
-            </div>
-            <div>
-                <h3 class="title">{{ note.title }}</h3>
-                <p class="content">{{ note.content }}</p>
-                <span class="time">
-                    {{ (note.updateDate === note.createDate ? '发布于' : '编辑于')
-                    + ' ' 
-                    + new Date(note.updateDate).toLocaleString() }}
-                </span>
-            </div>
-            <div ref="commentListRef" class="comments">
-                <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
-                    :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
-                    :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" :reply-cnt="item.replyCnt"
-                    :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)" @reply="handlerReply"
-                    @extend="reqComment" />
-                <in-the-end />
-            </div>
+  <template v-if="note && viewr">
+    <user-header :user="viewr" />
+    <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
+      <div class="media-box">
+        <video v-if="note.isVideo" :src="note.mediaList" controls></video>
+        <carousel v-else :list="note.mediaList.split(';')" />
+      </div>
+      <div>
+        <h3 class="title">{{ note.title }}</h3>
+        <p class="content">{{ note.content }}</p>
+        <span class="time">
+          {{ (note.updateDate === note.createDate ? '发布于' : '编辑于')
+            + ' '
+            + new Date(note.updateDate).toLocaleString() }}
+        </span>
+      </div>
+      <div ref="commentListRef" class="comments">
+        <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
+          :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
+          :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" :reply-cnt="item.replyCnt"
+          :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)" @reply="handlerReply"
+          @extend="reqComment" />
+        <in-the-end />
+      </div>
+    </div>
+    <div class="interaction">
+      <div class="reply-box" v-show="replyInfo.targetCommentId">
+        <div class="flex-box">
+          <span>回复 {{ replyInfo.username }}</span>
+          <button @click="cancelReply">取消</button>
         </div>
-        <div class="interaction">
-            <div class="reply-box" v-show="replyInfo.targetCommentId">
-                <div class="flex-box">
-                    <span>回复 {{ replyInfo.username }}</span>
-                    <button @click="cancelReply">取消</button>
-                </div>
-                <p>{{ replyInfo.comment }}</p>
-            </div>
-            <div class="flex-box">
-                <input class="comment" v-model="comment" type="text" placeholder="评论" />
-                <button class="btn" @click="commit">发送</button>
-                <div class="opts">
-                    <like :is-like="note.isLike" :likeCnt="note.likeCnt" :note-id="note.id" :author-id="viewr.userId" />
-                    <collect :is-collect="note.isCollect" :collect-cnt="note.collectCnt" :author-id="viewr.userId"
-                        :note-id="note.id" />
-                </div>
-            </div>
+        <p>{{ replyInfo.comment }}</p>
+      </div>
+      <div class="flex-box">
+        <input class="comment" v-model="comment" type="text" placeholder="评论" />
+        <button class="btn" @click="commit">发送</button>
+        <div class="opts">
+          <like :is-like="note.isLike" :likeCnt="note.likeCnt" :note-id="note.id" :author-id="viewr.userId" />
+          <collect :is-collect="note.isCollect" :collect-cnt="note.collectCnt" :author-id="viewr.userId"
+            :note-id="note.id" />
         </div>
-    </template>
-    <null-data v-else />
+      </div>
+    </div>
+  </template>
+  <null-data v-else />
 </template>
 
 <style scoped lang="scss">
@@ -191,85 +184,85 @@ onBeforeUnmount(() => {
 @import '../../common/style/global.scss';
 
 .media-box {
-    video {
-        width: 100%;
-    }
+  video {
+    width: 100%;
+  }
 }
 
 .content {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .time {
-    color: hsla(0, 0%, 100%, 0.6);
-    font-size: 12px;
+  color: hsla(0, 0%, 100%, 0.6);
+  font-size: 12px;
 }
 
 .interaction {
-    position: fixed;
-    box-sizing: border-box;
-    padding: responsive(12, vh) responsive(24, vw);
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #000;
+  position: fixed;
+  box-sizing: border-box;
+  padding: responsive(12, vh) responsive(24, vw);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000;
 }
 
 .reply-box {
-    box-sizing: border-box;
-    font-size: 14px;
+  box-sizing: border-box;
+  font-size: 14px;
 
-    div {
-        color: hsla(0, 0%, 100%, 0.6)
-    }
+  div {
+    color: hsla(0, 0%, 100%, 0.6)
+  }
 
-    button {
-        border: none;
-        border-radius: responsive(20, vw);
-        padding: responsive(6, vh) responsive(20, vw);
-        background-color: #1e80ff;
-        color: #fff;
-    }
+  button {
+    border: none;
+    border-radius: responsive(20, vw);
+    padding: responsive(6, vh) responsive(20, vw);
+    background-color: #1e80ff;
+    color: #fff;
+  }
 
-    p {
-        color: hsla(0, 0%, 100%, 0.8);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-wrap: nowrap;
-    }
+  p {
+    color: hsla(0, 0%, 100%, 0.8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+  }
 }
 
 .flex-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .comments {
-    margin: 10px 0 responsive(100, vw);
+  margin: 10px 0 responsive(100, vw);
 }
 
 .comment {
-    border: none;
-    margin-right: 5px;
-    padding: responsive(12, vh) responsive(24, vw);
-    border-radius: responsive(12, vh);
-    color: hsla(0, 0%, 100%, 0.6);
-    background-color: hsla(0, 0%, 100%, 0.1);
-    outline: none;
-    flex: 1;
+  border: none;
+  margin-right: 5px;
+  padding: responsive(12, vh) responsive(24, vw);
+  border-radius: responsive(12, vh);
+  color: hsla(0, 0%, 100%, 0.6);
+  background-color: hsla(0, 0%, 100%, 0.1);
+  outline: none;
+  flex: 1;
 }
 
 .btn {
-    border: none;
-    background-color: #1e80ff;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 4px;
+  border: none;
+  background-color: #1e80ff;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
 }
 
 .opts {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 </style>

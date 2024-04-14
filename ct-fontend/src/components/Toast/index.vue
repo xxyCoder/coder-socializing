@@ -27,10 +27,6 @@ defineProps({
     border-radius: .25rem;
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
     backdrop-filter: blur(10px);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     animation: animate 3s ease-in-out;
     box-sizing: border-box;
     padding: .375rem .75rem;

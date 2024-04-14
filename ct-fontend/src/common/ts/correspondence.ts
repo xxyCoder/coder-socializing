@@ -1,5 +1,5 @@
 import { useNotityCountStore } from "@/store";
-import { ip, port } from "@/api/config";
+import { ip, port } from "@/api/constant";
 
 let eventSource
 export function useEventSource(id: number) {

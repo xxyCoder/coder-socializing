@@ -36,10 +36,8 @@ const handlerLogin = () => {
                     router.replace('/');
                 })
         })
-        .catch(err => {
+        .catch(() => {
             remove();
-            useToast(err.message || "网络错误");
-            // 埋点
         })
 }
 </script>

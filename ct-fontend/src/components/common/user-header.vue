@@ -5,7 +5,7 @@ import { useToast } from '../Toast';
 import { UserInfo } from '@/common/types';
 import { follwerOrCancel } from '@/api/users';
 import { useRouter } from 'vue-router';
-import { backendStatic, ip, port } from '@/api/config';
+import { backendStatic, ip, port } from '@/api/constant';
 
 const props = defineProps({
     user: {
@@ -34,9 +34,6 @@ const handlerClick = () => {
             // eslint-disable-next-line
             /* eslint-disable */
             props.user.isFollower = !props.user.isFollower
-        })
-        .catch(err => {
-            useToast(err.message);
         })
 }
 </script>

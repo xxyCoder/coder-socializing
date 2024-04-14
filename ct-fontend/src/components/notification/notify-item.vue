@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineProps } from 'vue'
-import { backendStatic, ip, port } from '@/api/config';
+import { backendStatic, ip, port } from '@/api/constant';
 import { NotifyItem, NotifyItemStateMap, NotifyItemTypeMap } from './notify';
 import { useRouter } from 'vue-router';
 import { useNoteInfoStore } from '@/store';

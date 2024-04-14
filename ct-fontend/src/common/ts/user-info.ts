@@ -1,7 +1,5 @@
 import { getUserInfo as getUserInfoApi } from "@/api/users";
-import { useToast } from "@/components/Toast";
 import { useEventSource } from "./correspondence";
-
 
 export interface UserInfo {
     avatarSrc?: string;
@@ -22,15 +20,12 @@ export function getUserInfo() {
 }
 
 export function recapUserInfo() {
-    getUserInfoApi("")
+    getUserInfoApi()
         .then(res => {
             setUserInfo(res)
             useEventSource(res.id)
         })
         .catch(() => {
-            // 清空localStorage信息
-            useToast('请登录')
             localStorage.removeItem('user-info')
-            // 埋点
         })
 }

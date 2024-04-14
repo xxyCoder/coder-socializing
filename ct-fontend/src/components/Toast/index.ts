@@ -7,9 +7,9 @@ type Resolve = (value?: unknown) => void
 
 const delayTime = 1500
 
-let timer: number | undefined
+const div = document.createElement("div");
+div.style.cssText = `position: absolute; top: 0; width: 100vw; height: 50vh; display: flex; flex-direction: reverse-column; justify-content: center; align-items: flex-end;`
 export function useToast(msg: string, type: toastType = "normal") {
-    const div = document.createElement("div");
     const componentInstance = createApp(Toast, {
         msg,
         type
@@ -17,12 +17,9 @@ export function useToast(msg: string, type: toastType = "normal") {
     componentInstance.mount(div);
     document.body.appendChild(div);
 
-    clearTimeout(timer);
     let _resolve: Resolve | null = null
-    timer = setTimeout(() => {
+    setTimeout(() => {
         componentInstance.unmount();
-        document.body.removeChild(div);
-        timer = undefined
         _resolve && _resolve()
     }, delayTime);
 

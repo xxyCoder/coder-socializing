@@ -6,7 +6,7 @@ import UserHeader from '@/components/common/user-header.vue';
 import { useviewerStore } from '@/store';
 import { useToast } from '@/components/Toast';
 import { addChatBar } from '@/api/chat'
-import { SOCKETPORT, ip } from '@/api/config';
+import { SOCKETPORT, ip } from '@/api/constant';
 import { getUserInfo } from '@/common/ts/user-info';
 import { IMessageBar } from './ts';
 import { Direction, MessageStatus } from '@/components/chat';

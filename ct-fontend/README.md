@@ -1,15 +1,12 @@
-# 网络社交平台
-
-## 注册组件
-- 每个input后面跟着校验不通过时需要展示的错误信息，但校验不通过的时候需要展示出来，避免过多ref添加到span标签上，直接使用input的nextElementSibling添加类名
-- 由于没写form标签，无法使用form的校验，可以用一个变量记录当前有多少个没有通过校验的控件，使用位运算优化，不能仅仅是通过+1，没通过-1
-
-## 上传图片和视频的API选择
-- 对于体积小的可以用FileReader.readAsDataURL，这种方式将文件的内容读取为 Data URL 格式，这意味着它会将整个文件加载到内存中，并将其编码为 Base64 字符串
-- URL.createObjectURL，这种方式通常比较高效，因为它只是生成文件的一个临时 URL，不需要实际读取和处理文件的内容。它适用于大型文件，因为它不会将整个文件加载到内存中。
-
-## Not allowed to load local resource
-- 错误通常表示浏览器阻止加载本地资源，这是出于安全考虑的一种机制。这通常发生在你尝试通过 file:// 协议直接打开 HTML 文件并加载本地视频文件时
-
-## @用户
-- 观看了小红书的做法，对于手动写@test 和点击@用户最后在笔记展示都使用了a标签包裹，如果要区别手动写的和点击@，不好标记哪个是点击@的，如果打算记录位置也不太好维护，毕竟用户可以增删内容。
+# 封装axios
+- 基本配置：公共url前缀+超时重传（最多重传1次，超时时间设置为4s）
+    - | ECONNABORTED | Request timed out due to exceeding timeout specified in axios configuration.
+    - | ETIMEDOUT | Request timed out due to exceeding default axios timelimit.
+    - 在http.js文件中，只有config.transitional 中clarifyTimeoutError为true且超时了才会返回ETIMEOUT错误码
+- 统一Loading处理
+    - 细想了还是不这么做比较好，如果发出了请求展示loading，请求还没有得到响应就返回上一级导致loading还在
+- 避免重复请求（这里的重复是指相同的请求（同url、query、params）已经发出但是还没有返回响应）
+    - 给conifg添加AbortController，然后调用取消方法即可
+- 统一错误处理（针对code!=200）
+    - 给出提示
+- 封装GET和POST请求方法

@@ -36,10 +36,8 @@ const handlerRegistered = () => {
                     router.replace('/login');
                 })
         })
-        .catch(err => {
+        .catch(() => {
             remove();
-            useToast(err.msg || "网络错误");
-            // 埋点上报
         })
 }
 

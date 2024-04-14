@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PropType, defineProps, defineEmits } from 'vue'
 import { Direction, MessageStatus } from './index'
-import { ip, port, backendStatic } from '@/api/config';
+import { ip, port, backendStatic } from '@/api/constant';
 import ThreeDots from '../Loading/three-dots.vue';
 
 const props = defineProps({

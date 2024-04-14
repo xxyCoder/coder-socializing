@@ -1,2 +1,2 @@
 export type IAnyObj = Record<string, any>;
-export type PostFirstArg = Record<string, string | number>
+export type IBasicObj = Record<string, boolean | number | string | undefined | null>

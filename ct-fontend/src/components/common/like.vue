@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import { noteLikeOrCollect } from '@/api/note';
-import { useToast } from '../Toast';
 import { useIsAndCnt } from '@/common/ts/use-is-cnt';
 
 const props = defineProps({
@@ -30,9 +29,6 @@ const handlerLike = () => {
     isReq = true
     noteLikeOrCollect({ is_like: !is.value, noteId: props.noteId, type: 'like', authorId: props.authorId })
         .then(change)
-        .catch(err => {
-            useToast(err.message)
-        })
         .finally(() => isReq = false)
 };
 </script>

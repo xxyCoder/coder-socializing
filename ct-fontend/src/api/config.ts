@@ -1,70 +1,78 @@
+import axios, { AxiosRequestConfig } from "axios";
 import { readCookie } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
-import axios, { AxiosRequestConfig } from "axios";
-import { IAnyObj, PostFirstArg } from './types'
+import { IBasicObj } from './types'
+import { second } from "@/common/constant";
+import { _maxTryCnt, ip, port, successCode, timeoutCode } from "./constant";
+import { useToast } from "@/components/Toast";
 
-export interface apiResponse<T = IAnyObj> {
-    code: number;
-    msg?: string;
-    data?: T;
+interface apiRequestConfig extends AxiosRequestConfig {
+  notTryAgain?: boolean;
+  curTryCnt?: number;
+  maxTryCnt?: number;
 }
 
-export const ip = 'http://localhost';
-export const port = 3000;
-export const backendStatic = '/uploads'
-export const SOCKETPORT = 8808
-
 const instance = axios.create({
-    baseURL: `${ip}:${port}`,
-    timeout: 10 * 1000,
-    headers: {
-        "Content-Type": "application/json"
-    },
-    withCredentials: true
+  baseURL: `${ip}:${port}`,
+  timeout: 4 * second,
+  withCredentials: true
 });
 
+const reqSet = new Set()
 instance.interceptors.request.use(config => {
-    let userinfo = getUserInfo();
-    if (!userinfo) {
-        userinfo = JSON.parse(localStorage.getItem('user-info') || '{}') // 避免第一次进入没有登录过
-    }
-    let query = "";
-    userinfo && (query = `id=${userinfo.id}&account=${userinfo.account}`)
-    if (query && config.url) {
-        config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
-        config.url += query;
-    }
-    config.headers['X-CSRF-TOKEN'] = readCookie('XSRF-TOKEN')
+  if (reqSet.has(config)) {
+    const controller = new AbortController()
+    config.signal = controller.signal
+    controller.abort()
+    throw new Error('请耐心等待~')
+  }
 
-    return config;
-}, error => {
-    console.error("请求错误: ", error);
-    return Promise.resolve(error);
+  let userinfo = getUserInfo();
+  if (!userinfo) {
+    userinfo = JSON.parse(localStorage.getItem('user-info') || '{}') // 避免第一次进入没有登录过
+  }
+  let query = "";
+  userinfo?.id && (query = `id=${userinfo.id}&account=${userinfo.account}`)
+  if (query && config.url) {
+    config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
+    config.url += query;
+  }
+  if (config.method?.toLocaleLowerCase() === 'post' && config.data instanceof FormData) {
+    config.headers["Content-Type"] = 'multipart/form-data'
+  }
+
+  config.headers['X-CSRF-TOKEN'] = readCookie('XSRF-TOKEN')
+  return config;
 });
 
 instance.interceptors.response.use(resp => {
-    if (resp.data.code !== 200) {
-        return Promise.reject({ message: resp.data.msg })
-    }
-    return resp.data.data
+  if (resp.data.code !== successCode) {
+    useToast(resp.data.msg)
+    return Promise.reject({ message: resp.data.msg })
+  }
+
+  return resp.data.data
 }, error => {
-    console.error("响应出错: ", error);
-    return Promise.reject(error);
+  if (error.code === timeoutCode && !error.config.notTryAgain) {
+    if (error.config.curTryCnt <= (error.config.maxTryCnt ?? _maxTryCnt)) {
+      ++error.config.curTryCnt
+      return axios(error.config)
+    }
+  }
+  useToast(error.message)
+  return Promise.reject(error);
 })
 
 export default {
-    post<D = PostFirstArg, T = IAnyObj>(url: string) {
-        return (data: T, query = "", config: AxiosRequestConfig<T> = {}) => {
-            let _data: string | FormData = JSON.stringify(data)
-            if (config.headers?.["Content-Type"] === 'multipart/form-data' && data instanceof FormData) {
-                _data = data
-            }
-            return instance.post<D, D>(url + query, _data, config);
-        }
-    },
-    get<D = IAnyObj>(url: string) {
-        return (query = "") => {
-            return instance.get<D, D>(url + query);
-        }
+  post<D = IBasicObj>(url: string, config: apiRequestConfig = {}) {
+    return (params: IBasicObj | FormData) => {
+      return instance.post<D, D>(url, params, config);
     }
+  },
+  get<D = IBasicObj>(url: string, config: apiRequestConfig = {}) {
+    return (query = {}) => {
+      config.params = query
+      return instance.get<D, D>(url, config);
+    }
+  }
 }

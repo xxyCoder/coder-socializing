@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import { useRouter } from 'vue-router';
-import { backendStatic, ip, port } from '@/api/config';
+import { backendStatic, ip, port } from '@/api/constant';
 import like from '@/components/common/like.vue';
 
 defineProps({

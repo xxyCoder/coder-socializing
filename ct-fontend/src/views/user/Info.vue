@@ -10,7 +10,7 @@ import { updateUserInfo, updateUserPass } from '@/api/users'
 import { cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
-import { backendStatic, ip, port } from '@/api/config';
+import { backendStatic, ip, port } from '@/api/constant';
 import CustomTextarea from '@/components/common/custom-textarea.vue';
 import { CustomComponent, CustomInputComponent } from '@/common/types';
 import BottomButton from '@/components/common/bottom-button.vue';
@@ -111,7 +111,7 @@ const modifyProfile = () => {
     const usernameValue = username.value?.component.value
     usernameValue && usernameValue !== userInfo?.username && (formData.set('username', usernameValue))
 
-    promises.push(updateUserInfo(formData, "", { headers: { "Content-Type": "multipart/form-data" } }))
+    promises.push(updateUserInfo(formData))
     Promise.all(promises)
         .then(() => {
             remove()
@@ -120,9 +120,8 @@ const modifyProfile = () => {
                 if (promises.length === 2) router.replace('/login'); // 说明有修改密码操作
             })
         })
-        .catch(err => {
+        .catch(() => {
             remove()
-            useToast(err.message || '网络错误');
         })
         .finally(() => {
             formData = new FormData(); // 清空

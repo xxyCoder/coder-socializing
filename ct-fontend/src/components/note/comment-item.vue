@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { backendStatic, ip, port } from '@/api/config'
+import { backendStatic, ip, port } from '@/api/constant'
 import { defineProps, defineEmits, PropType, computed } from 'vue'
 import { Comment, ReplyInfo } from '@/common/types';
 

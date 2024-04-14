@@ -1,8 +1,7 @@
 import { Comment, NoteCardType, NoteDetail } from "@/common/types";
 import instance from "./config";
-import { PostFirstArg } from './types'
 
-export const publishNote = instance.post<PostFirstArg, FormData>("/note/publish");
+export const publishNote = instance.post("/note/publish");
 
 export const getViewerNote = instance.get<{ notes: NoteCardType[] }>("/note/viewer_note");
 
