@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import { readCookie } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
 import { IBasicObj } from './types'
-import { second } from "@/common/constant";
+import { SEC } from "@/common/constant";
 import { _maxTryCnt, ip, port, successCode, timeoutCode } from "./constant";
 import { useToast } from "@/components/Toast";
 
@@ -14,7 +14,7 @@ interface apiRequestConfig extends AxiosRequestConfig {
 
 const instance = axios.create({
   baseURL: `${ip}:${port}`,
-  timeout: 4 * second,
+  timeout: 4 * SEC,
   withCredentials: true
 });
 
@@ -58,6 +58,8 @@ instance.interceptors.response.use(resp => {
       ++error.config.curTryCnt
       return axios(error.config)
     }
+    useToast('请重试~')
+    return
   }
   useToast(error.message)
   return Promise.reject(error);

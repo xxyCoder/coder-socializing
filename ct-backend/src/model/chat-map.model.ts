@@ -3,25 +3,25 @@ import Users from "./users.model";
 import { DataTypes } from "sequelize";
 
 export interface ChatMapModel {
-    senderId: number;
-    receiverId: number;
-    curDate: number;
+  senderId: number;
+  receiverId: number;
+  content: string
 }
 
 const ChatMap = seq.define('chat_maps', {
-    curDate: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
+  content: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
 }, {
-    timestamps: false
+  updatedAt: true
 })
 
 ChatMap.belongsTo(Users, { foreignKey: 'senderId' });
 ChatMap.belongsTo(Users, { foreignKey: 'receiverId' });
 
 ChatMap.sync({
-    force: false
+  force: false
 })
 
 export default ChatMap;

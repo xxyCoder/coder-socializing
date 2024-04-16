@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { listMap, userStateMap, userStateEnum, userOptMap } from './ts/index';
 import { ip, port, backendStatic } from '@/api/constant';
@@ -18,8 +18,6 @@ import { useviewerStore } from '@/store';
 const route = useRoute();
 const router = useRouter()
 const selfInfo = getUserInfo();
-
-const { id: viewerId } = route.params;
 
 const list = ['笔记', '点赞', '收藏'];
 const pageNumObj = {
@@ -42,35 +40,39 @@ function chooseGetOrStore({ idx, getQuery = false, cardData }: { idx: 0 | 1 | 2,
 }
 
 const userExists = ref(true)
-const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollower: false, userId: Number(viewerId) });
+const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollower: false, userId: Number(route.params.id) });
 const showInfos = ref<NoteCardType[]>([]);
-const remove = useLoading()
 
-getViewerInfo({
-  viewer_id: viewerId,
-  page_num: pageNumObj.note,
-  category: listMap[0]
-})
-  .then(res => {
-    remove();
-    ++pageNumObj.note;
-    const { notes: _notes, avatarSrc, username, intro, isFollower } = res;
-    _notes
-    chooseGetOrStore({ idx: 0, cardData: _notes })
-    showInfos.value = _notes;
-    userInfo.avatarSrc = avatarSrc
-    userInfo.intro = intro
-    userInfo.username = username
-    userInfo.isFollower = isFollower
+const getInfo = () => {
+  const remove = useLoading()
+  getViewerInfo({
+    viewer_id: route.params.id,
+    page_num: pageNumObj.note,
+    category: listMap[0]
   })
-  .catch(() => {
-    remove();
-    userExists.value = false;
-  })
+    .then(res => {
+      remove();
+      ++pageNumObj.note;
+      const { notes: _notes, avatarSrc, username, intro, isFollower } = res;
+      chooseGetOrStore({ idx: 0, cardData: _notes })
+      showInfos.value = _notes;
+      userInfo.avatarSrc = avatarSrc
+      userInfo.intro = intro
+      userInfo.username = username
+      userInfo.isFollower = isFollower
+    })
+    .catch(() => {
+      remove();
+      userExists.value = false;
+    })
 
+}
+watch(() => route.params.id, () => {
+  getInfo()
+}, { immediate: true })
 
 const userState = computed(() => {
-  if (Number(viewerId) === selfInfo?.id) return userStateEnum.self
+  if (Number(route.params.id) === selfInfo?.id) return userStateEnum.self
   return userInfo.isFollower ? userStateEnum.follwer : userStateEnum.other;
 });
 const handlerClick = () => {
@@ -79,7 +81,7 @@ const handlerClick = () => {
     case userStateEnum.self: router.push('/user-info'); break;
     case userStateEnum.follwer:
     case userStateEnum.other:
-      follwerOrCancel({ id: selfInfo.id, viewer_id: String(viewerId), is_follwer: userInfo.isFollower })
+      follwerOrCancel({ id: selfInfo.id, viewer_id: String(route.params.id), is_follwer: userInfo.isFollower })
         .then(() => {
           userInfo.isFollower = !userInfo.isFollower;
         })
@@ -99,7 +101,7 @@ const handlerOpt = () => {
     return
   }
   useviewerStore().setViewerInfo(userInfo)
-  router.push(`/chat/${viewerId}`)
+  router.push(`/chat/${route.params.id}`)
 }
 
 const reqListData = (idx: 0 | 1 | 2) => {
@@ -107,7 +109,7 @@ const reqListData = (idx: 0 | 1 | 2) => {
   showInfos.value = []
 
   getViewerNote({
-    viewer_id: viewerId,
+    viewer_id: route.params.id,
     category: listMap[idx],
     page_num: chooseGetOrStore({ idx, getQuery: true })
   })
@@ -128,7 +130,7 @@ const reqListData = (idx: 0 | 1 | 2) => {
         <img :src="userInfo.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
         <div class="info-right">
           <div>{{ userInfo.username }}</div>
-          <span>ct号：{{ viewerId }}</span>
+          <span>ct号：{{ route.params.id }}</span>
         </div>
       </div>
       <div class="opt">

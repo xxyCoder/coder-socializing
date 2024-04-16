@@ -5,7 +5,7 @@ import Users from "./users.model";
 export interface ChatModel {
     senderId: number;
     receiverId: number;
-    content: number;
+    content: string;
     identity: string;
 }
 

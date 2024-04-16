@@ -2,10 +2,10 @@ import Concern from "@src/model/concerns.model";
 import type { FollwerType } from "@src/constant/types";
 
 class ConcernService {
-    search({ id, viewer_id }: Partial<FollwerType>) {
+    async search({ id, viewer_id }: Partial<FollwerType>) {
         if (!id || !viewer_id) return Promise.resolve(false);
-        return Concern.findOne({ where: { follower: id, followed: viewer_id } })
-            .then(res => res ? true : false)
+        const res = await Concern.findOne({ where: { follower: id, followed: viewer_id } });
+        return res ? true : false;
     }
     add({ id, viewer_id }: FollwerType) {
         return Concern.create({ follower: id, followed: viewer_id })
