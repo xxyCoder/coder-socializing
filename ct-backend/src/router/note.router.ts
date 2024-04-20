@@ -12,10 +12,10 @@ const { likeOrCollect, publish, getWithPage, getDetail, getByTag } = NotesContro
 router.post("/like_or_collect", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkLikeOrCollectParams, likeOrCollect);
 
 const uploadMedia = multer({
-    storage,
-    limits: {
-        files: 6 // 限制最多上传六个文件
-    }
+  storage,
+  limits: {
+    files: 6 // 限制最多上传六个文件
+  }
 })
 router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkTagIsValid, checkNoteParams, publish);
 router.get("/viewer_note", verifyCSRFSession, checkPageParams, checkViewerId, getWithPage);
