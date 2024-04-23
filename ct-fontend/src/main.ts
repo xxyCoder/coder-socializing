@@ -6,6 +6,6 @@ import { recapUserInfo } from './common/ts/user-info'
 
 recapUserInfo()
 createApp(App)
-    .use(router)
-    .use(createPinia())
-    .mount('#app')
+  .use(router)
+  .use(createPinia())
+  .mount('#app')

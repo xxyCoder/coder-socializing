@@ -3,34 +3,34 @@ import { ref } from 'vue'
 import { NoteInfo, ViewerInfo } from './types'
 
 export const useNoteInfoStore = defineStore('note-info', () => {
-    const comment = ref({} as NoteInfo)
-    function setNoteInfo(info: NoteInfo) {
-        comment.value = info
-    }
-    return { comment, setNoteInfo }
+  const comment = ref({} as NoteInfo)
+  function setNoteInfo(info: NoteInfo) {
+    comment.value = info
+  }
+  return { comment, setNoteInfo }
 })
 
 export const useNotityCountStore = defineStore('notify-count', () => {
-    const count = ref(0)
-    function addCount() {
-        ++count.value
-    }
-    function clearCount() {
-        count.value = 0
-    }
-    return { count, addCount, clearCount }
+  const count = ref(0)
+  function addCount() {
+    ++count.value
+  }
+  function clearCount() {
+    count.value = 0
+  }
+  return { count, addCount, clearCount }
 })
 
 export const useviewerStore = defineStore('viewer', () => {
-    const viewer = ref<ViewerInfo>({
-        username: '',
-        avatarSrc: '',
-        userId: NaN,
-        isFollower: false
-    })
-    function setViewerInfo(info: ViewerInfo) {
-        viewer.value = info
-    }
+  const viewer = ref<ViewerInfo>({
+    username: '',
+    avatarSrc: '',
+    userId: NaN,
+    isFollower: false
+  })
+  function setViewerInfo(info: ViewerInfo) {
+    viewer.value = info
+  }
 
-    return { viewer, setViewerInfo }
+  return { viewer, setViewerInfo }
 })

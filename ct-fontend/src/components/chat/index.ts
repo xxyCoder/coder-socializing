@@ -1,10 +1,10 @@
 export const enum Direction {
-    LEFT,
-    RIGHT
+  LEFT,
+  RIGHT
 }
 
 export const enum MessageStatus {
-    LOADING,
-    ERROR,
-    NORMAL
+  LOADING,
+  ERROR,
+  NORMAL
 }

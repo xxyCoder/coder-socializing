@@ -9,9 +9,9 @@ const tabIdx = ref(0)
 </script>
 
 <template>
-    <sticky-list :list="list" @click="(idx: number) => tabIdx = idx" />
-    <notify :type="tabIdx" :total="list.length" />
-    <BottomMenu />
+  <sticky-list :list="list" @click="(idx: number) => tabIdx = idx" />
+  <notify :type="tabIdx" :total="list.length" />
+  <BottomMenu />
 </template>
 
 <style scoped lang="scss">
