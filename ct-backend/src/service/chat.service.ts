@@ -14,7 +14,7 @@ class ChatService {
       where: whereOp,
       offset: page_num * pageSize,
       limit: pageSize,
-      order: [['createdAt', 'ASC']]
+      order: [['createdAt', 'DESC']]
     })
   }
   create({ identity, senderId, content, receiverId }: ChatModel) {

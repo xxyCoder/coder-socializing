@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { nextTick, onBeforeUnmount, ref } from 'vue';
 import io from 'socket.io-client'
 import MessageBar from '@/components/chat/message-bar.vue';
 import UserHeader from '@/components/common/user-header.vue';
@@ -11,6 +11,8 @@ import { getUserInfo } from '@/common/ts/user-info';
 import { IMessageBar } from './ts';
 import { Direction, MessageStatus } from '@/components/chat';
 
+const messageList = ref<IMessageBar[]>([])
+
 const user = useviewerStore().viewer
 const self = getUserInfo()
 const socket = io(`${ip}:${SOCKETPORT}`)
@@ -18,27 +20,36 @@ socket.emit('online', self?.id)
 let pageNum = 0
 
 socket.on('reply', data => {
-  console.log(data)
+  // console.log(data)
+  messageList.value.unshift({ content: data.content, sendDate: data.time, dir: data.senderId === user.userId ? Direction.LEFT : Direction.RIGHT, status: MessageStatus.NORMAL })
 })
 onBeforeUnmount(() => {
   socket.emit('offline', self?.id)
 })
 
-const messageList = ref<IMessageBar[]>([])
 const message = ref('')
+const chatPage = ref()
+
+const gotoBottom = () => {
+  nextTick(() => {
+    chatPage.value.scrollIntoView(false)
+  })
+}
+
 const sendChatReq = (idx: number) => {
-  messageList.value[idx].status = MessageStatus.LOADING
+  const message = messageList.value[idx]
+  message.status = MessageStatus.LOADING
   addChatBar({ receiverId: user.userId, content: messageList.value[idx].content })
     .then(() => {
-      messageList.value[idx].status = MessageStatus.NORMAL
+      message.status = MessageStatus.NORMAL
     })
     .catch(() => {
-      messageList.value[idx].status = MessageStatus.ERROR
+      message.status = MessageStatus.ERROR
     })
 }
 
 let hasMore = true
-const getContent = () => {
+const getContent = (toBottom = false) => {
   if (!hasMore) return
   getChatContent({ page_num: pageNum, receiverId: user.userId })
     .then(res => {
@@ -46,10 +57,11 @@ const getContent = () => {
       res.chatList.forEach(chat => {
         messageList.value.push({ content: chat.content, sendDate: chat.data, dir: chat.id === user.userId ? Direction.LEFT : Direction.RIGHT, status: MessageStatus.NORMAL })
       })
+      toBottom && gotoBottom()
       if (!res.chatList.length) hasMore = false
     })
 }
-getContent()
+getContent(true)
 const sendMessage = () => {
   if (!self?.id) {
     useToast('请先登录')
@@ -59,23 +71,43 @@ const sendMessage = () => {
     useToast('消息不能为空')
     return
   }
-  messageList.value.push({ content: message.value, sendDate: Date.now(), status: MessageStatus.LOADING, dir: Direction.RIGHT })
-  sendChatReq(messageList.value.length - 1)
+  messageList.value.unshift({ content: message.value, sendDate: Date.now(), status: MessageStatus.LOADING, dir: Direction.RIGHT })
+  sendChatReq(0)
   message.value = ''
+  gotoBottom()
 }
 
 const handlerRetry = (idx: number) => {
   if (idx < 0 || idx >= messageList.value.length || messageList.value[idx].status !== MessageStatus.ERROR) return
   sendChatReq(idx)
 }
+
+const VIntersect = {
+  mounted(el: Element, { value }: { value: number }) {
+    if (value === messageList.value.length - 2) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            getContent()
+            io.unobserve(entry.target)
+          }
+        })
+      }, {
+        threshold: 0.1
+      })
+      io.observe(el)
+    }
+  }
+}
 </script>
 
 <template>
   <user-header :user="user" />
-  <div class="chat-page">
+  <div class="chat-page" ref="chatPage">
     <message-bar v-for="(msg, i) in messageList" :key="i" :idx="i" :content="msg.content" :status="msg.status"
       :send-date="msg.sendDate" :dir="msg.dir"
-      :avatar-src="msg.dir === Direction.RIGHT ? self?.avatarSrc : user.avatarSrc" @retry="handlerRetry" />
+      :avatar-src="msg.dir === Direction.RIGHT ? self?.avatarSrc : user.avatarSrc" @retry="handlerRetry(i)"
+      v-intersect="i" />
   </div>
   <div class="send-message">
     <input v-model="message" type="text" />
@@ -87,8 +119,12 @@ const handlerRetry = (idx: number) => {
 @import '../../common/style/func.scss';
 
 .chat-page {
+  position: relative;
   flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
   padding: responsive(20, vw);
+  padding-bottom: responsive(120, vw);
   background-color: #242526;
   overflow: auto;
 }

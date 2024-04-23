@@ -3,7 +3,7 @@ import env from '@src/config/default.config'
 
 const { SOCKETPORT, REMOTEIP, REMOTEPORT } = env;
 
-const sockets = new WeakMap<Number, Socket>()
+const sockets = new Map<number, Socket>()
 export function getScoket(id: number) {
   return sockets.get(id)
 }
@@ -18,11 +18,11 @@ export function establishConn() {
   io.on('connection', socket => {
     socket.on('online', id => {
       if (!Number.isInteger(id)) return
-      sockets.set(Object(id), socket)
+      sockets.set(id, socket)
     })
 
     socket.on('send', ({ id, data }) => {
-      const sk = sockets.get(Object(id))
+      const sk = sockets.get(id)
       if (sk) {
         sk.emit('reply', data)
       }
@@ -30,7 +30,7 @@ export function establishConn() {
 
     socket.on('offline', id => {
       if (!Number.isInteger(id)) return
-      sockets.delete(Object(id))
+      sockets.delete(id)
     })
   })
 
