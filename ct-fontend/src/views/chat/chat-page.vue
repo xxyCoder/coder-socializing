@@ -20,7 +20,6 @@ socket.emit('online', self?.id)
 let pageNum = 0
 
 socket.on('reply', data => {
-  // console.log(data)
   messageList.value.unshift({ content: data.content, sendDate: data.time, dir: data.senderId === user.userId ? Direction.LEFT : Direction.RIGHT, status: MessageStatus.NORMAL })
 })
 onBeforeUnmount(() => {

@@ -3,9 +3,11 @@
 </template>
 
 <style>
-body, div {
+body,
+div {
   margin: 0;
 }
+
 #app {
   display: flex;
   flex-direction: column;
@@ -14,6 +16,7 @@ body, div {
   color: #fff;
   box-sizing: border-box;
 }
+
 a {
   text-decoration: none;
 }

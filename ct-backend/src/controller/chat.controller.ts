@@ -69,7 +69,7 @@ class ChatController {
           st.set(`${Math.min(map.dataValues.senderId, map.dataValues.receiverId)}&${Math.max(map.dataValues.senderId, map.dataValues.receiverId)}`, {
             userId: user?.dataValues.id,
             content: map.dataValues.content,
-            time: map.dataValues.updatedAt,
+            time: +new Date(map.dataValues.updatedAt),
             username: user?.dataValues.username,
             avatarSrc: user?.dataValues.avatarSrc,
             isFollower

@@ -38,7 +38,7 @@ const timeText = computed(() => {
     return '刚刚'
   } else if (cur - props.time < 2 * HOUR) {
     return '1小时前'
-  } else if (cur - props.time < DAY) {
+  } else if (cur - props.time < DAY && new Date(cur).getDate() === prev.getDate()) {
     return `${new Date(props.time).getHours()}:${prev.getMinutes()}`
   } else if (cur - props.time < 2 * DAY) {
     return '昨天'
@@ -87,6 +87,7 @@ const gotoChat = () => {
 
 .item-right {
   overflow: hidden;
+  flex: 1;
 }
 
 .content {
