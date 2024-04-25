@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { readCookie } from "@/common/ts/encrypt";
+import { symmetricEncryption } from "@/common/ts/encrypt";
 import { getUserInfo } from "@/common/ts/user-info";
 import { IBasicObj } from './types'
 import { SEC } from "@/common/constant";
@@ -32,7 +32,11 @@ instance.interceptors.request.use(config => {
     userinfo = JSON.parse(localStorage.getItem('user-info') || '{}') // 避免第一次进入没有登录过
   }
   let query = "";
-  userinfo?.id && (query = `id=${userinfo.id}&account=${userinfo.account}`)
+
+  if (userinfo?.id) {
+    config.headers['X-CSRF-TOKEN'] = symmetricEncryption(userinfo.id)
+    query = `id=${userinfo.id}&account=${userinfo.account}`
+  }
   if (query && config.url) {
     config.url.indexOf('?') === -1 ? (config.url += '?') : (config.url += '&');
     config.url += query;
@@ -41,7 +45,6 @@ instance.interceptors.request.use(config => {
     config.headers["Content-Type"] = 'multipart/form-data'
   }
 
-  config.headers['X-CSRF-TOKEN'] = readCookie('XSRF-TOKEN')
   return config;
 });
 

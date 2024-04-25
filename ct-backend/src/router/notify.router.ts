@@ -9,7 +9,7 @@ const router = express.Router();
 
 const { list: getNotifyList, changeStatus } = NotifyController;
 
-router.get('/notify_list', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkPageParams, checkTypeRight, getNotifyList)
-router.post('/change_status', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkNotifyIdExists, changeStatus)
+router.get('/notify_list', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkPageParams, checkTypeRight, getNotifyList)
+router.post('/change_status', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkNotifyIdExists, changeStatus)
 
 export default router

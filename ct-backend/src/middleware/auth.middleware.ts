@@ -1,9 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
+import CryptoJS from "crypto-js";
 import jwt from 'jsonwebtoken'
 import env from "@src/config/default.config"
-import { csrfSessionError, csrfSessionIsNull, csrfSessionLapse, csrfSessionTimeout, tokenError, tokenIsNull, tokenLapse, tokenTimeout } from "@src/constant/resp.constant";
+import { csrfSessionError, csrfSessionIsNull, tokenIsNull, tokenLapse, tokenTimeout } from "@src/constant/resp.constant";
+import { SECOND } from "@src/constant";
 
-const { CSRF_SECRET, SECRET } = env;
+const { SYMMETRIKEY, SECRET } = env;
 
 export function verifyToken(req: Request, resp: Response, next: NextFunction) {
   const token = req.cookies["ct_token"];
@@ -27,29 +29,32 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
   }
 }
 
-export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
-  const xcsrf_token = req.cookies['XSRF-TOKEN']
-  const csrf_token = req.get('X-CSRF-TOKEN');
+function symmetricalDecryption(token: string) {
+  console.log(SYMMETRIKEY)
+  const decrypt = CryptoJS.AES.decrypt(token, SYMMETRIKEY!, {
+    "mode": CryptoJS.mode.ECB,
+    "padding": CryptoJS.pad.Pkcs7
+  });
 
-  if (!xcsrf_token) {
+  return JSON.parse(CryptoJS.enc.Utf8.stringify(decrypt));
+}
+
+const timeoutLimit = 6 * SECOND
+export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
+  const csrf_token = req.get('X-CSRF-TOKEN');
+  const { id } = req.query;
+
+  if (!csrf_token) {
     resp.send(csrfSessionIsNull);
     return;
   }
-  if (xcsrf_token !== csrf_token) {
-    resp.send({ code: 400, msg: '禁止csrf攻击' });
-    return;
+  const tokenObj = symmetricalDecryption(csrf_token)
+  const cur = Date.now()
+
+  if (tokenObj.id !== Number(id) || cur - tokenObj.cur > timeoutLimit) {
+    resp.send(csrfSessionError)
+    return
   }
-  try {
-    jwt.verify(xcsrf_token, CSRF_SECRET!);
-    next();
-  } catch (err: any) {
-    switch (err.name) {
-      case 'TokenExpiredError':
-        resp.send(csrfSessionTimeout);
-        break;
-      case 'JsonWebTokenError':
-        resp.send(csrfSessionLapse);
-        break;
-    }
-  }
+
+  next()
 }

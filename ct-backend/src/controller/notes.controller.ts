@@ -148,7 +148,7 @@ class NoteController {
       })
   }
   getByTag(req: Request, resp: Response) {
-    const { page_num, category, id } = req.query;
+    const { page_num, category, id = -1 } = req.query;
 
     getNoteWithPage({ page_num: Number(page_num), category: String(category) as categories })
       .then(res => {

@@ -32,7 +32,7 @@ export const checkPassParams = (req: Request, res: Response, next: NextFunction)
 
 export const checkIdAndAccountExists = (req: Request, res: Response, next: NextFunction) => {
   const { id, account } = req.query;
-  if (!id || !account) {
+  if (!id || !account || Number.isNaN(id)) {
     res.send({ code: 400, msg: '请先登录' });
     return;
   }

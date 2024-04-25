@@ -10,9 +10,9 @@ const router = express.Router();
 
 const { emit, list, notifyList } = CommentController;
 
-router.get('/note_comments', verifyCSRFSession, checkNoteIdExists, checkPageParams, list)
-router.post('/emit_comment', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkNoteIdExists, checkCommentContent, emit)
-router.get("/note_notify_comment", verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkCommentIdExists, notifyList)
+router.get('/note_comments', checkNoteIdExists, checkPageParams, list)
+router.post('/emit_comment', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkNoteIdExists, checkCommentContent, emit)
+router.get("/note_notify_comment", verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkCommentIdExists, notifyList)
 
 
 export default router;

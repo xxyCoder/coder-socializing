@@ -8,8 +8,8 @@ import { checkChatContent, checkChatReceiverId } from "@src/middleware/chat.midd
 const router = express.Router()
 const { getChatList, addChatBar, getChatContent } = ChatController
 
-router.get('/chat_list', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkPageParams, getChatList)
-router.post('/add_chat_bar', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkChatReceiverId, checkChatContent, addChatBar)
-router.get('/chat_content', verifyCSRFSession, verifyToken, checkIdAndAccountExists, checkPageParams, checkChatReceiverId, getChatContent)
+router.get('/chat_list', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkPageParams, getChatList)
+router.post('/add_chat_bar', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkChatReceiverId, checkChatContent, addChatBar)
+router.get('/chat_content', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkPageParams, checkChatReceiverId, getChatContent)
 
 export default router

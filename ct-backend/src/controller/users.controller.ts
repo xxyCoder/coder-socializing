@@ -114,7 +114,6 @@ class UserController {
         update({ account, newPassword, id })
           .then(() => {
             resp
-              .cookie('csrf_session', '')
               .cookie('ct_token', '')
               .send(modifySuc);
           })
