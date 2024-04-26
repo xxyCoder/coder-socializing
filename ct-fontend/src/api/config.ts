@@ -5,6 +5,7 @@ import { IBasicObj } from './types'
 import { SEC } from "@/common/constant";
 import { _maxTryCnt, ip, port, successCode, timeoutCode } from "./constant";
 import { useToast } from "@/components/Toast";
+import { toStr } from "@/common/ts/utils";
 
 interface apiRequestConfig extends AxiosRequestConfig {
   notTryAgain?: boolean;
@@ -20,12 +21,15 @@ const instance = axios.create({
 
 const reqSet = new Set()
 instance.interceptors.request.use(config => {
-  if (reqSet.has(config)) {
+  const key = `${config.url}$.&${toStr(config.data)}$.&${toStr(config.params)}`
+  if (reqSet.has(key)) {
     const controller = new AbortController()
     config.signal = controller.signal
     controller.abort()
     throw new Error('请耐心等待~')
   }
+  config.headers.key = key
+  reqSet.add(key)
 
   let userinfo = getUserInfo();
   if (!userinfo) {
@@ -49,6 +53,7 @@ instance.interceptors.request.use(config => {
 });
 
 instance.interceptors.response.use(resp => {
+  reqSet.delete(resp.config.headers.key)
   if (resp.data.code !== successCode) {
     useToast(resp.data.msg)
     return Promise.reject({ message: resp.data.msg })
@@ -56,6 +61,7 @@ instance.interceptors.response.use(resp => {
 
   return resp.data.data
 }, error => {
+  reqSet.delete(error.config.headers.key)
   if (error.code === timeoutCode && !error.config.notTryAgain) {
     if (error.config.curTryCnt <= (error.config.maxTryCnt ?? _maxTryCnt)) {
       ++error.config.curTryCnt

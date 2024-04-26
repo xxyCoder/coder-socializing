@@ -12,6 +12,7 @@
 - 封装GET和POST请求方法
 
 # 聊天室
+- [WebSocket](https://www.ruanyifeng.com/blog/2017/05/websocket.html)
 1. 后端实现分页+前端实现滚动到顶部向后端拉取数据
   - touch等事件判断是否到达顶部比较麻烦，需要知道可视区域处于scrollHeigh那一部分，还需要累加偏移量，考虑使用vue指令+intersection observe实现
 2. 首次进入和发送消息都需要滚动到底部
@@ -26,3 +27,6 @@
   - scrollTop = scrollHeight 无效？
   - 考虑使用scrollIntoView实现
 - 为什么onMounted中调用scrollIntoView失效？
+
+# SSE在线通知
+- [SSE](https://www.ruanyifeng.com/blog/2017/05/server-sent_events.html)
