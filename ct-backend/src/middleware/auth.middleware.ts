@@ -30,7 +30,6 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
 }
 
 function symmetricalDecryption(token: string) {
-  console.log(SYMMETRIKEY)
   const decrypt = CryptoJS.AES.decrypt(token, SYMMETRIKEY!, {
     "mode": CryptoJS.mode.ECB,
     "padding": CryptoJS.pad.Pkcs7
@@ -39,7 +38,7 @@ function symmetricalDecryption(token: string) {
   return JSON.parse(CryptoJS.enc.Utf8.stringify(decrypt));
 }
 
-const timeoutLimit = 6 * SECOND
+const timeoutLimit = 4 * SECOND
 export function verifyCSRFSession(req: Request, resp: Response, next: NextFunction) {
   const csrf_token = req.get('X-CSRF-TOKEN');
   const { id } = req.query;

@@ -13,7 +13,7 @@ import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 import { LikeOrCollectModel } from "@src/model/likes-collect.model";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
-const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail } = NotesService;
+const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize } = NotesService;
 const { precisionFind } = UsersService;
 const { addNotify } = NotifyController
 const { search: judgeIsFollower } = ConcernsService;
@@ -148,9 +148,9 @@ class NoteController {
       })
   }
   getByTag(req: Request, resp: Response) {
-    const { page_num, category, id = -1 } = req.query;
+    const { page_num, category, id = -1, question } = req.query;
 
-    getNoteWithPage({ page_num: Number(page_num), category: String(category) as categories })
+    getNoteWithPage({ page_num: Number(page_num), category: String(category) as categories, question: question as string })
       .then(res => {
         const notes: NoteCardType[] = [];
         Promise.all(res.map(note => new Promise(resolve => {
@@ -182,6 +182,27 @@ class NoteController {
         console.error(`首页获取数据失败：${err}`);
         resp.send(serviceError);
       })
+  }
+  async randomGet(req: Request, resp: Response) {
+    const noteIdSet = new Set<number>()
+    const total = await getNoteTotalSize()
+    let id
+    const notes = []
+    while (noteIdSet.size < Math.min(5, total)) {
+      id = Math.round(Math.random() * total)
+      if (!noteIdSet.has(id)) {
+        const note = await getNoteDetail(id)
+        if (note) {
+          noteIdSet.add(id)
+          notes.push({ id: note.dataValues.id, title: note.dataValues.title })
+        }
+      }
+    }
+    resp.send({
+      code: 200,
+      msg: 'success',
+      data: { notes }
+    })
   }
 }
 

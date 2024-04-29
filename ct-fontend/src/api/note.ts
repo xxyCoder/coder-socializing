@@ -16,3 +16,5 @@ export const emitComment = instance.post<Omit<Comment, 'user'> & { userId: numbe
 export const getNoteComment = instance.get<{ comments: Comment[] }>("/comment/note_comments");
 
 export const getNotifyComment = instance.get<{ comments: Comment[] }>("/comment/note_notify_comment");
+
+export const getRecommentNote = instance.get<{ notes: Array<{ id: number, title: string }> }>("/note/random")

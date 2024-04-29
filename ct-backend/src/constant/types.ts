@@ -16,7 +16,8 @@ export enum categories {
   learn = 'learn',
   game = 'game',
   help = 'help',
-  food = 'food'
+  food = 'food',
+  all = 'all'
 }
 
 export interface NoteCardType {
