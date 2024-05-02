@@ -13,10 +13,10 @@ export enum categories {
   collect = 'collect',
   comment = 'comment',
   new = 'new',
-  learn = 'learn',
-  game = 'game',
+  recommand = 'recommand',
+  daily = 'daily',
   help = 'help',
-  food = 'food',
+  outfits = 'outfits',
   all = 'all'
 }
 

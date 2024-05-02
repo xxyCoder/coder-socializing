@@ -14,11 +14,17 @@ class NoteService {
     const noteIds: number[] = [];
     userId && Object.assign(whereOp, { userId });
     if (question) {
+      question = decodeURIComponent(question)
+      let query = ''
+      for (let i = 0, n = question.length; i < n; ++i) {
+        query += `%${question[i]}`
+      }
+      query += '%'
       Object.assign(whereOp, {
         [Op.or]:
         {
-          title: { [Op.like]: `%${decodeURIComponent(question)}%` },
-          content: { [Op.like]: `%${decodeURIComponent(question)}%` }
+          title: { [Op.like]: query },
+          content: { [Op.like]: query }
         }
       })
     }

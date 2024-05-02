@@ -17,3 +17,5 @@ export const getViewerInfo = instance.get<viewerInfoReq>("/user/user_info");
 export const follwerOrCancel = instance.post("/concern/follower_or_cancel");
 
 export const signOut = instance.post('/user/quit')
+
+export const searchUser = instance.get<{ users: Array<{ userId: number, username: string, avatarSrc: string, biography: string }> }>('/user/search_user')

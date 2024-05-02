@@ -12,6 +12,7 @@ import { CustomComponent, CustomInputComponent } from '@/common/types';
 import { publishNote } from '@/api/note';
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
+import { listMap } from '@/common/constant';
 
 const router = useRouter();
 const userInfo = getUserInfo()
@@ -69,11 +70,7 @@ const handlerPublish = () => {
         <CustomTextarea ref="textareaComp" :maxlength="1000" placeholder="正文（可选）" />
         <button class="btn">@用户</button>
         <select class="tags" ref="selectTag">
-          <option value="new">新鲜事</option>
-          <option value="help">求助</option>
-          <option value="learn">学习</option>
-          <option value="food">美食</option>
-          <option value="game">游戏</option>
+          <option v-for="(val, name) in listMap" :key="name" :value="val">{{ name }}</option>
         </select>
       </template>
     </div>

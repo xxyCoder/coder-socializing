@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { ComponentInternalInstance, computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { listMap, userStateMap, userStateEnum, userOptMap } from './ts/index';
 import { ip, port, backendStatic } from '@/api/constant';
-import { getViewerInfo, signOut } from '@/api/users';
+import { getViewerInfo, searchUser, signOut } from '@/api/users';
 import { getViewerNote } from '@/api/note'
 import { follwerOrCancel } from '@/api/users'
 import { useLoading } from '@/components/Loading';
@@ -13,7 +13,10 @@ import type { NoteCardType } from '@/common/types'
 import BottomMenu from '@/components/common/bottom-menu.vue';
 import StickyList from '@/components/common/sticky-list.vue';
 import AllNotes from '@/components/note/all-notes.vue';
+import SearchPanel from '@/components/common/search-panel.vue';
+import PanelToast from '@/components/user/panel-toast.vue';
 import { useviewerStore } from '@/store';
+import { createComponentAPI } from '@/common/ts/create-component-API';
 
 const route = useRoute();
 const router = useRouter()
@@ -68,6 +71,7 @@ const getInfo = () => {
 
 }
 watch(() => route.params.id, () => {
+  pageNumObj.note = 0
   getInfo()
 }, { immediate: true })
 
@@ -121,10 +125,38 @@ const reqListData = (idx: 0 | 1 | 2) => {
       showInfos.value = chooseGetOrStore({ idx }) as NoteCardType[]
     })
 }
+
+const recKey = 'user-search-record-list'
+let page_num = 0
+let instance: null | ComponentInternalInstance = null
+const handlerSearch = (searchConn: string) => {
+  page_num = 0
+  searchUser({ user: searchConn, page_num })
+    .then(res => {
+      ++page_num
+      if (!res.users.length) {
+        page_num = -1 // 没有数据了
+      }
+      if (!instance) {
+        instance = createComponentAPI(PanelToast, {
+          users: res.users, onNeedMore: () => {
+            if (page_num === -1) return
+            searchUser({ user: searchConn, page_num })
+          }
+        })
+      }
+      if (instance) {
+        // @ts-ignore
+        instance.exposed.show()
+        instance.props.users = res.users
+      }
+    })
+}
 </script>
 
 <template>
-  <div v-if="userExists" class="container">
+  <search-panel :rec-key="recKey" @search="handlerSearch" tips="搜索用户" />
+  <div v-if="userExists" class="container pt-120">
     <div class="info center">
       <div class="center">
         <img :src="userInfo.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
@@ -195,5 +227,9 @@ const reqListData = (idx: 0 | 1 | 2) => {
   display: flex;
   flex-direction: column;
   row-gap: 3px;
+}
+
+.pt-120 {
+  padding-top: responsive(120, vw);
 }
 </style>

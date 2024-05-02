@@ -48,3 +48,12 @@ export const checkViewIdExists = (req: Request, res: Response, next: NextFunctio
   }
   next()
 }
+
+export const checkSearchValue = (req: Request, res: Response, next: NextFunction) => {
+  const { user } = req.query
+  if (!user) {
+    res.send({ code: 400, msg: '搜索不能为空' })
+    return
+  }
+  next()
+}

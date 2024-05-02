@@ -1,18 +1,19 @@
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import userService from '@src/service/users.service';
-import concernsService from '@src/service/concerns.service';
-import notesService from '@src/service/notes.service';
+import UserService from '@src/service/users.service';
+import ConcernsService from '@src/service/concerns.service';
+import LikesCollectServe from '@src/service/likes-collect.serve';
+import NotesService from '@src/service/notes.service';
 import { modifySuc, serviceError, successObj, userIsNotExists, userIsNotExistsOrPassErr } from '@src/constant/resp.constant';
 import env from "@src/config/default.config"
 import { staticRoot } from '@src/app';
-import likesCollectServe from '@src/service/likes-collect.serve';
 import { categories } from '@src/constant/types';
 
-const { create, precisionFind, update, remove, find, verify } = userService;
-const { get: getIsLikeOrCollect, count: countLikesOrCollect } = likesCollectServe;
-const { search } = concernsService;
-const { getByPage: getUserNotesByPage } = notesService
+const { create, precisionFind, update, verify, find } = UserService;
+const { get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
+const { search: judgeIsFollower } = ConcernsService;
+const { getByPage: getUserNotesByPage } = NotesService
+
 const { SECRET, PORT } = env;
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -58,32 +59,6 @@ class UserController {
       })
       .catch(err => {
         console.error(`登录失败：${err}`);
-        resp.send(serviceError);
-      })
-  }
-  logout(req: Request, resp: Response) {
-    const { id, password } = req.body;
-    verify({ id, password })
-      .then(({ sc }) => {
-        if (!sc) {
-          resp.send(userIsNotExistsOrPassErr);
-          return;
-        }
-        remove({ id })
-          .then(deleteRows => {
-            if (deleteRows == 1) {
-              resp.send({ code: 0, msg: "注销成功" });
-            } else {
-              resp.send(userIsNotExistsOrPassErr);
-            }
-          })
-          .catch(err => {
-            console.error(`注销失败：${err}`);
-            resp.send(serviceError);
-          })
-      })
-      .catch(err => {
-        console.error(`注销失败：${err}`);
         resp.send(serviceError);
       })
   }
@@ -151,7 +126,7 @@ class UserController {
         }
         // 访问主页默认tab页是notes
         Promise.all([
-          search({ id, viewer_id }),
+          judgeIsFollower({ id, viewer_id }),
           getUserNotesByPage({ userId: viewer_id, page_num: Number(page_num), category: categories.note })
         ]).then(([isFollower, notes]) => {
           Promise.all(notes.map(note => new Promise(resolve => {
@@ -194,6 +169,24 @@ class UserController {
   }
   quit(req: Request, resp: Response) {
     resp.clearCookie('ct_token').send(successObj)
+  }
+  async search(req: Request, resp: Response) {
+    const { page_num, user } = req.query
+    const users = await find({ page_num: Number(page_num), user: user as string })
+    resp.send({
+      code: 200,
+      msg: 'success',
+      data: {
+        users: users.map(user => {
+          return {
+            userId: user.dataValues.id,
+            username: user.dataValues.username,
+            avatarSrc: user.dataValues.avatarSrc,
+            biography: user.dataValues.biography,
+          }
+        })
+      }
+    })
   }
 }
 

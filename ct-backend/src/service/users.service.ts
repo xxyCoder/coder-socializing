@@ -17,14 +17,25 @@ class UserService {
     username && Object.assign(updateOp, { username });
     return Users.update(updateOp, { where: whereOp });
   }
-  remove({ id }: Partial<UserModel>) {
-    return Users.destroy({ where: { id } });
-  }
-  find({ page_num, username, id }: Partial<UserModel> & pageType) {
+  find({ page_num, user }: { user: string } & pageType) {
     const whereOp = {};
-    username && Object.assign(whereOp, { username: { [Op.like]: `%${username}%` } });  // 实现模糊查询
-    id && Object.assign(whereOp, { id });
-    return Users.findAll({ offset: (page_num - 1) * pageSize, limit: pageSize, where: whereOp });
+    if (user) {
+      user = encodeURIComponent(user)
+      let query = ''
+      for (let i = 0, n = user.length; i < n; ++i) {
+        query += `%${user[i]}`
+      }
+      query += '%'
+      Object.assign(whereOp, {
+        [Op.or]:
+        {
+          username: { [Op.like]: query },
+          id: { [Op.like]: query }
+        }
+      });
+    }
+
+    return Users.findAll({ offset: page_num * pageSize, limit: pageSize, where: whereOp });
   }
   precisionFind({ username, account, id }: Partial<UserModel>) {
     const whereOp = {};
