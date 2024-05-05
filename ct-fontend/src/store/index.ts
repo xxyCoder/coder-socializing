@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { NoteInfo, ViewerInfo } from './types'
+import { ModNote, NoteInfo, ViewerInfo } from './types'
 
 export const useNoteInfoStore = defineStore('note-info', () => {
   const comment = ref({} as NoteInfo)
@@ -33,4 +33,21 @@ export const useviewerStore = defineStore('viewer', () => {
   }
 
   return { viewer, setViewerInfo }
+})
+
+export const useModNoteStore = defineStore('mod-note', () => {
+  const note = ref<ModNote>({
+    noteId: 0,
+    title: '',
+    content: '',
+    mediaList: [],
+    isVideo: false,
+    tag: ''
+  })
+
+  function setModNoteInfo(noteInfo: ModNote) {
+    note.value = noteInfo
+  }
+
+  return { note, setModNoteInfo }
 })

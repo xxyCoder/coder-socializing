@@ -12,7 +12,7 @@ import { getSSEConn } from "@src/router/sse.router";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
-const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize, remove: removeNoteById } = NotesService;
+const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize, remove: removeNoteById, update: updateNoteById } = NotesService;
 const { precisionFind } = UsersService;
 const { addNotify } = NotifyController
 const { search: judgeIsFollower } = ConcernsService;
@@ -214,6 +214,28 @@ class NoteController {
       })
       .catch(err => {
         console.error(`删除失败:${err}`)
+        resp.send(serviceError)
+      })
+  }
+  updateNote(req: Request, resp: Response) {
+    const userId = Number(req.query.id)
+    const { category, title, content, is_video, staticUrls = '', noteId } = req.body;
+    const mediaList = req.files as Express.Multer.File[];
+
+    updateNoteById({
+      tag: category, title, content, id: noteId,
+      mediaList: [staticUrls].concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),
+      isVideo: JSON.parse(is_video), userId
+    })
+      .then(([cnt]) => {
+        if (cnt) {
+          resp.send(successObj)
+        } else {
+          resp.send({ code: 400, msg: '更新失败' })
+        }
+      })
+      .catch(err => {
+        console.error(`更新失败:${err}`)
         resp.send(serviceError)
       })
   }

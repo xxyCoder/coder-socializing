@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import UploadImg from '@/components/note/upload-img.vue';
 import { UploadImgComp } from './ts/type'
 import CustomInput from '@/components/common/custom-input.vue';
@@ -9,26 +9,50 @@ import BottomButton from '@/components/common/bottom-button.vue';
 import NullState from '@/components/common/null-state.vue'
 import { useToast } from '@/components/Toast';
 import { CustomComponent, CustomInputComponent } from '@/common/types';
-import { publishNote } from '@/api/note';
+import { publishNote, updateNote } from '@/api/note';
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { listMap } from '@/common/constant';
+import { useModNoteStore } from '@/store';
+
 
 const router = useRouter();
+const route = useRoute()
+const { noteId, isMod } = route.query
+
 const userInfo = getUserInfo()
 const uploadImgRef = ref<UploadImgComp>();
-const showPublish = computed(() => (uploadImgRef.value?.mediaList.length || 0) > 0);
+const showPublish = computed(() => (uploadImgRef.value?.mediaList.length || 0) > 0 || isMod === 'true');
 const inputComp = ref<CustomInputComponent>();
 const textareaComp = ref<CustomComponent>();
 const selectTag = ref<HTMLSelectElement>();
+
+onMounted(() => {
+  if (isMod === 'true') {
+    const note = useModNoteStore().note
+    if (uploadImgRef.value) {
+      uploadImgRef.value.isVideo = note.isVideo
+      uploadImgRef.value.mediaUrls = note.mediaList
+    }
+    if (inputComp.value) {
+      inputComp.value.component.value = note.title
+    }
+    if (textareaComp.value) {
+      textareaComp.value.component.value = note.content
+    }
+    if (selectTag.value) {
+      selectTag.value.selectedIndex = Object.keys(listMap).findIndex(v => listMap[v] === note.tag)
+    }
+  }
+})
 
 const handlerPublish = () => {
   if (!userInfo || !userInfo.id) {
     useToast('请先登录');
     return
   }
-  const mediaList = uploadImgRef.value?.mediaList || []
-  if (mediaList.length === 0) {
+  const mediaUrls = uploadImgRef.value?.mediaUrls || []
+  if (mediaUrls.length === 0) {
     useToast('至少上传一张图片或视频才能发布~')
     return
   }
@@ -44,14 +68,27 @@ const handlerPublish = () => {
   const formData = new FormData();
   formData.set('title', title);
   formData.set('category', selectTag.value.selectedOptions[0].value)
-  mediaList.forEach(media => formData.append('mediaList', media, media.name))
+  uploadImgRef.value?.mediaList.forEach(media => {
+    if (media instanceof File) {
+      formData.append('mediaList', media, media.name)
+    } else {
+      formData.append('mediaListStr', media)
+    }
+  })
   content && formData.set('content', content);
-  uploadImgRef.value && formData.set('is_video', String(uploadImgRef.value.isVideo))
+  uploadImgRef.value && formData.set('is_video', JSON.stringify(uploadImgRef.value.isVideo))
   const remove = useLoading();
-  publishNote(formData)
+  let msg = '发布成功', reqAPI = publishNote
+  if (isMod) {
+    uploadImgRef.value && formData.set('staticUrls', uploadImgRef.value.mediaUrls.filter(url => /http:/.test(url)).join(';'))
+    noteId && formData.set('noteId', String(noteId))
+    msg = '更新成功'
+    reqAPI = updateNote
+  }
+  reqAPI(formData)
     .then(() => {
       remove();
-      useToast('发布成功')
+      useToast(msg)
         .then(() => router.replace(`/user/${userInfo.id}`))
     })
     .catch(() => {

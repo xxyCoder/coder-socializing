@@ -20,3 +20,5 @@ export const getNotifyComment = instance.get<{ comments: Comment[] }>("/comment/
 export const getRecommentNote = instance.get<{ notes: Array<{ id: number, title: string }> }>("/note/random")
 
 export const deleteNote = instance.delete("/note/delete_note")
+
+export const updateNote = instance.patch("/note/update_note")

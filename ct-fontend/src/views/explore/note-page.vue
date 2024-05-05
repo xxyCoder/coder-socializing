@@ -14,7 +14,7 @@ import CommentItem from '@/components/note/comment-item.vue';
 import InTheEnd from '@/components/common/in-the-end.vue';
 import UserHeader from '@/components/common/user-header.vue';
 import { ReplyInfo } from '@/common/types';
-import { useNoteInfoStore } from '@/store';
+import { useModNoteStore, useNoteInfoStore } from '@/store';
 import { createComponentAPI } from '@/common/ts/create-component-API';
 import Popup from '@/components/common/popup.vue';
 
@@ -128,6 +128,19 @@ const cancelReply = () => {
 
 const optPanel = ref(false)
 const handlerNoteModify = () => {
+  if (!note.value) {
+    useToast('获取笔记详情失败')
+    return
+  }
+  const { setModNoteInfo } = useModNoteStore()
+  setModNoteInfo({
+    noteId: note.value.id,
+    mediaList: note.value.mediaList.split(';'),
+    title: note.value.title,
+    content: note.value.content,
+    tag: note.value.tag,
+    isVideo: note.value.isVideo
+  })
   router.push({ path: '/publish', query: { noteId: note.value?.id, isMod: 'true' } })
 }
 

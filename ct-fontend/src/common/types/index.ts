@@ -25,6 +25,7 @@ export type NoteInfo = {
     likeCnt: number;
     isCollect: boolean;
     collectCnt: number;
+    tag: string;
 } & Exclude<NoteCardType, 'posterSrc' | keyof UserInfo>
 
 export type NoteDetail = {

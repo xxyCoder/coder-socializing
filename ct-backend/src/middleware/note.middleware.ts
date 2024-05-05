@@ -19,7 +19,6 @@ export const checkTagIsValid = (req: Request, res: Response, next: NextFunction)
 
 export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {
   const { title, is_video } = req.body;
-  console.log(title, typeof is_video)
   if (!title || !['false', 'true'].includes(is_video)) {
     res.send(importArgsIsNull)
     return
@@ -31,6 +30,19 @@ export const checkNoteIdExists = (req: Request, res: Response, next: NextFunctio
   let { noteId } = req.query;
   !noteId && ({ noteId } = req.body);
   if (Number.isNaN(Number(noteId))) {
+    res.send(importArgsIsNull)
+    return
+  }
+  next()
+}
+
+export const checkUpdateParams = (req: Request, res: Response, next: NextFunction) => {
+  const { is_video, category, staticUrls } = req.body
+  if (is_video && !['false', 'true'].includes(is_video)) {
+    res.send(importArgsIsNull)
+    return
+  }
+  if (category && !((category as string) in categories)) {
     res.send(importArgsIsNull)
     return
   }
