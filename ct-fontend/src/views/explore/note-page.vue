@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onUpdated, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { getNoteDetail, emitComment, getNoteComment, getNotifyComment } from '@/api/note'
+import { ComponentInternalInstance, onBeforeUnmount, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getNoteDetail, emitComment, getNoteComment, getNotifyComment, deleteNote } from '@/api/note'
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
@@ -15,9 +15,25 @@ import InTheEnd from '@/components/common/in-the-end.vue';
 import UserHeader from '@/components/common/user-header.vue';
 import { ReplyInfo } from '@/common/types';
 import { useNoteInfoStore } from '@/store';
+import { createComponentAPI } from '@/common/ts/create-component-API';
+import Popup from '@/components/common/popup.vue';
 
 const route = useRoute();
+const router = useRouter()
+
 const { id } = route.params;
+
+let popupInstance: null | ComponentInternalInstance = null;
+let unmount: () => void = () => {
+  //empty
+}
+onBeforeUnmount(() => {
+  setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
+  document.removeEventListener('click', handlerClick)
+  // @ts-ignore
+  popupInstance && popupInstance.exposed.hide()
+  unmount()
+})
 
 const selfInfo = getUserInfo()
 const note = ref<NoteInfo>()
@@ -35,11 +51,10 @@ getNoteDetail({ noteId: id })
   });
 
 
-const commentListRef = ref<HTMLDivElement>()
 const commentList = ref<Comment[]>([])
 const commentChildList = ref<Map<number, Comment[]>>(new Map())
 const commentChildPageNums: Map<number, number> = new Map()
-let pageNum = 0, commentHeight = 0, startY = 0, req = true // 初始值为true因为第一次需要手动请求
+let pageNum = 0
 const reqComment = (rootCommentId: number | null = null) => {
   let pn = pageNum;
   if (rootCommentId) {
@@ -60,7 +75,6 @@ const reqComment = (rootCommentId: number | null = null) => {
           commentList.value.push(..._comments)
         }
         ++pn
-        req = false; // 放此处同时避免没有数据了继续请求
         rootCommentId ? commentChildPageNums.set(rootCommentId, pn) : (pageNum = pn);
       }
     })
@@ -78,17 +92,6 @@ commentId && getNotifyComment({ commentId })
   })
 
 reqComment();
-
-const handlerTouchStart = (e: TouchEvent) => {
-  startY = e.touches[0].pageY;
-}
-const handlerTouchMove = (e: TouchEvent) => {
-  const endY = 2 * startY - e.touches[0].pageY;
-  if (endY + 200 >= commentHeight && !req) {
-    req = true;
-    reqComment();
-  }
-}
 
 const comment = ref<string>('')
 const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
@@ -123,27 +126,58 @@ const cancelReply = () => {
   comment.value = ''
 }
 
-onUpdated(() => {
-  commentHeight = commentListRef.value?.getBoundingClientRect().height || 0
-})
-onBeforeUnmount(() => {
-  setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
-})
-
 const optPanel = ref(false)
 const handlerNoteModify = () => {
-  //x 
+  router.push({ path: '/publish', query: { noteId: note.value?.id, isMod: 'true' } })
 }
+
 const handlerNoteDelete = () => {
-  //
+  if (!popupInstance) {
+    ({ instance: popupInstance, unmount } = createComponentAPI(Popup, {
+      content: '删除后笔记无法还原',
+      onConfirm() {
+        deleteNote({ noteId: note.value?.id })
+          .then(() => {
+            useToast('删除成功')
+              .then(() => {
+                router.replace('/explore')
+              })
+          })
+      }
+    }, 'popup'))
+  }
+  // @ts-ignore
+  popupInstance.exposed.show()
+}
+const handlerClick = () => {
+  optPanel.value = false
+}
+document.addEventListener('click', handlerClick)
+
+const VIntersect = {
+  mounted(el: Element, { value }: { value: number }) {
+    if (value === commentList.value.length - 3) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            reqComment();
+            io.unobserve(entry.target)
+          }
+        })
+      }, {
+        threshold: 1
+      })
+      io.observe(el)
+    }
+  }
 }
 </script>
 
 <template>
   <template v-if="note && viewr">
     <user-header :user="viewr">
-      <div class="dots">
-        <span @click="optPanel = !optPanel">. . .</span>
+      <div v-if="viewr.userId === selfInfo?.id" class="dots">
+        <span @click.stop="optPanel = !optPanel">. . .</span>
         <transition>
           <ul class="opt-panel" v-if="optPanel">
             <li @click="handlerNoteModify">修改</li>
@@ -152,7 +186,7 @@ const handlerNoteDelete = () => {
         </transition>
       </div>
     </user-header>
-    <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
+    <div class="note-page container">
       <div class="media-box">
         <video v-if="note.isVideo" :src="note.mediaList" controls></video>
         <carousel v-else :list="note.mediaList.split(';')" />
@@ -166,12 +200,13 @@ const handlerNoteDelete = () => {
             + new Date(note.updateDate).toLocaleString() }}
         </span>
       </div>
-      <div ref="commentListRef" class="comments">
-        <comment-item v-for="item in commentList" :key="item.id" :username="item.user.username"
-          :avatar-src="item.user.avatarSrc" :content="item.content" :comment-cnt="item.replies"
-          :date="new Date(item.createdAt).toDateString()" :comment-id="item.id" :reply-cnt="item.replyCnt"
-          :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)" @reply="handlerReply"
-          @extend="reqComment" />
+      <div class="comments">
+        <div v-for="(item, i) in commentList" :key="item.id" v-intersect="i">
+          <comment-item :username="item.user.username" :avatar-src="item.user.avatarSrc" :content="item.content"
+            :comment-cnt="item.replies" :date="new Date(item.createdAt).toDateString()" :comment-id="item.id"
+            :reply-cnt="item.replyCnt" :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)"
+            @reply="handlerReply" @extend="reqComment" />
+        </div>
         <in-the-end />
       </div>
     </div>

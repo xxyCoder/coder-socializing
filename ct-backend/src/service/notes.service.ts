@@ -56,6 +56,9 @@ class NoteService {
   countAll() {
     return Note.count()
   }
+  remove({ noteId, userId }: { noteId: number, userId: number }) {
+    return Note.destroy({ where: { id: noteId, userId } })
+  }
 }
 
 export default new NoteService()

@@ -21,7 +21,6 @@ const showPublish = computed(() => (uploadImgRef.value?.mediaList.length || 0) >
 const inputComp = ref<CustomInputComponent>();
 const textareaComp = ref<CustomComponent>();
 const selectTag = ref<HTMLSelectElement>();
-// const atUsers = ref<string[]>([]);
 
 const handlerPublish = () => {
   if (!userInfo || !userInfo.id) {
@@ -47,12 +46,13 @@ const handlerPublish = () => {
   formData.set('category', selectTag.value.selectedOptions[0].value)
   mediaList.forEach(media => formData.append('mediaList', media, media.name))
   content && formData.set('content', content);
-  uploadImgRef.value && formData.set('is_video', JSON.stringify(uploadImgRef.value.isVideo))
+  uploadImgRef.value && formData.set('is_video', String(uploadImgRef.value.isVideo))
   const remove = useLoading();
   publishNote(formData)
     .then(() => {
       remove();
-      useToast('发布成功').then(() => router.replace(`/user/${userInfo.id}`))
+      useToast('发布成功')
+        .then(() => router.replace(`/user/${userInfo.id}`))
     })
     .catch(() => {
       remove();
@@ -68,7 +68,6 @@ const handlerPublish = () => {
         <CustomInput ref="inputComp" :maxlength="20" placeholder="记得填写标题哦" />
         <br>
         <CustomTextarea ref="textareaComp" :maxlength="1000" placeholder="正文（可选）" />
-        <button class="btn">@用户</button>
         <select class="tags" ref="selectTag">
           <option v-for="(val, name) in listMap" :key="name" :value="val">{{ name }}</option>
         </select>

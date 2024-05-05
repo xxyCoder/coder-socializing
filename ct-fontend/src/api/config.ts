@@ -76,16 +76,29 @@ instance.interceptors.response.use(resp => {
   return Promise.reject(error);
 })
 
+function request<D = IBasicObj>({ method, url, config, params }: { method: 'get' | 'post' | 'delete', url: string, config: apiRequestConfig, params: IBasicObj | FormData }) {
+  if (['get', 'delete'].includes(method)) {
+    config.params = params || {}
+    return instance[method]<D, D>(url, config)
+  } else {
+    return instance[method]<D, D>(url, params, config)
+  }
+}
+
 export default {
   post<D = IBasicObj>(url: string, config: apiRequestConfig = {}) {
     return (params: IBasicObj | FormData) => {
-      return instance.post<D, D>(url, params, config);
+      return request<D>({ method: 'post', url, config, params })
     }
   },
   get<D = IBasicObj>(url: string, config: apiRequestConfig = {}) {
     return (query = {}) => {
-      config.params = query
-      return instance.get<D, D>(url, config);
+      return request<D>({ method: 'get', url, config, params: query })
+    }
+  },
+  delete<D = IBasicObj>(url: string, config: apiRequestConfig = {}) {
+    return (query = {}) => {
+      return request<D>({ method: 'delete', url, config, params: query })
     }
   }
 }

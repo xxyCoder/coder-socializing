@@ -10,10 +10,9 @@ import env from "@src/config/default.config";
 import { NoteCardType, categories } from "@src/constant/types";
 import { getSSEConn } from "@src/router/sse.router";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
-import { LikeOrCollectModel } from "@src/model/likes-collect.model";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
-const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize } = NotesService;
+const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize, remove: removeNoteById } = NotesService;
 const { precisionFind } = UsersService;
 const { addNotify } = NotifyController
 const { search: judgeIsFollower } = ConcernsService;
@@ -202,6 +201,21 @@ class NoteController {
       msg: 'success',
       data: { notes }
     })
+  }
+  deleteNote(req: Request, resp: Response) {
+    const { noteId, id } = req.query
+    removeNoteById({ noteId: Number(noteId), userId: Number(id) })
+      .then(res => {
+        if (res) {
+          resp.send({ code: 200, msg: '删除成功' })
+        } else {
+          resp.send({ code: 400, msg: '删除失败' })
+        }
+      })
+      .catch(err => {
+        console.error(`删除失败:${err}`)
+        resp.send(serviceError)
+      })
   }
 }
 

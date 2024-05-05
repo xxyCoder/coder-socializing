@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ComponentInternalInstance, computed, reactive, ref, watch } from 'vue';
+import { ComponentInternalInstance, computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { listMap, userStateMap, userStateEnum, userOptMap } from './ts/index';
 import { ip, port, backendStatic } from '@/api/constant';
@@ -21,6 +21,18 @@ import { createComponentAPI } from '@/common/ts/create-component-API';
 const route = useRoute();
 const router = useRouter()
 const selfInfo = getUserInfo();
+
+let instance: null | ComponentInternalInstance = null;
+let unmount: () => void = () => {
+  // empty
+}
+onBeforeUnmount(() => {
+  if (instance) {
+    // @ts-ignore
+    instance.exposed.hide()
+    unmount()
+  }
+})
 
 const list = ['笔记', '点赞', '收藏'];
 const pageNumObj = {
@@ -128,7 +140,7 @@ const reqListData = (idx: 0 | 1 | 2) => {
 
 const recKey = 'user-search-record-list'
 let page_num = 0
-let instance: null | ComponentInternalInstance = null;
+
 const handlerSearch = (searchConn: string) => {
   if (!searchConn) return
   page_num = 0
@@ -139,12 +151,12 @@ const handlerSearch = (searchConn: string) => {
         page_num = -1 // 没有数据了
       }
       if (!instance) {
-        instance = createComponentAPI(PanelToast, {
+        ({ instance, unmount } = createComponentAPI(PanelToast, {
           users: res.users, onNeedMore: () => {
             if (page_num === -1) return
             searchUser({ user: searchConn, page_num })
           }
-        })
+        }, 'toast'))
       }
       if (instance) {
         // @ts-ignore
