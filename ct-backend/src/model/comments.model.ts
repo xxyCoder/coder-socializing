@@ -6,7 +6,6 @@ import Users from "./users.model";
 export interface CommentModel {
   id: number | null;
   content: string;
-  atUsers: string;
   targetCommentId: number | null;
   noteId: number;
   userId: number;
@@ -19,11 +18,6 @@ const Comments = seq.define('comments', {
     allowNull: false,
     comment: '评论内容'
   },
-  atUsers: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    comment: '@的用户'
-  },
   targetCommentId: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -35,7 +29,7 @@ const Comments = seq.define('comments', {
     comment: '回复的评论id的顶级id'
   }
 }, {
-  createdAt: true
+  updatedAt: true
 })
 
 Comments.belongsTo(Notes, { foreignKey: 'noteId' });

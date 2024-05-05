@@ -3,6 +3,7 @@ import seq from "@src/database/seq.database";
 import Users from "./users.model";
 
 export interface ChatModel {
+  id: number | null;
   senderId: number;
   receiverId: number;
   content: string;

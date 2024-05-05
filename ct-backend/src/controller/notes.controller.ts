@@ -47,12 +47,11 @@ class NoteController {
   }
   publish(req: Request, resp: Response) {
     const userId = Number(req.query.id);
-    const { category, title, content, atUserIds = [], is_video } = req.body;
+    const { category, title, content, is_video } = req.body;
     const mediaList = req.files as Express.Multer.File[];
 
     noteAdd({
       tag: category, title, content,
-      atUserIds: atUserIds.join(';'),
       userId,
       mediaList: mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`).join(';'),
       isVideo: JSON.parse(is_video)
@@ -66,14 +65,14 @@ class NoteController {
       })
   }
   getWithPage(req: Request, resp: Response) {
-    const { page_num, viewer_id, category, id } = req.query;
+    const { page_num, viewer_id, category, id = -1 } = req.query;
     getNoteWithPage({ userId: Number(viewer_id), page_num: Number(page_num), category: String(category) as categories })
       .then(notes => {
         Promise.all(notes.map(note => new Promise(resolve => {
           const user = note.dataValues.user.dataValues;
           Promise.all([
-            getIsLikeOrCollect({ userId: Number(id), noteId: Number(note.dataValues.id), type: String(category) as LikeOrCollectModel["type"] }),
-            countLikesOrCollect({ noteId: Number(note.dataValues.id), type: String(category) as LikeOrCollectModel["type"] })
+            getIsLikeOrCollect({ userId: Number(id), noteId: Number(note.dataValues.id), type: categories.like }),
+            countLikesOrCollect({ noteId: Number(note.dataValues.id), type: categories.like })
           ]).then(([isLike, likeCnt]) => {
             resolve({
               isLike: !!isLike.length,

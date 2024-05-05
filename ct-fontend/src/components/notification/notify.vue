@@ -45,5 +45,5 @@ clearCount()
     :comment-id="item.commentId" :reply-comment-id="item.replyCommentId" :content="item.content"
     :reply-content="item.replyContent" :time="item.time" :status="item.status" :type="item.type"
     :root-comment-id="item.rootCommentId" />
-  <null-data v-if="!notifyList.length" />
+  <null-data v-if="!notifyList[type].length" />
 </template>

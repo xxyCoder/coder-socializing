@@ -45,9 +45,12 @@ const handlerClick = () => {
       <img :src="user.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
       <span @click="router.push(`/user/${user.userId}`)">{{ user.username }}</span>
     </div>
-    <button v-if="user.userId !== selfInfo?.id" class="follower-btn" @click="handlerClick">
-      {{ user.isFollower ? '取消关注' : '关注' }}
-    </button>
+    <div class="opts">
+      <button v-if="user.userId !== selfInfo?.id" class="follower-btn" @click="handlerClick">
+        {{ user.isFollower ? '取消关注' : '关注' }}
+      </button>
+      <slot></slot>
+    </div>
   </header>
 </template>
 
@@ -85,6 +88,11 @@ const handlerClick = () => {
   font-weight: 100;
   transform: rotateZ(45deg);
   color: hsla(0, 0%, 100%, 0.8);
+}
+
+.opts {
+  display: flex;
+  align-items: center;
 }
 
 .follower-btn {

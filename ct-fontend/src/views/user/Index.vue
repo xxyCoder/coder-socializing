@@ -128,10 +128,11 @@ const reqListData = (idx: 0 | 1 | 2) => {
 
 const recKey = 'user-search-record-list'
 let page_num = 0
-let instance: null | ComponentInternalInstance = null
+let instance: null | ComponentInternalInstance = null;
 const handlerSearch = (searchConn: string) => {
+  if (!searchConn) return
   page_num = 0
-  searchUser({ user: searchConn, page_num })
+  searchUser({ user: encodeURIComponent(searchConn), page_num })
     .then(res => {
       ++page_num
       if (!res.users.length) {

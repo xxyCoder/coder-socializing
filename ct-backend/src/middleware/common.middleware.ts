@@ -5,8 +5,8 @@ import path from "path";
 
 export const checkPageParams = (req: Request, res: Response, next: NextFunction) => {
   const { page_num } = req.query;
-  if (!page_num) {
-    res.send(importArgsIsNull);
+  if (!page_num || Number.isNaN(Number(page_num)) || +page_num < 0) {
+    res.send({ code: 400, msg: '分页参数错误' });
     return;
   }
   next()

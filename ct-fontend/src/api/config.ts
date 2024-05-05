@@ -11,6 +11,7 @@ interface apiRequestConfig extends AxiosRequestConfig {
   notTryAgain?: boolean;
   curTryCnt?: number;
   maxTryCnt?: number;
+  hideToast?: boolean
 }
 
 const instance = axios.create({
@@ -55,7 +56,8 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(resp => {
   reqSet.delete(resp.config.headers.key)
   if (resp.data.code !== successCode) {
-    useToast(resp.data.msg)
+    // @ts-ignore
+    !resp.config.hideToast && useToast(resp.data.msg)
     return Promise.reject({ message: resp.data.msg })
   }
 
@@ -70,7 +72,7 @@ instance.interceptors.response.use(resp => {
     useToast('请重试~')
     return
   }
-  useToast(error.message)
+  !error.config.hideToast && useToast(error.message)
   return Promise.reject(error);
 })
 

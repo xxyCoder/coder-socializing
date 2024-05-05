@@ -158,8 +158,8 @@ onMounted(() => {
     <div class="password pd-20">
       <h5 @click="expend">修改密码</h5>
       <div class="modify-pass" :class="{ 'show-modify': showModify }">
-        <CustomInput @input="handlerVerify" ref="oldPassword" type="password" max-len="20" placeholder="请输入旧密码"
-          err-msg="新旧密码一致" />
+        <CustomInput @input="handlerVerify" ref="oldPassword" type="password" minlength="6" maxlength="20" max-len="20"
+          placeholder="请输入旧密码" err-msg="新旧密码一致" />
         <CustomInput @input="handlerVerify" ref="newPassword" type="password" minlength="6" maxlength="20" max-len="20"
           placeholder="请输入新密码" err-msg="长度在6~20之间" />
         <CustomInput @input="handlerVerify" ref="confirmPassword" type="password" minlength="6" maxlength="20"

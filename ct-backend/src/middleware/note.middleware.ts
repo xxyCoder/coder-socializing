@@ -20,8 +20,7 @@ export const checkTagIsValid = (req: Request, res: Response, next: NextFunction)
 
 export const checkNoteParams = (req: Request, res: Response, next: NextFunction) => {
   const { title, is_video } = req.body;
-  const mediaList = req.files;
-  if (!title || !mediaList || mediaList.length === 0 || !['false', 'true'].includes(is_video)) {
+  if (!title || !['false', 'true'].includes(is_video)) {
     res.send(importArgsIsNull)
     return
   }

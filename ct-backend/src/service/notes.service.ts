@@ -45,10 +45,9 @@ class NoteService {
       include: [Users]
     });
   }
-  add({ tag, title, content, mediaList, atUserIds, userId, isVideo }: Partial<NoteModel>) {
+  add({ tag, title, content, mediaList, userId, isVideo }: Partial<NoteModel>) {
     const params = { title, tag, mediaList, userId, isVideo };
     content && Object.assign(params, { content });
-    atUserIds && Object.assign(params, { atUserIds });
     return Note.create(params)
   }
   get(noteId: number) {

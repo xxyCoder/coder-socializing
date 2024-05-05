@@ -8,7 +8,21 @@ export const checkFormParams = (req: Request, res: Response, next: NextFunction)
     res.send(importArgsIsNull);
     return;
   }
+
   next();
+}
+
+export const checkRegisterParams = (req: Request, res: Response, next: NextFunction) => {
+  const { password, account, username } = req.body
+  if (!password || !account || !username) {
+    res.send(importArgsIsNull);
+    return;
+  }
+  if (account.length < 6 || account.length > 20 || username.length < 6 || username.length > 16) {
+    res.send({ code: 400, msg: '数据不符合要求' })
+    return
+  }
+  next()
 }
 
 export const crpytPassword = (req: Request, res: Response, next: NextFunction) => {
@@ -18,15 +32,6 @@ export const crpytPassword = (req: Request, res: Response, next: NextFunction) =
   const hash = bcrpty.hashSync(newPassword, salt) // hash保存的是密文
   if (req.body.newPassword) req.body.newPassword = hash
   else req.body.password = hash
-  next();
-}
-
-export const checkPassParams = (req: Request, res: Response, next: NextFunction) => {
-  const { password, newPassword } = req.body;
-  if (!password || !newPassword) {
-    res.send(importArgsIsNull);
-    return;
-  }
   next();
 }
 

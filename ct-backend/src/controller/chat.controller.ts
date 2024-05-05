@@ -16,7 +16,7 @@ class ChatController {
     const { receiverId, content } = req.body
     const senderId = Number(req.query.id)
 
-    create({ identity: `${Math.min(receiverId, senderId)}&${Math.max(senderId, receiverId)}`, content, senderId, receiverId })
+    create({ id: null, identity: `${Math.min(receiverId, senderId)}&${Math.max(senderId, receiverId)}`, content, senderId, receiverId })
       .then(chat => {
         const socket = getScoket(receiverId)
         if (socket) {

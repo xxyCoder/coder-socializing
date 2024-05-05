@@ -20,7 +20,7 @@ class UserService {
   find({ page_num, user }: { user: string } & pageType) {
     const whereOp = {};
     if (user) {
-      user = encodeURIComponent(user)
+      user = decodeURIComponent(user)
       let query = ''
       for (let i = 0, n = user.length; i < n; ++i) {
         query += `%${user[i]}`

@@ -22,7 +22,7 @@ const tabId = ref(0)
 const notes = ref<NoteCardType[]>([])
 
 const getNotes = (tag: string, query = '') => {
-  if (tagPageNum[tag] < 0) return
+  if (tagPageNum[tag] < 0) return Promise.resolve()
   const remove = useLoading();
   return getExploreNotes({
     category: tag,
@@ -56,7 +56,7 @@ let lastSearch = ''
 const handlerSearch = (searchCon: string) => {
   if (lastSearch === searchCon) return
   tagPageNum.all = 0 // 重置，后续搜索需要用，每次搜索内容都不一致
-  getNotes('all', searchCon)?.then(res => {
+  getNotes('all', searchCon).then(() => {
     lastSearch = searchCon
   })
 }

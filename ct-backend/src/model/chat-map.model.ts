@@ -3,6 +3,7 @@ import Users from "./users.model";
 import { DataTypes } from "sequelize";
 
 export interface ChatMapModel {
+  id: number | null;
   senderId: number;
   receiverId: number;
   content: string

@@ -15,8 +15,12 @@ export function verifyToken(req: Request, resp: Response, next: NextFunction) {
   }
   try {
     const user = jwt.verify(token, SECRET!) as { id: number }
-    req.body.id = user.id;
-    next();
+    if (Number(req.query.id) === Number(user.id)) {
+      req.body.id = Number(user.id)
+      next()
+      return
+    }
+    resp.send({ code: 400, msg: '身份验证错误' })
   } catch (err: any) {
     switch (err.name) {
       case 'TokenExpiredError':

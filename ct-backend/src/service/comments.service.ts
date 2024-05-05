@@ -12,8 +12,8 @@ class CommentService {
       include: [Users]
     })
   }
-  add({ noteId, userId, content, atUsers = '', targetCommentId, rootCommentId }: Partial<CommentModel>) {
-    return Comments.create({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
+  add({ noteId, userId, content, targetCommentId, rootCommentId }: Partial<CommentModel>) {
+    return Comments.create({ noteId, userId, content, targetCommentId, rootCommentId })
   }
   count({ rootCommentId }: { rootCommentId: number }) {
     return Comments.count({

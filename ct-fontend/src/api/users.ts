@@ -6,7 +6,7 @@ export const userLogin = instance.post<{ token: string } & UserInfo>("/user/logi
 
 export const userRegistry = instance.post("/user/registry");
 
-export const getUserInfo = instance.get<UserInfo>("/user/info");
+export const getUserInfo = instance.get<UserInfo>("/user/info", { hideToast: true });
 
 export const updateUserPass = instance.post("/user/update_pass");
 

@@ -1,33 +1,20 @@
 import { DataTypes } from "sequelize";
 import seq from "@src/database/seq.database";
 import Users from "./users.model";
+import Notes from "./notes.model";
+import Comments from "./comments.model";
 
 export interface NotifyModel {
   id: number | null
   noteId: number | null;
   userId: number;
-  commentId: number | null;
-  replyCommentId: number | null;
+  commentId: number | null; // 评论的id
+  replyCommentId: number | null;  // 回复的id
   type: number;
   state: number;
 }
 
 const Notifies = seq.define('notifies', {
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    comment: "用户id"
-  },
-  noteId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment: "笔记id"
-  },
-  commentId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment: "评论的id"
-  },
   replyCommentId: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -44,11 +31,12 @@ const Notifies = seq.define('notifies', {
     comment: '已读或者未读'
   }
 }, {
-  createdAt: true,
-  deletedAt: true
+  timestamps: false
 })
 
 Notifies.belongsTo(Users, { foreignKey: 'userId' });
+Notifies.belongsTo(Notes, { foreignKey: 'noteId' });
+Notifies.belongsTo(Comments, { foreignKey: 'commentId' });
 
 // 模型同步，创建该表
 Notifies.sync({

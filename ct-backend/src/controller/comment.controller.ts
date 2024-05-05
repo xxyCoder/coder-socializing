@@ -10,9 +10,9 @@ const { addNotify } = NotifyController
 
 class CommentController {
   emit(req: Request, resp: Response) {
-    const { comment: content, noteId, atUsers, targetCommentId = null, rootCommentId = null, replyUserId } = req.body;
+    const { comment: content, noteId, targetCommentId = null, rootCommentId = null, replyUserId } = req.body;
     const userId = Number(req.query.id)
-    add({ noteId, userId, content, atUsers, targetCommentId, rootCommentId })
+    add({ noteId, userId, content, targetCommentId, rootCommentId })
       .then(res => {
         // 自己的操作不必通知自己
         if (replyUserId !== userId) {

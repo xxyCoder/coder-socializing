@@ -129,11 +129,29 @@ onUpdated(() => {
 onBeforeUnmount(() => {
   setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
 })
+
+const optPanel = ref(false)
+const handlerNoteModify = () => {
+  //x 
+}
+const handlerNoteDelete = () => {
+  //
+}
 </script>
 
 <template>
   <template v-if="note && viewr">
-    <user-header :user="viewr" />
+    <user-header :user="viewr">
+      <div class="dots">
+        <span @click="optPanel = !optPanel">. . .</span>
+        <transition>
+          <ul class="opt-panel" v-if="optPanel">
+            <li @click="handlerNoteModify">修改</li>
+            <li @click="handlerNoteDelete">删除</li>
+          </ul>
+        </transition>
+      </div>
+    </user-header>
     <div class="note-page container" @touchstart="handlerTouchStart" @touchmove="handlerTouchMove">
       <div class="media-box">
         <video v-if="note.isVideo" :src="note.mediaList" controls></video>
@@ -264,5 +282,47 @@ onBeforeUnmount(() => {
 .opts {
   display: flex;
   align-items: center;
+}
+
+.dots {
+  position: relative;
+  margin-left: responsive(30, vw);
+
+  span {
+    font-size: 20px;
+  }
+}
+
+.opt-panel {
+  position: absolute;
+  top: responsive(60, vw);
+  left: responsive(-15, vw);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 responsive(5, vw);
+  border: 1px solid rgba(255, 255, 255, .6);
+  border-radius: responsive(5, vw);
+  list-style: none;
+
+  li {
+    box-sizing: border-box;
+    padding: responsive(10, vw);
+    white-space: nowrap;
+    font-size: 15px;
+  }
+
+  li:first-child {
+    border-bottom: 1px solid rgba(255, 255, 255, .6);
+  }
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

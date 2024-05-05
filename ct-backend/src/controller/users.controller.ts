@@ -103,9 +103,7 @@ class UserController {
       })
   }
   uploadInfo(req: Request, resp: Response) {
-    const { username, intro } = req.body;
-    const { account: _account, id: _id } = req.query;
-    const account = String(_account), id = Number(_id);
+    const { username, intro, id, account } = req.body;
     let avatarSrc: string | undefined = void 0;
     req.file && (avatarSrc = `http://localhost:${PORT}/${req.file?.path.replace(staticRoot, '').replace(/\\/g, '/')}`);
     update({ account, id, username, biography: intro, avatarSrc })
@@ -116,7 +114,7 @@ class UserController {
       })
   }
   getViewerInfo(req: Request, resp: Response) {
-    let { id: _id, viewer_id: _vid, page_num } = req.query;
+    let { id: _id = -1, viewer_id: _vid, page_num } = req.query;
     const id = Number(_id), viewer_id = Number(_vid)
     precisionFind({ id: viewer_id })
       .then(res => {

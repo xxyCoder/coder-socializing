@@ -18,7 +18,7 @@ const uploadMedia = multer({
   }
 })
 
-router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, uploadMedia.array('mediaList', 6), checkTagIsValid, checkNoteParams, publish);
+router.post("/publish", checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkTagIsValid, checkNoteParams, uploadMedia.array('mediaList', 6), publish);
 router.get("/viewer_note", checkPageParams, checkViewerId, getWithPage);
 router.get("/detail", checkNoteIdExists, getDetail);
 router.get("/explore_note", checkTagIsValid, checkPageParams, getByTag);
