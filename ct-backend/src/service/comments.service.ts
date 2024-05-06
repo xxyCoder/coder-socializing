@@ -23,6 +23,7 @@ class CommentService {
   findUser(id: number) {
     return Comments.findOne({
       where: { id },
+      paranoid: false,
       include: [Users]
     })
   }
@@ -47,6 +48,14 @@ class CommentService {
       limit: pageSize,
       include: [Users]
     })
+  }
+  remove({ rootCommentId, commentId, noteId, userId }: { rootCommentId?: number, commentId?: number, noteId: number, userId?: number }) {
+    const whereOp = { noteId }
+    rootCommentId && Object.assign(whereOp, { rootCommentId })
+    commentId && Object.assign(whereOp, { id: commentId })
+    userId && Object.assign(whereOp, { userId })
+
+    return Comments.destroy({ where: whereOp })
   }
 }
 

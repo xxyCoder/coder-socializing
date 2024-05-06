@@ -22,3 +22,5 @@ export const getRecommentNote = instance.get<{ notes: Array<{ id: number, title:
 export const deleteNote = instance.delete("/note/delete_note")
 
 export const updateNote = instance.patch("/note/update_note")
+
+export const deleteComment = instance.delete("/comment/delete_comment")

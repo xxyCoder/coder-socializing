@@ -156,7 +156,7 @@ const handlerSearch = (searchConn: string) => {
             if (page_num === -1) return
             searchUser({ user: searchConn, page_num })
           }
-        }, 'toast'))
+        }))
       }
       if (instance) {
         // @ts-ignore

@@ -6,6 +6,7 @@ export const checkCommentContent = (req: Request, resp: Response, next: NextFunc
     resp.send({ code: 400, msg: '评论内容不能为空' });
     return;
   }
+  req.body.comment = decodeURIComponent(comment)
   next();
 }
 

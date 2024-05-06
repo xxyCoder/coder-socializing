@@ -8,11 +8,11 @@ import { checkPageParams } from "@src/middleware/common.middleware";
 
 const router = express.Router();
 
-const { emit, list, notifyList } = CommentController;
+const { emit, list, notifyList, removeComment } = CommentController;
 
 router.get('/note_comments', checkNoteIdExists, checkPageParams, list)
 router.post('/emit_comment', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkNoteIdExists, checkCommentContent, emit)
 router.get("/note_notify_comment", verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkCommentIdExists, notifyList)
-
+router.delete("/delete_comment", checkIdAndAccountExists, verifyCSRFSession, verifyToken, checkNoteIdExists, checkCommentIdExists, removeComment)
 
 export default router;

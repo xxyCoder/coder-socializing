@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ComponentInternalInstance, onBeforeUnmount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getNoteDetail, emitComment, getNoteComment, getNotifyComment, deleteNote } from '@/api/note'
+import { getNoteDetail, emitComment, getNoteComment, getNotifyComment, deleteNote, deleteComment } from '@/api/note'
 import { useToast } from '@/components/Toast';
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
@@ -27,12 +27,19 @@ let popupInstance: null | ComponentInternalInstance = null;
 let unmount: () => void = () => {
   //empty
 }
+let delCommentInstance: null | ComponentInternalInstance = null;
+let unmountDelCommentIns: () => void = () => {
+  //empty
+}
 onBeforeUnmount(() => {
   setNoteInfo({ replyCommentId: null, commentId: null, rootCommentId: null })
   document.removeEventListener('click', handlerClick)
   // @ts-ignore
   popupInstance && popupInstance.exposed.hide()
   unmount()
+  // @ts-ignore
+  delCommentInstance && delCommentInstance.exposed.hide()
+  unmountDelCommentIns()
 })
 
 const selfInfo = getUserInfo()
@@ -96,19 +103,24 @@ reqComment();
 const comment = ref<string>('')
 const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
 const commit = () => {
-  if (!comment.value.length || !selfInfo) return;
+  if (!comment.value || !selfInfo) return;
   const noteId = note.value?.id;
   if (!noteId) {
     useToast('网络错误');
     return;
   }
   const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
-  emitComment({ noteId, comment: comment.value, targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
+  emitComment({ noteId, comment: encodeURIComponent(comment.value), targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
     .then(res => {
       if (rootCommentId) {
         const arr = commentChildList.value.get(rootCommentId) || [];
         arr.unshift({ ...res, replyUsername: targetCommentId === rootCommentId ? "" : replyInfo.value.username, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } });
         commentChildList.value.set(rootCommentId, arr)
+        commentList.value.forEach(c => {
+          if (c.id === rootCommentId && c.replyCnt) {
+            ++c.replyCnt
+          }
+        })
       } else {
         commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
       }
@@ -157,7 +169,7 @@ const handlerNoteDelete = () => {
               })
           })
       }
-    }, 'popup'))
+    }))
   }
   // @ts-ignore
   popupInstance.exposed.show()
@@ -166,6 +178,33 @@ const handlerClick = () => {
   optPanel.value = false
 }
 document.addEventListener('click', handlerClick)
+
+function handlerDelComment(commentId: number, rtCommentId: number) {
+  if (!delCommentInstance) {
+    ({ instance: delCommentInstance, unmount: unmountDelCommentIns } = createComponentAPI(Popup, {
+      content: '确认删除吗',
+      onConfirm() {
+        deleteComment({ noteId: note.value?.id, commentId })
+          .then(() => {
+            commentList.value = commentList.value.filter(c => c.id !== commentId) // 如果是根评论，则从所有根评论中移除该评论
+            commentChildList.value.delete(commentId) // 如果是根评论则移除所有子评论
+            const arr = commentChildList.value.get(rtCommentId) || []
+            if (arr.length) { // 如果是子评论
+              arr.splice(arr.findIndex(c => c.id === commentId), 1)
+              commentList.value.forEach(c => {
+                if (c.id === rtCommentId && c.replyCnt) {
+                  --c.replyCnt
+                }
+              })
+              commentChildList.value.set(commentId, arr)
+            }
+          })
+      }
+    }))
+  }
+  // @ts-ignore
+  delCommentInstance.exposed.show()
+}
 
 const VIntersect = {
   mounted(el: Element, { value }: { value: number }) {
@@ -218,7 +257,8 @@ const VIntersect = {
           <comment-item :username="item.user.username" :avatar-src="item.user.avatarSrc" :content="item.content"
             :comment-cnt="item.replies" :date="new Date(item.createdAt).toDateString()" :comment-id="item.id"
             :reply-cnt="item.replyCnt" :user-id="item.user.userId" :reply-comments="commentChildList.get(item.id)"
-            @reply="handlerReply" @extend="reqComment" />
+            :is-auth="viewr.userId === selfInfo?.id" @reply="handlerReply" @extend="reqComment"
+            @delete="handlerDelComment" />
         </div>
         <in-the-end />
       </div>

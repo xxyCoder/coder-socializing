@@ -109,7 +109,7 @@ const hooks = {
   border-radius: responsive(20, vw) responsive(20, vw) 0 0;
   background-color: #fff;
   z-index: 1000;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;

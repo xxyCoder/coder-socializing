@@ -1,12 +1,14 @@
-import { serviceError } from "@src/constant/resp.constant";
+import { serviceError, successObj } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import CommentsService from "@src/service/comments.service";
 import NotifyController from '@src/controller/notify.controller'
+import NotesService from "@src/service/notes.service";
 import type { Request, Response } from "express";
 import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
-const { add, getWithPage, count, findUser, find } = CommentsService
-const { addNotify } = NotifyController
+const { add, getWithPage, count, findUser, find, remove } = CommentsService
+const { addNotify, } = NotifyController
+const { get: getAuthorInfo } = NotesService
 
 class CommentController {
   emit(req: Request, resp: Response) {
@@ -153,6 +155,26 @@ class CommentController {
         console.error(`获取通知评论失败：${err}`)
         resp.send({ code: 400, msg: '获取失败' })
       })
+  }
+  async removeComment(req: Request, resp: Response) {
+    const noteId = Number(req.query.noteId), commentId = Number(req.query.commentId), id = Number(req.query.id)
+    const author = await getAuthorInfo(noteId)
+    if (author?.dataValues.userId === id) { // 如果是作者
+      const [c1, c2] = await Promise.all([remove({ noteId, commentId }), remove({ noteId, rootCommentId: commentId })])
+      if (c1 || c2) {
+        resp.send(successObj)
+      } else {
+        resp.send({ code: 400, msg: '该评论不存在' })
+      }
+    } else {
+      const effect_cnt = await remove({ noteId, commentId, userId: id })
+      if (!effect_cnt) {
+        resp.send({ code: 400, msg: '非本人删除' })
+        return
+      }
+      remove({ noteId, rootCommentId: commentId })
+      resp.send(successObj)
+    }
   }
 }
 

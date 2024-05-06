@@ -2,6 +2,7 @@
 import { backendStatic, ip, port } from '@/api/constant'
 import { defineProps, defineEmits, PropType, computed } from 'vue'
 import { Comment, ReplyInfo } from '@/common/types';
+import { getUserInfo } from '@/common/ts/user-info';
 
 const props = defineProps({
   replyComments: {
@@ -39,21 +40,33 @@ const props = defineProps({
   replyCnt: {
     type: Number,
     default: 0
+  },
+  isAuth: {
+    type: Boolean,
+    default: false
   }
 })
 
 const remainCnt = computed(() => Math.max(0, props.replyCnt - props.replyComments.length))
+const selfInfo = getUserInfo()
 
 const emits = defineEmits<{
   reply: [ReplyInfo],
-  extend: [number]
+  extend: [number],
+  delete: [number, number]
 }>()
 const handlerReply = (info: ReplyInfo) => {
+  console.log(info)
   emits('reply', info)
+}
+
+const handlerDelete = (commentId: number, rtCommentId: number) => {
+  emits('delete', commentId, rtCommentId)
 }
 const extendRemain = (rootCommentId: number) => {
   emits('extend', rootCommentId)
 }
+
 </script>
 
 <template>
@@ -64,11 +77,13 @@ const extendRemain = (rootCommentId: number) => {
         <router-link :to="`/user/${userId}`">{{ username }}</router-link>
       </div>
       <p class="content">{{ content }}</p>
-      <div class="text-12px">
+      <div class="opt">
         <span class="date">{{ date }}</span>
         <span
           @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, rootCommentId: commentId, replyUserId: userId })"
-          class="reply" v-html="'回复'" />
+          class="reply">回复</span>
+        <span v-if="userId === selfInfo?.id || isAuth" class="delete"
+          @click="handlerDelete(commentId, commentId)">删除</span>
       </div>
     </div>
   </div>
@@ -80,11 +95,13 @@ const extendRemain = (rootCommentId: number) => {
         <span v-if="item.replyUsername">回复{{ item.replyUsername }}</span>
       </div>
       <p class="content">{{ item.content }}</p>
-      <div class="text-12px">
+      <div class="opt">
         <span class="date">{{ new Date(item.createdAt).toDateString() }}</span>
         <span
           @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, rootCommentId: commentId, replyUserId: item.user.userId })"
-          class="reply" v-html="'回复'" />
+          class="reply">回复</span>
+        <span v-if="item.user.userId === selfInfo?.id || isAuth" class="delete"
+          @click="handlerDelete(item.id, commentId)">删除</span>
       </div>
     </div>
   </div>
@@ -124,8 +141,12 @@ const extendRemain = (rootCommentId: number) => {
   margin: 0;
 }
 
-.text-12px {
+.opt {
   font-size: 12px;
+
+  span {
+    color: hsla(0, 0%, 100%, 0.8);
+  }
 }
 
 .date {
@@ -133,8 +154,8 @@ const extendRemain = (rootCommentId: number) => {
   margin-right: responsive(20, vw);
 }
 
-.reply {
-  color: hsla(0, 0%, 100%, 0.8);
+.delete {
+  margin-left: responsive(20, vw);
 }
 
 .show-more {

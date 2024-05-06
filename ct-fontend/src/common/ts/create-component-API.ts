@@ -1,9 +1,8 @@
 import { Component, createApp } from "vue";
 import router from "@/router";
 
-export function createComponentAPI(component: Component, props = {}, id = 'root', tag = 'div') {
-  const div = document.getElementById(id) ?? document.createElement(tag)
-  div.id = id
+export function createComponentAPI(component: Component, props = {}, tag = 'div') {
+  const div = document.createElement(tag)
   const componentInstance = createApp(component, props);
   componentInstance.use(router).mount(div)
   document.body.appendChild(div)

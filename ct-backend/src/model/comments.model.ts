@@ -29,7 +29,9 @@ const Comments = seq.define('comments', {
     comment: '回复的评论id的顶级id'
   }
 }, {
-  updatedAt: true
+  updatedAt: true,
+  paranoid: true,
+  deletedAt: true
 })
 
 Comments.belongsTo(Notes, { foreignKey: 'noteId' });
