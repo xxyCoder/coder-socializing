@@ -30,8 +30,6 @@ const Notifies = seq.define('notifies', {
     allowNull: false,
     comment: '已读或者未读'
   }
-}, {
-  timestamps: false
 })
 
 Notifies.belongsTo(Users, { foreignKey: 'userId' });

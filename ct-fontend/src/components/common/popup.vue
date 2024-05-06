@@ -50,7 +50,7 @@ const hooks = {
     // 高度变化时，让其内容隐藏
     el.style.overflow = 'hidden';
   },
-  onEnter(el: HTMLElement, done: () => void) {
+  onEnter(el: HTMLElement) {
     // 保存元素原来的高度
     const endHeight = el.scrollHeight + 'px';
     el.style.padding = pd
@@ -71,7 +71,7 @@ const hooks = {
     // 高度变化时，让其内容隐藏
     el.style.overflow = 'hidden';
   },
-  onLeave(el: HTMLElement, done: () => void) {
+  onLeave(el: HTMLElement) {
     // 设置高度为具体的值
     el.style.height = el.scrollHeight + 'px';
     // 强制浏览器回流，否则浏览器会合并两次元素的高度更改（回流重绘的知识）

@@ -2,9 +2,9 @@ import { InteractionTypeMap } from "@src/constant/notify";
 import { importArgsIsNull } from "@src/constant/resp.constant";
 import { NextFunction, Request, Response } from "express";
 
-export const checkTypeRight = (req: Request, resp: Response, next: NextFunction) => {
-  const type = Number(req.query.type) as InteractionTypeMap
-  if (![InteractionTypeMap["comment-at"], InteractionTypeMap.concern, InteractionTypeMap["thumb-collet"], InteractionTypeMap["self-comment"]].includes(type)) {
+export const checkTagRight = (req: Request, resp: Response, next: NextFunction) => {
+  const tag = req.query.tag as InteractionTypeMap
+  if (!(tag in InteractionTypeMap)) {
     resp.send(importArgsIsNull)
     return
   }

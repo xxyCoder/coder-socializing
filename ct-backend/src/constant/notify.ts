@@ -5,16 +5,14 @@ export const enum NotifyStateMap {
 
 export const enum NotifyTypeMap {
   comment,
-  at,
   thumb,
   collect,
   concern,
   'self-comment'
 }
 
-export const enum InteractionTypeMap {
-  'comment-at',
-  'thumb-collet',
-  concern,
-  'self-comment'
+export enum InteractionTypeMap {
+  'comment-follow' = 'comment-follow',
+  'like-collect' = 'like-collect',
+  'self-comment' = 'self-comment'
 }

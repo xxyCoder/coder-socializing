@@ -1,24 +1,23 @@
 export enum NotifyItemStateMap {
-    unread,
-    read
+  unread,
+  read
 }
 
-export enum NotifyItemTypeMap {
-    comment,
-    at,
-    thumb,
-    collect,
-    concern,
-    selfComment
+export const enum NotifyItemTypeMap {
+  comment,
+  thumb,
+  collect,
+  concern,
+  'self-comment'
 }
 
 export const enum NotifyTypeMap {
-    'comment-at',
-    concern,
-    'thumb-collect'
+  'comment-at',
+  concern,
+  'thumb-collect'
 }
 
 export const enum NotifyItem {
-    user,
-    content
+  user,
+  content
 }

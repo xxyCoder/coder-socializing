@@ -51,7 +51,7 @@ class NoteService {
     return Note.create(params)
   }
   get(noteId: number) {
-    return Note.findOne({ where: { id: noteId } });
+    return Note.findOne({ where: { id: noteId }, paranoid: false });
   }
   countAll() {
     return Note.count()

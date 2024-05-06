@@ -14,20 +14,17 @@ const { find: getCommentInfo, findAll: getAllComment } = CommentsService;
 
 class NotiftController {
   async list(req: Request, resp: Response) {
-    const type = Number(req.query.type), page_num = Number(req.query.page_num)
+    const tag = req.query.tag, page_num = Number(req.query.page_num)
     const userId = Number(req.query.id)
     let notifies: Model<any, any>[] = [], data: Notify[] = []
     let isGetSelfComment = false
     try {
-      switch (type) {
-        case InteractionTypeMap["comment-at"]:
-          notifies = await getNotifyList({ type: [NotifyTypeMap.comment, NotifyTypeMap.at], userId, page_num })
+      switch (tag) {
+        case InteractionTypeMap["comment-follow"]:
+          notifies = await getNotifyList({ type: [NotifyTypeMap.comment, NotifyTypeMap.concern], userId, page_num })
           break
-        case InteractionTypeMap["thumb-collet"]:
+        case InteractionTypeMap["like-collect"]:
           notifies = await getNotifyList({ type: [NotifyTypeMap.thumb, NotifyTypeMap.collect], userId, page_num })
-          break
-        case InteractionTypeMap.concern:
-          notifies = await getNotifyList({ type: [NotifyTypeMap.concern], userId, page_num })
           break
         case InteractionTypeMap["self-comment"]:
           isGetSelfComment = true
