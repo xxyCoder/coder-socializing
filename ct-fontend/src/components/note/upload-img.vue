@@ -38,6 +38,12 @@ const uploadImg = () => {
   }
 }
 
+function handerRemoveMedia(idx: number) {
+  mediaUrls.value.splice(idx, 1)
+  mediaList.value.splice(idx, 1)
+  isVideo.value = false
+}
+
 defineExpose({
   mediaList,
   isVideo,
@@ -47,8 +53,11 @@ defineExpose({
 
 <template>
   <div class="upload-img">
-    <video v-if="isVideo" class="box" :src="mediaUrls[0]"></video>
-    <img v-else class="box" v-for="(url, idx) in mediaUrls" :src="url" :key="idx" />
+    <div class="opt-box" v-for="(url, idx) in mediaUrls" :key="idx">
+      <video v-if="isVideo" class="box" :src="url"></video>
+      <img v-else class="box" :src="url" />
+      <div class="remove" @click="handerRemoveMedia(idx)">X</div>
+    </div>
     <label v-if="showUpload" for="img" class="box">+</label>
     <input @input="uploadImg" ref="media" type="file" id="img" accept="image/*,video/*">
   </div>
@@ -61,6 +70,25 @@ defineExpose({
 
 <style scoped lang="scss">
 @import '../../common/style/func.scss';
+
+.opt-box {
+  position: relative;
+}
+
+.remove {
+  position: absolute;
+  right: responsive(10, vw);
+  top: responsive(-10, vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  width: responsive(40, vw);
+  height: responsive(40, vw);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #202020;
+}
 
 .box {
   height: responsive(110, vh);

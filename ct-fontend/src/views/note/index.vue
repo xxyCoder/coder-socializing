@@ -80,7 +80,7 @@ const handlerPublish = () => {
   const remove = useLoading();
   let msg = '发布成功', reqAPI = publishNote
   if (isMod) {
-    uploadImgRef.value && formData.set('staticUrls', uploadImgRef.value.mediaUrls.filter(url => /http:/.test(url)).join(';'))
+    uploadImgRef.value && formData.set('staticUrls', uploadImgRef.value.mediaUrls.filter(url => /^http:/.test(url)).join(';'))
     noteId && formData.set('noteId', String(noteId))
     msg = '更新成功'
     reqAPI = updateNote

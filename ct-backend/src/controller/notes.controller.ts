@@ -224,7 +224,7 @@ class NoteController {
 
     updateNoteById({
       tag: category, title, content, id: noteId,
-      mediaList: [staticUrls].concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),
+      mediaList: (staticUrls ? [staticUrls] : []).concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),
       isVideo: JSON.parse(is_video), userId
     })
       .then(([cnt]) => {
