@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed, defineProps, defineEmits } from 'vue'
 import { backendStatic, ip, port } from '@/api/constant';
 import { NotifyItem, NotifyItemStateMap, NotifyItemTypeMap } from './notify';
 import { useRouter } from 'vue-router';
@@ -61,8 +61,13 @@ const props = defineProps({
   rootCommentId: {
     type: Number,
     default: null
+  },
+  isDel: {
+    type: Boolean,
+    default: false
   }
 })
+const emits = defineEmits(['click'])
 
 const tips = computed(() => {
   const { type, title, replyCommentId } = props
@@ -99,7 +104,7 @@ const date = computed(() => {
 
 const router = useRouter()
 const handlerClick = (viewType: NotifyItem) => {
-  const { notifyId, userId, type, replyCommentId, noteId, commentId, rootCommentId } = props;
+  const { notifyId, userId, type, replyCommentId, noteId, commentId, rootCommentId, isDel } = props;
 
   if (viewType === NotifyItem.user) {
     router.push(`/user/${userId}`)
@@ -110,8 +115,10 @@ const handlerClick = (viewType: NotifyItem) => {
     changeNotifyState({ notifyId })
       .then(() => {
         setNotifyCnt() // 重置一下通知数量
+        emits('click', notifyId)
       })
   }
+  if (isDel) return
 
   const { setNoteInfo } = useNoteInfoStore()
   switch (type) {

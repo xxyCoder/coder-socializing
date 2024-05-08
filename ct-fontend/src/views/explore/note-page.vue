@@ -103,7 +103,6 @@ reqComment();
 const comment = ref<string>('')
 const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
 const commit = () => {
-  console.log(comment.value, 'c')
   if (!comment.value || !selfInfo) return;
   const noteId = note.value?.id;
   if (!noteId) {

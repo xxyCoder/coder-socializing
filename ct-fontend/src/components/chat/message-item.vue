@@ -88,6 +88,7 @@ const unreadCntTxt = computed(() => props.unreadCnt < 100 ? `${props.unreadCnt}`
 @import '../../common/style/func.scss';
 
 .message-item {
+  margin-top: responsive(20, vw);
   display: flex;
   align-items: center;
   overflow: hidden;

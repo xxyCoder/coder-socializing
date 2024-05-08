@@ -15,10 +15,12 @@ class ConcernController {
       .then(() => {
         if (!is_follwer) {
           addNotify({ type: NotifyTypeMap.concern, state: NotifyStateMap.unread, userId: id, receiverId: viewer_id })
-            .then(() => {
-              // 如果在线就通知
-              const sse = getSSEConn(viewer_id)
-              sse && sse.write({ data: { type: InteractionTypeMap["comment-follow"] } })
+            .then((res) => {
+              // 如果在线就通知，且没有通知过
+              if (res) {
+                const sse = getSSEConn(viewer_id)
+                sse && sse.write({ data: { type: InteractionTypeMap["comment-follow"] } })
+              }
             })
             .catch(err => {
               console.error(`${viewer_id}通知失败:${err}`)

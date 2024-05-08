@@ -31,10 +31,12 @@ class NoteController {
       .then(row => {
         if ((is_like || is_collect) && authorId !== userId) {
           addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId, receiverId: authorId })
-            .then(() => {
+            .then((res) => {
               // 如果在线就通知
-              const sse = getSSEConn(authorId)
-              sse && sse.write({ data: { type: InteractionTypeMap["like-collect"] } })
+              if (res) {
+                const sse = getSSEConn(authorId)
+                sse && sse.write({ data: { type: InteractionTypeMap["like-collect"] } })
+              }
             })
             .catch(err => {
               console.error(`${authorId}通知失败:${err}`)
@@ -234,7 +236,7 @@ class NoteController {
     const userId = Number(req.query.id)
     const { category, title, content, is_video, staticUrls = '', noteId } = req.body;
     const mediaList = req.files as Express.Multer.File[];
-    
+
     updateNoteById({
       tag: category, title, content, id: noteId,
       mediaList: (staticUrls ? [staticUrls] : []).concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),

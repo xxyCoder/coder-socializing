@@ -25,9 +25,11 @@ class NotifyService {
     type && Object.assign(whereOp, { type: { [Op.in]: type } })
     return Notifies.update(updateOp, { where: whereOp })
   }
-  find({ type, userId, noteId }: Partial<NotifyModel>) {
+  find({ type, receiverId, noteId }: { type: number, receiverId: number, noteId?: number | null }) {
+    const whereOp = { type, receiverId }
+    noteId && Object.assign(whereOp, { noteId })
     return Notifies.findOne({
-      where: { type, userId, noteId }
+      where: whereOp
     })
   }
   countBytype({ type, receiverId, state }: { type: number[], receiverId: number, state: number }) {

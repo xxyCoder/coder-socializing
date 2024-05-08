@@ -5,11 +5,12 @@ import MessageBar from '@/components/chat/message-bar.vue';
 import UserHeader from '@/components/common/user-header.vue';
 import { useviewerStore } from '@/store';
 import { useToast } from '@/components/Toast';
-import { addChatBar, getChatContent } from '@/api/chat'
+import { addChatBar, changeChatState, getChatContent } from '@/api/chat'
 import { SOCKETPORT, ip } from '@/api/constant';
 import { getUserInfo } from '@/common/ts/user-info';
 import { IMessageBar } from './ts';
 import { Direction, MessageStatus } from '@/components/chat';
+import { setNotifyCnt } from '@/common/ts/notify';
 
 const messageList = ref<IMessageBar[]>([])
 
@@ -21,6 +22,10 @@ let pageNum = 0
 
 socket.on('reply', data => {
   messageList.value.unshift({ content: data.content, sendDate: data.time, dir: data.senderId === user.userId ? Direction.LEFT : Direction.RIGHT, status: MessageStatus.NORMAL })
+  changeChatState({ senderId: user.userId })
+    .then(() => {
+      setNotifyCnt()
+    })
 })
 onBeforeUnmount(() => {
   socket.emit('offline', self?.id)

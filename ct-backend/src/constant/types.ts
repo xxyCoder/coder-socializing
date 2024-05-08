@@ -63,4 +63,5 @@ export interface Notify {
   time: Number;
   status: number;
   type: number;
+  isDel: boolean;
 }

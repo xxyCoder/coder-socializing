@@ -9,7 +9,7 @@ import { serviceError, successObj } from "@src/constant/resp.constant";
 import { Model } from "sequelize";
 import { NotifyModel } from "@src/model/notify.model";
 
-const { list: getNotifyList, modify: modifyNotifyInfo, add, countBytype } = NotifyService
+const { list: getNotifyList, modify: modifyNotifyInfo, add, countBytype, find: getNotifyInto } = NotifyService
 const { get: getNoteInfo } = NotesService;
 const { find: getCommentInfo, findAll: getAllComment } = CommentsService;
 const { countUnread: countChatUnread } = ChatService
@@ -48,6 +48,16 @@ class NotiftController {
         replyCommentId ? getCommentInfo({ id: replyCommentId }) : Promise.resolve(null),
         noteId ? getNoteInfo(noteId) : Promise.resolve(null)
       ])
+      let _content = content, isDel = false
+      if (!isGetSelfComment) {
+        if (comment1?.dataValues.deletedAt) {
+          isDel = true
+          _content = '该评论已删除'
+        } else {
+          _content = comment1?.dataValues.content
+        }
+      }
+
       data.push({
         id,
         userId,
@@ -58,11 +68,12 @@ class NotiftController {
         commentId: isGetSelfComment ? id : commentId,
         replyCommentId,
         title: noteInfo?.dataValues.title || '',
-        content: (isGetSelfComment ? content : comment1?.dataValues.content) || '',
+        content: _content,
         replyContent: comment2?.dataValues.content || '',
         time: +new Date(notify.dataValues.createdAt),
         status: isGetSelfComment ? NotifyStateMap.read : notify.dataValues.state,
         type: isGetSelfComment ? NotifyTypeMap["self-comment"] : notify.dataValues.type,
+        isDel
       })
     }
     resp.send({ code: 200, msg: '获取成功', data })
@@ -79,6 +90,12 @@ class NotiftController {
       })
   }
   async addNotify({ type, userId, replyCommentId, commentId, noteId, state, receiverId }: Partial<NotifyModel>) {
+    if (type !== NotifyTypeMap.comment) {
+      const notify = await getNotifyInto({ type: Number(type), receiverId: Number(receiverId), noteId })
+      if (notify) {
+        return Promise.resolve(0)
+      }
+    }
     return add({ type, userId, replyCommentId, commentId, noteId, state, receiverId })
   }
   async getNotifyCnt(req: Request, resp: Response) {

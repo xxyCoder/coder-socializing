@@ -13,4 +13,5 @@ export interface Notify {
     time: number;
     status: number;
     type: number;
+    isDel: boolean;
 }

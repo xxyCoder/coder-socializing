@@ -71,7 +71,8 @@ const VIntersect = {
       :username="item.username" :avatar-src="item.avatarSrc" :note-id="item.noteId" :title="item.title"
       :comment-id="item.commentId" :reply-comment-id="item.replyCommentId" :content="item.content"
       :reply-content="item.replyContent" :time="item.time" :status="item.status" :type="item.type"
-      :root-comment-id="item.rootCommentId" v-intersect="idx"/>
+      :root-comment-id="item.rootCommentId" :is-del="item.isDel" v-intersect="idx"
+      @click="item.status = NotifyItemStateMap.read" />
     <null-data v-if="!notifyList.length" />
   </div>
 </template>
