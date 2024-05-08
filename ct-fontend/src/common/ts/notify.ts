@@ -1,7 +1,6 @@
 import { getNotifyCnt } from "@/api/notify"
 import { useNotityCountStore } from "@/store"
 import { MessageTag } from "../constant"
-import { useRoute, useRouter } from "vue-router"
 
 export function setNotifyCnt() {
   getNotifyCnt()
@@ -13,7 +12,6 @@ export function setNotifyCnt() {
     })
 }
 
-const router = useRouter()
 export function addNotifyCnt(type: string) {
   const notify = useNotityCountStore()
   switch (type) {

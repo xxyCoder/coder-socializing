@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import fs from 'fs'
 import LikesCollectServe from "@src/service/likes-collect.serve";
 import { serviceError, successObj } from "@src/constant/resp.constant";
 import NotesService from "@src/service/notes.service";
@@ -10,6 +11,7 @@ import env from "@src/config/default.config";
 import { NoteCardType, categories } from "@src/constant/types";
 import { getSSEConn } from "@src/router/sse.router";
 import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
+import path from "path";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize, remove: removeNoteById, update: updateNoteById } = NotesService;
@@ -17,6 +19,8 @@ const { precisionFind } = UsersService;
 const { addNotify } = NotifyController
 const { search: judgeIsFollower } = ConcernsService;
 const { PORT } = env;
+
+const root_path = `http://localhost:${PORT}`
 
 class NoteController {
   likeOrCollect(req: Request, resp: Response) {
@@ -52,7 +56,7 @@ class NoteController {
     noteAdd({
       tag: category, title, content,
       userId,
-      mediaList: mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`).join(';'),
+      mediaList: mediaList.map(media => `${root_path}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`).join(';'),
       isVideo: JSON.parse(is_video)
     })
       .then(() => {
@@ -202,15 +206,24 @@ class NoteController {
       data: { notes }
     })
   }
-  deleteNote(req: Request, resp: Response) {
+  async deleteNote(req: Request, resp: Response) {
     const { noteId, id } = req.query
+    const note = await getNoteDetail(Number(noteId))
+    if (!note) {
+      resp.send({ code: 400, msg: '该笔记不存在' })
+      return
+    }
+    const mediaList: string[] = note.dataValues.mediaList.split(';')
+    mediaList.forEach(p => {
+      fs.unlink(path.join(__dirname, p.replace(root_path, '../../')), (err) => {
+        if (err) {
+          console.error(`图片删除失败：${p}`)
+        }
+      })
+    })
     removeNoteById({ noteId: Number(noteId), userId: Number(id) })
       .then(res => {
-        if (res) {
-          resp.send({ code: 200, msg: '删除成功' })
-        } else {
-          resp.send({ code: 400, msg: '删除失败' })
-        }
+        res ? resp.send({ code: 200, msg: '删除成功' }) : resp.send({ code: 400, msg: '删除失败' })
       })
       .catch(err => {
         console.error(`删除失败:${err}`)
