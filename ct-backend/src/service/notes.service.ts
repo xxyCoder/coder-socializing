@@ -60,12 +60,11 @@ class NoteService {
     return Note.destroy({ where: { id: noteId, userId } })
   }
   update({ tag, title, content, mediaList, userId, isVideo, id }: Partial<NoteModel>) {
-    const updateOp = {}
+    const updateOp = { isVideo }
     tag && Object.assign(updateOp, { tag })
     title && Object.assign(updateOp, { title })
     content && Object.assign(updateOp, { content })
     mediaList && Object.assign(updateOp, { mediaList })
-    isVideo && Object.assign(updateOp, { isVideo })
     return Note.update(updateOp, { where: { id, userId } })
   }
 }

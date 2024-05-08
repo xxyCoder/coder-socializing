@@ -234,7 +234,7 @@ class NoteController {
     const userId = Number(req.query.id)
     const { category, title, content, is_video, staticUrls = '', noteId } = req.body;
     const mediaList = req.files as Express.Multer.File[];
-
+    
     updateNoteById({
       tag: category, title, content, id: noteId,
       mediaList: (staticUrls ? [staticUrls] : []).concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),

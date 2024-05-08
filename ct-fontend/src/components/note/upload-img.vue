@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineExpose, computed } from 'vue';
+import { ref, defineExpose, computed, watch } from 'vue';
 import { useToast } from '../Toast';
 
 const media = ref<HTMLInputElement>()
@@ -8,6 +8,10 @@ const mediaList = ref<Array<File>>([])
 const isVideo = ref(false)
 
 const showUpload = computed(() => !isVideo.value && mediaUrls.value.length < 6)
+watch(() => mediaUrls.value.length, () => {
+  console.log('watch', mediaList.value.length)
+  if (!mediaList.value.length) isVideo.value = false
+})
 
 const uploadImg = () => {
   if (media.value?.files && media.value.files.length > 0) {
