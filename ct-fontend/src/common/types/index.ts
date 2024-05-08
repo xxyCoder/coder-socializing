@@ -38,6 +38,7 @@ export interface viewerInfoReq {
     avatarSrc: string;
     intro: string;
     isFollower: boolean;
+    id: number;
     notes: NoteCardType[]
 }
 

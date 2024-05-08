@@ -40,22 +40,8 @@ const pageNumObj = {
   like: 0,
   collect: 0
 }
-const cards = reactive<{ note: NoteCardType[], like: NoteCardType[], collect: NoteCardType[] }>({
-  note: [],
-  like: [],
-  collect: [],
-})
-function chooseGetOrStore({ idx, getQuery = false, cardData }: { idx: 0 | 1 | 2, getQuery?: boolean, cardData?: NoteCardType[] }) {
-  let name = listMap[idx]
-  if (getQuery) return pageNumObj[name]
-  ++pageNumObj[name]
-  cardData && (cards[name].push(...cardData))
 
-  return cards[name]
-}
-
-const userExists = ref(true)
-const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollower: false, userId: Number(route.params.id) });
+const userInfo = reactive({ username: "", avatarSrc: "", intro: "这个人没有个人介绍", isFollower: false, userId: 0 });
 const showInfos = ref<NoteCardType[]>([]);
 
 const getInfo = () => {
@@ -66,24 +52,23 @@ const getInfo = () => {
     category: listMap[0]
   })
     .then(res => {
-      remove();
       ++pageNumObj.note;
       const { notes: _notes, avatarSrc, username, intro, isFollower } = res;
-      chooseGetOrStore({ idx: 0, cardData: _notes })
-      showInfos.value = _notes;
+      showInfos.value = _notes
+
       userInfo.avatarSrc = avatarSrc
       userInfo.intro = intro
       userInfo.username = username
       userInfo.isFollower = isFollower
+      userInfo.userId = Number(route.params.id)
     })
-    .catch(() => {
-      remove();
-      userExists.value = false;
+    .finally(() => {
+      remove()
     })
 
 }
 watch(() => route.params.id, () => {
-  pageNumObj.note = 0
+  pageNumObj.note = pageNumObj.like = pageNumObj.collect = 0
   getInfo()
 }, { immediate: true })
 
@@ -107,7 +92,7 @@ const handlerClick = () => {
 
 const handlerOpt = () => {
   if (userState.value === userStateEnum.self) {
-    signOut({})
+    signOut()
     localStorage.removeItem('user-info')
     router.replace('/login')
     return
@@ -116,26 +101,34 @@ const handlerOpt = () => {
     useToast('请先登录')
     return
   }
-  console.log(userInfo)
   useviewerStore().setViewerInfo(userInfo)
   router.push(`/chat/${route.params.id}`)
 }
 
+let lastIdx: 0 | 1 | 2 = 0
 const reqListData = (idx: 0 | 1 | 2) => {
+  if (idx !== lastIdx) {
+    showInfos.value = []
+    lastIdx = idx
+    pageNumObj[listMap[idx]] = 0
+  }
+  const name = listMap[idx]
+  if (pageNumObj[name] < 0) return
   const remove = useLoading()
-  showInfos.value = []
-
   getViewerNote({
     viewer_id: route.params.id,
     category: listMap[idx],
-    page_num: chooseGetOrStore({ idx, getQuery: true })
+    page_num: pageNumObj[name]
   })
     .then(res => {
-      chooseGetOrStore({ idx, cardData: res.notes })
+      showInfos.value.push(...res.notes)
+      ++pageNumObj[name]
+      if (!res.notes.length) {
+        pageNumObj[name] = -1
+      }
     })
     .finally(() => {
       remove()
-      showInfos.value = chooseGetOrStore({ idx }) as NoteCardType[]
     })
 }
 
@@ -166,11 +159,12 @@ const handlerSearch = (searchConn: string) => {
       }
     })
 }
+
 </script>
 
 <template>
   <search-panel :rec-key="recKey" @search="handlerSearch" tips="搜索用户" />
-  <div v-if="userExists" class="container pt-120">
+  <div v-if="userInfo.userId" class="container pt-120">
     <div class="info center">
       <div class="center">
         <img :src="userInfo.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
@@ -188,7 +182,7 @@ const handlerSearch = (searchConn: string) => {
     <div class="user-interactions"></div>
   </div>
   <sticky-list :list="list" @click="reqListData" />
-  <all-notes :show-infos="showInfos" />
+  <all-notes :show-infos="showInfos" @req-notes="reqListData(lastIdx)" />
   <bottom-menu />
 </template>
 
