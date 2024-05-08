@@ -116,6 +116,7 @@ const handlerOpt = () => {
     useToast('请先登录')
     return
   }
+  console.log(userInfo)
   useviewerStore().setViewerInfo(userInfo)
   router.push(`/chat/${route.params.id}`)
 }

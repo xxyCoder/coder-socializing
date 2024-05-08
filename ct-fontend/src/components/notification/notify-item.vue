@@ -5,6 +5,7 @@ import { NotifyItem, NotifyItemStateMap, NotifyItemTypeMap } from './notify';
 import { useRouter } from 'vue-router';
 import { useNoteInfoStore } from '@/store';
 import { changeNotifyState } from '@/api/notify';
+import { setNotifyCnt } from '@/common/ts/notify';
 
 const props = defineProps({
   notifyId: {
@@ -105,7 +106,13 @@ const handlerClick = (viewType: NotifyItem) => {
     return
   }
   // 未读则标记已读
-  props.status === NotifyItemStateMap.unread && changeNotifyState({ notifyId }).catch(console.error)
+  if (props.status === NotifyItemStateMap.unread) {
+    changeNotifyState({ notifyId })
+      .then(() => {
+        setNotifyCnt() // 重置一下通知数量
+      })
+  }
+
   const { setNoteInfo } = useNoteInfoStore()
   switch (type) {
     case NotifyItemTypeMap.comment:

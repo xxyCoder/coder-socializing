@@ -8,6 +8,7 @@ export interface ChatModel {
   receiverId: number;
   content: string;
   identity: string;
+  state: number;
 }
 
 const Chat = seq.define('chats', {
@@ -17,6 +18,10 @@ const Chat = seq.define('chats', {
   },
   identity: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  state: {
+    type: DataTypes.INTEGER,
     allowNull: false
   }
 }, {

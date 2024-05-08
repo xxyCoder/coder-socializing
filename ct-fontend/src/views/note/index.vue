@@ -46,6 +46,7 @@ onMounted(() => {
   }
 })
 
+let hasSend = false
 const handlerPublish = () => {
   if (!userInfo || !userInfo.id) {
     useToast('请先登录');
@@ -65,6 +66,8 @@ const handlerPublish = () => {
     useToast('标签不存在');
     return;
   }
+  if (hasSend) return
+  hasSend = true
   const formData = new FormData();
   formData.set('title', title);
   formData.set('category', selectTag.value.selectedOptions[0].value)
@@ -93,6 +96,7 @@ const handlerPublish = () => {
     })
     .catch(() => {
       remove();
+      hasSend = false
     })
 }
 </script>

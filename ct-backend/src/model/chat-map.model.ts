@@ -6,12 +6,17 @@ export interface ChatMapModel {
   id: number | null;
   senderId: number;
   receiverId: number;
-  content: string
+  content: string;
+  unreadCnt: number;
 }
 
 const ChatMap = seq.define('chat_maps', {
   content: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  unreadCnt: {
+    type: DataTypes.INTEGER,
     allowNull: false
   }
 }, {

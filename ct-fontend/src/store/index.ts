@@ -11,14 +11,43 @@ export const useNoteInfoStore = defineStore('note-info', () => {
 })
 
 export const useNotityCountStore = defineStore('notify-count', () => {
-  const count = ref(0)
-  function addCount() {
-    ++count.value
+  const total = ref(0), commetAndFollowCnt = ref(0), likeAndCollectCnt = ref(0), chatCnt = ref(0)
+  function modifyTotal(cnt: number) {
+    total.value += cnt
   }
-  function clearCount() {
-    count.value = 0
+  function addCommentAndFollowCnt() {
+    ++commetAndFollowCnt.value
+    modifyTotal(1)
   }
-  return { count, addCount, clearCount }
+  function setCommentAndFollowCnt(cnt: number) {
+    modifyTotal(-commetAndFollowCnt.value + cnt)
+    commetAndFollowCnt.value = cnt
+  }
+
+  function addlikeAndCollectCnt() {
+    ++likeAndCollectCnt.value
+    modifyTotal(1)
+  }
+  function setlikeAndCollectCnt(cnt: number) {
+    modifyTotal(-likeAndCollectCnt.value + cnt)
+    likeAndCollectCnt.value = cnt
+  }
+
+  function setChatCnt(cnt: number) {
+    modifyTotal(-chatCnt.value + cnt)
+    chatCnt.value = cnt
+  }
+  function addChatCnt() {
+    ++chatCnt.value
+    modifyTotal(1)
+  }
+
+  return {
+    total,
+    commetAndFollowCnt, addCommentAndFollowCnt, setCommentAndFollowCnt,
+    likeAndCollectCnt, addlikeAndCollectCnt, setlikeAndCollectCnt,
+    chatCnt, setChatCnt, addChatCnt
+  }
 })
 
 export const useviewerStore = defineStore('viewer', () => {

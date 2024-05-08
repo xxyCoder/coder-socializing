@@ -4,6 +4,8 @@ import { ip, port, backendStatic } from '@/api/constant';
 import { DAY, HOUR, MIN } from '@/common/constant';
 import { useRouter } from 'vue-router';
 import { useviewerStore } from '@/store';
+import { changeChatState } from '@/api/chat';
+import { setNotifyCnt } from '@/common/ts/notify';
 
 const props = defineProps({
   userId: {
@@ -29,6 +31,10 @@ const props = defineProps({
   isFollower: {
     type: Boolean,
     default: false
+  },
+  unreadCnt: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -36,6 +42,8 @@ const timeText = computed(() => {
   const cur = Date.now(), prev = new Date(props.time)
   if (cur - props.time < MIN) {
     return '刚刚'
+  } else if (cur - props.time < HOUR) {
+    return `${new Date(cur).getMinutes() - prev.getMinutes()}分钟前`
   } else if (cur - props.time < 2 * HOUR) {
     return '1小时前'
   } else if (cur - props.time < DAY && new Date(cur).getDate() === prev.getDate()) {
@@ -53,7 +61,13 @@ const router = useRouter()
 const gotoChat = () => {
   useviewerStore().setViewerInfo({ userId: props.userId, username: props.username, avatarSrc: props.avatarSrc, isFollower: props.isFollower })
   router.push(`/chat/${props.userId}`)
+  changeChatState({ senderId: props.userId })
+    .then(() => {
+      setNotifyCnt()
+    })
 }
+
+const unreadCntTxt = computed(() => props.unreadCnt < 100 ? `${props.unreadCnt}` : 'x99')
 </script>
 
 <template>
@@ -66,6 +80,7 @@ const gotoChat = () => {
         <span>{{ timeText }}</span>
       </div>
     </div>
+    <div class="cnt" v-if="unreadCnt">{{ unreadCntTxt }}</div>
   </div>
 </template>
 
@@ -106,5 +121,14 @@ const gotoChat = () => {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+}
+
+.cnt {
+  border-radius: 50%;
+  margin-left: responsive(10, vw);
+  padding: responsive(5, vw) responsive(10, vw);
+  font-size: 12px;
+  color: #fff;
+  background-color: rgb(249, 60, 60);
 }
 </style>

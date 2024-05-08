@@ -4,7 +4,7 @@ import CommentsService from "@src/service/comments.service";
 import NotifyController from '@src/controller/notify.controller'
 import NotesService from "@src/service/notes.service";
 import type { Request, Response } from "express";
-import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
+import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add, getWithPage, count, findUser, find, remove } = CommentsService
 const { addNotify, } = NotifyController
@@ -19,11 +19,12 @@ class CommentController {
         // 自己的操作不必通知自己
         if (replyUserId !== userId) {
           // 存储起来
-          addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId })
+          addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId: replyUserId, receiverId: replyUserId })
             .then(() => {
               // 如果在线就通知
               const sse = getSSEConn(replyUserId)
-              sse && sse.write({ data: { type: 'notify' } })
+              console.log(sse, 'sse', replyUserId)
+              sse && sse.write({ data: { type: InteractionTypeMap["comment-follow"] } })
             })
             .catch(err => {
               console.error(`${userId}通知失败:${err}`)

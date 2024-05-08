@@ -8,6 +8,7 @@ export interface NotifyModel {
   id: number | null
   noteId: number | null;
   userId: number;
+  receiverId: number;
   commentId: number | null; // 评论的id
   replyCommentId: number | null;  // 回复的id
   type: number;
@@ -15,6 +16,11 @@ export interface NotifyModel {
 }
 
 const Notifies = seq.define('notifies', {
+  receiverId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: '被通知方id'
+  },
   replyCommentId: {
     type: DataTypes.INTEGER,
     allowNull: true,

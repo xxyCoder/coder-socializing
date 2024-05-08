@@ -2,15 +2,17 @@ import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant
 import NotifyService from "@src/service/notifies.service";
 import NotesService from "@src/service/notes.service";
 import CommentsService from "@src/service/comments.service";
+import ChatService from "@src/service/chat.service";
 import { Request, Response } from "express";
 import { Notify } from "@src/constant/types";
 import { serviceError, successObj } from "@src/constant/resp.constant";
 import { Model } from "sequelize";
 import { NotifyModel } from "@src/model/notify.model";
 
-const { list: getNotifyList, modify: modifyNotifyInfo, find, add } = NotifyService
+const { list: getNotifyList, modify: modifyNotifyInfo, add, countBytype } = NotifyService
 const { get: getNoteInfo } = NotesService;
 const { find: getCommentInfo, findAll: getAllComment } = CommentsService;
+const { countUnread: countChatUnread } = ChatService
 
 class NotiftController {
   async list(req: Request, resp: Response) {
@@ -21,10 +23,10 @@ class NotiftController {
     try {
       switch (tag) {
         case InteractionTypeMap["comment-follow"]:
-          notifies = await getNotifyList({ type: [NotifyTypeMap.comment, NotifyTypeMap.concern], userId, page_num })
+          notifies = await getNotifyList({ type: [NotifyTypeMap.comment, NotifyTypeMap.concern], receiverId: userId, page_num })
           break
         case InteractionTypeMap["like-collect"]:
-          notifies = await getNotifyList({ type: [NotifyTypeMap.thumb, NotifyTypeMap.collect], userId, page_num })
+          notifies = await getNotifyList({ type: [NotifyTypeMap.thumb, NotifyTypeMap.collect], receiverId: userId, page_num })
           break
         case InteractionTypeMap["self-comment"]:
           isGetSelfComment = true
@@ -76,10 +78,43 @@ class NotiftController {
         resp.send(serviceError)
       })
   }
-  async addNotify({ type, userId, replyCommentId, commentId, noteId, state }: Partial<NotifyModel>) {
-    const notify = type === NotifyTypeMap.comment ? null : await find({ type, userId, noteId })
-    if (notify?.dataValues) return Promise.reject(new Error('通知过了'))
-    return add({ type, userId, replyCommentId, commentId, noteId, state })
+  async addNotify({ type, userId, replyCommentId, commentId, noteId, state, receiverId }: Partial<NotifyModel>) {
+    return add({ type, userId, replyCommentId, commentId, noteId, state, receiverId })
+  }
+  async getNotifyCnt(req: Request, resp: Response) {
+    const receiverId = Number(req.query.id)
+    const [commentAndFollowCnt, likeAndCollectCnt, chatCnt] = await Promise.all([
+      countBytype({ type: [NotifyTypeMap.comment, NotifyTypeMap.concern], receiverId, state: NotifyStateMap.unread }),
+      countBytype({ type: [NotifyTypeMap.thumb, NotifyTypeMap.collect], receiverId, state: NotifyStateMap.unread }),
+      countChatUnread({ receiverId })
+    ])
+
+    resp.send({
+      code: 200,
+      msg: '获取成功',
+      data: {
+        commentAndFollowCnt,
+        likeAndCollectCnt,
+        chatCnt
+      }
+    })
+  }
+  async clearNotify(req: Request, resp: Response) {
+    const receiverId = Number(req.query.id), tag = String(req.query.tag)
+    try {
+      switch (tag) {
+        case InteractionTypeMap["comment-follow"]:
+          await modifyNotifyInfo({ type: [NotifyTypeMap.comment, NotifyTypeMap.concern], receiverId, state: NotifyStateMap.read })
+          break
+        case InteractionTypeMap["like-collect"]:
+          await modifyNotifyInfo({ type: [NotifyTypeMap.thumb, NotifyTypeMap.collect], receiverId, state: NotifyStateMap.read })
+          break
+      }
+      resp.send(successObj)
+    } catch (err) {
+      console.error(`清除失败：${err}`)
+      resp.send(serviceError)
+    }
   }
 }
 

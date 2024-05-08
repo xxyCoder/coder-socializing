@@ -3,10 +3,10 @@ import SseStream from "ssestream";
 
 const router = express.Router();
 
-const connectedUsers: WeakMap<Number, SseStream> = new WeakMap()
+const connectedUsers: Map<number, SseStream> = new Map()
 
 export function getSSEConn(userId: number) {
-  return connectedUsers.get(Object(userId))
+  return connectedUsers.get(userId)
 }
 
 router.get('/:userId', (req: Request, resp: Response) => {
@@ -20,7 +20,7 @@ router.get('/:userId', (req: Request, resp: Response) => {
   const sse = new SseStream(req)
   sse.pipe(resp)
 
-  connectedUsers.set(Object(userId), sse);
+  connectedUsers.set(Number(userId), sse);
 
   req.on('close', () => {
     console.log(`${userId} close connection`);

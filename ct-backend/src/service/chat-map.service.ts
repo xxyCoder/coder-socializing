@@ -3,24 +3,22 @@ import { pageType } from "@src/constant/types";
 import ChatMap, { ChatMapModel } from "@src/model/chat-map.model";
 
 class ChatMapService {
-  create({ senderId, receiverId, content }: Partial<ChatMapModel>) {
-    ChatMap.findOne({
+  async create({ senderId, receiverId, content }: { senderId: number, receiverId: number, content: string }) {
+    const res = await ChatMap.findOne({
       where: {
         senderId,
         receiverId
       }
-    }).then(res => {
-      if (res?.dataValues) {
-        ChatMap.update({ content }, {
-          where: {
-            senderId,
-            receiverId
-          }
-        })
-        return
-      }
-      ChatMap.create({ senderId, receiverId, content })
-    })
+    });
+    if (res?.dataValues) {
+      return ChatMap.update({ content, unreadCnt: res.dataValues.unreadCnt + 1 }, {
+        where: {
+          senderId,
+          receiverId
+        }
+      });
+    }
+    return ChatMap.create({ senderId, receiverId, content, unreadCnt: 1 });
   }
   find({ receiverId, page_num, senderId }: Partial<ChatMapModel> & pageType) {
     const whereOp = {}
@@ -32,6 +30,11 @@ class ChatMapService {
       offset: page_num * pageSize,
       limit: pageSize,
       order: [['updatedAt', 'ASC']]
+    })
+  }
+  clearUnreadCnt({ senderId, receiverId }: { senderId: number, receiverId: number }) {
+    return ChatMap.update({ unreadCnt: 0 }, {
+      where: { senderId, receiverId }
     })
   }
 }

@@ -1,4 +1,4 @@
-import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
+import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 import { serviceError } from "@src/constant/resp.constant";
 import { getSSEConn } from "@src/router/sse.router";
 import concernsService from "@src/service/concerns.service";
@@ -14,11 +14,11 @@ class ConcernController {
     (is_follwer ? remove({ id, viewer_id }) : add({ id, viewer_id }))
       .then(() => {
         if (!is_follwer) {
-          addNotify({ type: NotifyTypeMap.concern, state: NotifyStateMap.unread, userId: viewer_id })
+          addNotify({ type: NotifyTypeMap.concern, state: NotifyStateMap.unread, userId: id, receiverId: viewer_id })
             .then(() => {
               // 如果在线就通知
               const sse = getSSEConn(viewer_id)
-              sse && sse.write({ data: { type: 'notify' } })
+              sse && sse.write({ data: { type: InteractionTypeMap["comment-follow"] } })
             })
             .catch(err => {
               console.error(`${viewer_id}通知失败:${err}`)

@@ -7,9 +7,11 @@ import { checkPageParams } from "@src/middleware/common.middleware";
 
 const router = express.Router();
 
-const { list: getNotifyList, changeStatus } = NotifyController;
+const { list: getNotifyList, changeStatus, getNotifyCnt, clearNotify } = NotifyController;
 
 router.get('/notify_list', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkPageParams, checkTagRight, getNotifyList)
 router.post('/change_status', verifyToken, verifyCSRFSession, checkIdAndAccountExists, checkNotifyIdExists, changeStatus)
+router.get('/notify_cnt', checkIdAndAccountExists, verifyCSRFSession, verifyToken, getNotifyCnt)
+router.post('/clear_notify', checkIdAndAccountExists, verifyCSRFSession, verifyToken, checkTagRight, clearNotify)
 
 export default router

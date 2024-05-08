@@ -7,9 +7,9 @@ type Resolve = (value?: unknown) => void
 
 const delayTime = 1500
 
-const div = document.createElement("div");
-div.style.cssText = `position: absolute; top: 0; width: 100vw; height: 50vh; display: flex; flex-direction: reverse-column; justify-content: center; align-items: flex-end; user-select: none; z-idnex: -1`
 export function useToast(msg: string, type: toastType = "normal") {
+  const div = document.createElement("div");
+  div.style.cssText = `position: absolute; top: 0; width: 100vw; height: 50vh; display: flex; flex-direction: reverse-column; justify-content: center; align-items: flex-end; user-select: none; z-idnex: -1`
   const componentInstance = createApp(Toast, {
     msg,
     type

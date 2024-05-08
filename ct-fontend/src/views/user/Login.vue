@@ -7,6 +7,7 @@ import { useToast } from "@/components/Toast/index";
 import { useLoading } from '@/components/Loading/index';
 import { setUserInfo } from '@/common/ts/user-info';
 import { useEventSource } from '@/common/ts/correspondence';
+import { setNotifyCnt } from '@/common/ts/notify';
 
 const account = ref<HTMLInputElement>();
 const password = ref<HTMLInputElement>();
@@ -33,6 +34,7 @@ const handlerLogin = () => {
       useEventSource(res.id)
       useToast("登录成功")
         .then(() => {
+          setNotifyCnt() // 登录成功后需要拉取通知
           router.replace('/');
         })
     })

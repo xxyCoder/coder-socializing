@@ -14,5 +14,6 @@ export const enum NotifyTypeMap {
 export enum InteractionTypeMap {
   'comment-follow' = 'comment-follow',
   'like-collect' = 'like-collect',
-  'self-comment' = 'self-comment'
+  'self-comment' = 'self-comment',
+  chat = 'chat'
 }

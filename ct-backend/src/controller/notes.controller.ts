@@ -9,7 +9,7 @@ import { staticRoot } from "@src/app";
 import env from "@src/config/default.config";
 import { NoteCardType, categories } from "@src/constant/types";
 import { getSSEConn } from "@src/router/sse.router";
-import { NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
+import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
 
 const { add: likeOrCollectAdd, remove: likeOrCollectRev, get: getIsLikeOrCollect, count: countLikesOrCollect } = LikesCollectServe;
 const { add: noteAdd, getByPage: getNoteWithPage, get: getNoteDetail, countAll: getNoteTotalSize, remove: removeNoteById, update: updateNoteById } = NotesService;
@@ -26,11 +26,11 @@ class NoteController {
     ((is_like || is_collect) ? likeOrCollectAdd(params) : likeOrCollectRev(params))
       .then(row => {
         if ((is_like || is_collect) && authorId !== userId) {
-          addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId: authorId })
+          addNotify({ type: is_like ? NotifyTypeMap.thumb : NotifyTypeMap.collect, state: NotifyStateMap.unread, noteId, userId, receiverId: authorId })
             .then(() => {
               // 如果在线就通知
               const sse = getSSEConn(authorId)
-              sse && sse.write({ data: { type: 'notify' } })
+              sse && sse.write({ data: { type: InteractionTypeMap["like-collect"] } })
             })
             .catch(err => {
               console.error(`${authorId}通知失败:${err}`)

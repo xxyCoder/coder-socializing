@@ -14,10 +14,5 @@ export interface IMessageList {
   content: string;
   time: number;
   isFollower: boolean;
-}
-
-export const enum MessageTag {
-  'comment-follow' = 'comment-follow',
-  'like-collect' = 'like-collect',
-  'self-comment' = 'self-comment'
+  unreadCnt: number;
 }

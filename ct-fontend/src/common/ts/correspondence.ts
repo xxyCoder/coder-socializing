@@ -1,5 +1,5 @@
-import { useNotityCountStore } from "@/store";
 import { ip, port } from "@/api/constant";
+import { addNotifyCnt } from "./notify";
 
 let eventSource
 export function useEventSource(id: number) {
@@ -7,11 +7,7 @@ export function useEventSource(id: number) {
   eventSource = new EventSource(`${ip}:${port}/sse/${id}`)
   eventSource.onmessage = (event) => {
     const { type } = JSON.parse(event.data);
-    console.log(event.data)
-    if (type === 'notify') {
-      const { addCount } = useNotityCountStore()
-      addCount()
-    }
+    addNotifyCnt(type)
   }
   eventSource.onerror = (error) => {
     console.error(`sse error: ${error}`)

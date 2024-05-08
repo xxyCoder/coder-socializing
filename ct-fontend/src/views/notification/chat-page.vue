@@ -38,7 +38,7 @@ const gotoBottom = () => {
 const sendChatReq = (idx: number) => {
   const message = messageList.value[idx]
   message.status = MessageStatus.LOADING
-  addChatBar({ receiverId: user.userId, content: messageList.value[idx].content })
+  addChatBar({ receiverId: user.userId, content: encodeURIComponent(messageList.value[idx].content) })
     .then(() => {
       message.status = MessageStatus.NORMAL
     })
@@ -101,30 +101,35 @@ const VIntersect = {
 </script>
 
 <template>
-  <user-header :user="user" />
-  <div class="chat-page" ref="chatPage">
-    <message-bar v-for="(msg, i) in messageList" :key="i" :idx="i" :content="msg.content" :status="msg.status"
-      :send-date="msg.sendDate" :dir="msg.dir"
-      :avatar-src="msg.dir === Direction.RIGHT ? self?.avatarSrc : user.avatarSrc" @retry="handlerRetry(i)"
-      v-intersect="i" />
-  </div>
-  <div class="send-message">
-    <input v-model="message" type="text" />
-    <button @click="sendMessage">发送</button>
+  <div class="page">
+    <user-header :user="user" />
+    <div class="chat-page" ref="chatPage">
+      <message-bar v-for="(msg, i) in messageList" :key="i" :idx="i" :content="msg.content" :status="msg.status"
+        :send-date="msg.sendDate" :dir="msg.dir"
+        :avatar-src="msg.dir === Direction.RIGHT ? self?.avatarSrc : user.avatarSrc" @retry="handlerRetry(i)"
+        v-intersect="i" />
+    </div>
+    <div class="send-message">
+      <input v-model="message" type="text" />
+      <button @click="sendMessage">发送</button>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 @import '../../common/style/func.scss';
 
+.page {
+  background-color: #242526;
+  min-height: 100vh;
+}
+
 .chat-page {
   position: relative;
-  flex: 1;
   display: flex;
   flex-direction: column-reverse;
   padding: responsive(20, vw);
   padding-bottom: responsive(120, vw);
-  background-color: #242526;
   overflow: auto;
 }
 

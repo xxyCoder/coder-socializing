@@ -1,5 +1,6 @@
 import { getUserInfo as getUserInfoApi } from "@/api/users";
 import { useEventSource } from "./correspondence";
+import { setNotifyCnt } from "./notify";
 
 export interface UserInfo {
   avatarSrc?: string;
@@ -24,6 +25,7 @@ export function recapUserInfo() {
     .then(res => {
       setUserInfo(res)
       useEventSource(res.id)
+      setNotifyCnt()
     })
     .catch(() => {
       localStorage.removeItem('user-info')

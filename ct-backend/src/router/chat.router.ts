@@ -6,10 +6,11 @@ import express from "express";
 import { checkChatContent, checkChatReceiverId } from "@src/middleware/chat.middleware";
 
 const router = express.Router()
-const { getChatList, addChatBar, getChatContent } = ChatController
+const { getChatList, addChatBar, getChatContent, changeState } = ChatController
 
 router.get('/chat_list', checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkPageParams, getChatList)
 router.post('/add_chat_bar', checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkChatReceiverId, checkChatContent, addChatBar)
 router.get('/chat_content', checkIdAndAccountExists, verifyToken, verifyCSRFSession, checkPageParams, checkChatReceiverId, getChatContent)
+router.post('/change_state', checkIdAndAccountExists, verifyCSRFSession, verifyCSRFSession, checkChatReceiverId, changeState)
 
 export default router
