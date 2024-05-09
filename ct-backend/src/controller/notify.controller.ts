@@ -91,7 +91,7 @@ class NotiftController {
   }
   async addNotify({ type, userId, replyCommentId, commentId, noteId, state, receiverId }: Partial<NotifyModel>) {
     if (type !== NotifyTypeMap.comment) {
-      const notify = await getNotifyInto({ type: Number(type), receiverId: Number(receiverId), noteId })
+      const notify = await getNotifyInto({ type: Number(type), receiverId: Number(receiverId), noteId, userId: Number(userId) })
       if (notify) {
         return Promise.resolve(0)
       }

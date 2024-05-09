@@ -25,8 +25,8 @@ class NotifyService {
     type && Object.assign(whereOp, { type: { [Op.in]: type } })
     return Notifies.update(updateOp, { where: whereOp })
   }
-  find({ type, receiverId, noteId }: { type: number, receiverId: number, noteId?: number | null }) {
-    const whereOp = { type, receiverId }
+  find({ type, receiverId, noteId, userId }: { type: number, receiverId: number, userId: number, noteId?: number | null }) {
+    const whereOp = { type, receiverId, userId }
     noteId && Object.assign(whereOp, { noteId })
     return Notifies.findOne({
       where: whereOp

@@ -19,7 +19,7 @@ class CommentController {
         // 自己的操作不必通知自己
         if (replyUserId !== userId) {
           // 存储起来
-          addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId: replyUserId, receiverId: replyUserId })
+          addNotify({ type: NotifyTypeMap.comment, state: NotifyStateMap.unread, commentId: res.dataValues.id, replyCommentId: targetCommentId, noteId, userId, receiverId: replyUserId })
             .then(() => {
               // 如果在线就通知
               const sse = getSSEConn(replyUserId)
