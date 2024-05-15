@@ -24,7 +24,7 @@ router.get('/:userId', (req: Request, resp: Response) => {
 
   req.on('close', () => {
     console.log(`${userId} close connection`);
-    connectedUsers.delete(Object(userId));
+    connectedUsers.delete(Number(userId));
   })
 })
 
