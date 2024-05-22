@@ -27,7 +27,7 @@ class UserController {
           resp.send({ code: 400, msg: "用户存在，换一个account名" });
           return;
         }
-        create({ username, password, account, id: null })
+        create({ username, password, account, id: null, permission: 0 })
           .then(() => {
             resp.send(successObj)
           })

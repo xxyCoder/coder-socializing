@@ -8,6 +8,7 @@ export interface UserModel {
   password: string;
   biography?: string;
   avatarSrc?: string;
+  permission: number;
 }
 
 const Users = seq.define('users', {
@@ -36,6 +37,11 @@ const Users = seq.define('users', {
     type: DataTypes.STRING,
     allowNull: true,
     comment: "头像路径"
+  },
+  permission: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: '用户权限'
   }
 }, {
   timestamps: false // 静止添加其他列（默认有插入、删除列的时间）

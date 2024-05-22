@@ -7,6 +7,7 @@ import MessageItem from '@/components/chat/message-item.vue';
 import NotifyButton from '@/components/notification/notify-button.vue';
 import { IMessageList } from './ts';
 import { MessageTag } from '@/common/constant';
+import { useToast } from '@/components/Toast';
 
 const list = [{ name: '评论和关注', tag: MessageTag['comment-follow'] }, { name: '点赞和收藏', tag: MessageTag['like-collect'] }, { name: '发出的评论', tag: MessageTag['self-comment'] }]
 
@@ -19,6 +20,9 @@ const req = () => {
     .then(res => {
       messageList.value.push(...res.chatList)
       ++pageNum
+    })
+    .catch(err => {
+      useToast(err.message)
     })
 }
 req()

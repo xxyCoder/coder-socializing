@@ -80,7 +80,7 @@ class ChatController {
             username: user?.dataValues.username,
             avatarSrc: user?.dataValues.avatarSrc,
             isFollower,
-            unreadCnt: id === map.dataValues.receiverId ? map.dataValues.unreadCnt : unreadCnt
+            unreadCnt: id === map.dataValues.receiverId ? map.dataValues.unreadCnt : unreadCnt,
           })
         }
 
