@@ -18,8 +18,8 @@ export const checkRegisterParams = (req: Request, res: Response, next: NextFunct
     res.send(importArgsIsNull);
     return;
   }
-  if (account.length < 6 || account.length > 20 || username.length < 6 || username.length > 16) {
-    res.send({ code: 400, msg: '数据不符合要求' })
+  if (account.length < 6 || account.length > 20 || username.length < 1 || username.length > 16) {
+    res.send({ code: 400, msg: '长度不符合要求' })
     return
   }
   next()

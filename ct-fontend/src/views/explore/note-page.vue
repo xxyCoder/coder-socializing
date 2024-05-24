@@ -103,11 +103,13 @@ reqComment();
 const comment = ref<string>('')
 const replyInfo = ref<ReplyInfo>({ targetCommentId: null, username: '', comment: '', rootCommentId: null, replyUserId: null })
 const commit = () => {
-  if (!comment.value || !selfInfo) return;
+  if (!comment.value) return;
+  if (!selfInfo) {
+    return useToast('请先登录')
+  }
   const noteId = note.value?.id;
   if (!noteId) {
-    useToast('网络错误');
-    return;
+    return useToast('网络错误');
   }
   const targetCommentId = replyInfo.value.targetCommentId, rootCommentId = replyInfo.value.rootCommentId
   emitComment({ noteId, comment: encodeURIComponent(comment.value), targetCommentId, rootCommentId, replyUserId: replyInfo.value.replyUserId || viewr.value?.userId })
@@ -125,6 +127,9 @@ const commit = () => {
         commentList.value.unshift({ ...res, user: { userId: selfInfo.id, username: selfInfo.username, avatarSrc: selfInfo.avatarSrc } })
       }
       comment.value = ''
+    })
+    .catch(() => {
+      useToast('评论失败')
     })
   replyInfo.value.targetCommentId = replyInfo.value.rootCommentId = null;
 }

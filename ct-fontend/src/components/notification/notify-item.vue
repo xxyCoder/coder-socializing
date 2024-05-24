@@ -185,6 +185,7 @@ const handlerClick = (viewType: NotifyItem) => {
 }
 
 .content {
+  overflow: hidden;
   span {
     font-size: 12px;
   }

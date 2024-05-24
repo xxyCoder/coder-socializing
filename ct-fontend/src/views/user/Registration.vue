@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { debounce } from 'lodash'
+import { throttle } from 'lodash'
 import { userRegistry } from '@/api/users';
 import { useToast } from '@/components/Toast/index';
 import { useLoading } from '@/components/Loading/index'
 import CustomInput from '@/components/common/custom-input.vue';
-import { debounceTime, InputMap, initNotPass, cryptoPassword } from './ts/index'
+import { throttleTime, InputMap, initNotPass, cryptoPassword } from './ts/index'
 import { CustomInputComponent } from '@/common/types';
 
 const username = ref<CustomInputComponent>();
@@ -18,14 +18,12 @@ const router = useRouter()
 let verify = initNotPass
 
 const handlerRegistered = () => {
+  console.log(verify)
   if (!username.value || !account.value || !password.value || !confirmPassword.value) {
-    useToast("网络不好，请稍后再试");
-    // 埋点上报没有拿到组件问题
-    return;
+    return useToast("网络不好，请稍后再试");
   }
   if (verify) {
-    useToast("输入不符合要求", "error");
-    return;
+    return useToast("长度不符合要求", "error");
   }
   const remove = useLoading()
   userRegistry({ username: username.value.component.value, account: account.value.component.value, password: cryptoPassword(password.value.component.value) })
@@ -41,30 +39,33 @@ const handlerRegistered = () => {
     })
 }
 
-const handlerVerify = debounce((component: CustomInputComponent | undefined, bit: number) => {
+const handlerVerify = throttle((component: CustomInputComponent | undefined, bit: number) => {
   if (!component) {
     useToast("网络不好，请稍后再试");
     // 埋点上报没有拿到组件问题
     return;
   }
-  if (!component.component.checkValidity() || !component.component.value) {
+  if (!component.component.checkValidity() ||
+    !component.component.value ||
+    (bit === InputMap.confirmPassword && confirmPassword.value?.component.value !== password.value?.component.value)
+  ) {
     component.show();
     verify |= 1 << bit;
   } else {
     component.hide();
     verify &= ~(1 << bit);
   }
-}, debounceTime)
+}, throttleTime)
 </script>
 
 <template>
   <div class="ct-registration">
     <img src="@/assets/logo.png" alt="">
     <h1>coder 注册</h1>
-    <CustomInput ref="username" @input="handlerVerify(username, InputMap.username)" type="text" placeholder="请输入用户名"
-      minlength="1" maxlength="10" err-msg="长度应该在1~10之间" />
     <CustomInput @input="handlerVerify(account, InputMap.account)" ref="account" type="text" placeholder="请输入账户名"
       minlength="6" maxlength="16" err-msg="长度应该在6~16之间" />
+    <CustomInput ref="username" @input="handlerVerify(username, InputMap.username)" type="text" placeholder="请输入用户名"
+      minlength="1" maxlength="10" err-msg="长度应该在1~10之间" />
     <CustomInput @input="handlerVerify(password, InputMap.password)" ref="password" type="password" placeholder="请输入密码"
       minlength="6" maxlength="20" err-msg="长度应该在6~20之间" />
     <CustomInput @input="handlerVerify(confirmPassword, InputMap.confirmPassword)" ref="confirmPassword" type="password"

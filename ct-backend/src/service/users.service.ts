@@ -5,8 +5,8 @@ import { pageType } from "@src/constant/types";
 import { pageSize } from "@src/constant/resp.constant";
 
 class UserService {
-  create({ username, password, account }: UserModel) {
-    return Users.create({ username, password, account, });
+  create({ username, password, account, permission }: UserModel) {
+    return Users.create({ username, password, account, permission });
   }
   update({ account, id, newPassword, biography, username, avatarSrc }: Partial<UserModel & { newPassword: string }>) {
     const whereOp = { id, account };

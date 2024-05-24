@@ -5,7 +5,7 @@ export function cryptoPassword(password: string) {
   return hash.toString(crypto.enc.Hex);
 }
 
-export const debounceTime = 500;
+export const throttleTime = 500;
 
 const byte = 1024;
 

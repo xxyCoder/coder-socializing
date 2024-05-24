@@ -28,6 +28,9 @@ const req = () => {
       notifyList.push(...res)
       ++pageNum
     })
+    .catch(err => {
+      useToast(err.message)
+    })
 }
 req()
 

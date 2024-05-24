@@ -52,12 +52,12 @@ watch(tabId, () => {
   immediate: true
 })
 
-let lastSearch = ''
+let lastSearch = ref('')
 const handlerSearch = (searchCon: string) => {
-  if (lastSearch === searchCon) return
+  if (lastSearch.value === searchCon) return
   tagPageNum.all = 0 // 重置，后续搜索需要用，每次搜索内容都不一致
   getNotes('all', searchCon).then(() => {
-    lastSearch = searchCon
+    lastSearch.value = searchCon
   })
 }
 
@@ -66,8 +66,8 @@ const recKey = 'explore-search-record-list'
 
 <template>
   <search-panel :rec-key="recKey" @search="handlerSearch" tips="搜索笔记" />
-  <sticky-list :list="list" @click="(id: number) => tabId = id" class="pt-120" />
-  <all-notes :show-infos="notes" @req-notes="getNotes(listMap[list[tabId]])" />
+  <sticky-list v-show="!lastSearch" :list="list" @click="(id: number) => tabId = id" class="pt-120" />
+  <all-notes :class="{ 'pt-120': !!lastSearch }" :show-infos="notes" @req-notes="getNotes(listMap[list[tabId]])" />
   <bottom-menu />
 </template>
 
