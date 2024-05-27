@@ -49,7 +49,7 @@ class NotiftController {
         noteId ? getNoteInfo(noteId) : Promise.resolve(null)
       ])
       let _content = content, isDel = false
-      console.log(comment1?.dataValues, 'dele')
+
       if (!isGetSelfComment) {
         if (comment1?.dataValues.deletedAt) {
           isDel = true
@@ -57,6 +57,10 @@ class NotiftController {
         } else {
           _content = comment1?.dataValues.content
         }
+      }
+
+      if (!noteInfo?.dataValues.title) {
+        isDel = true
       }
 
       data.push({
@@ -68,7 +72,7 @@ class NotiftController {
         rootCommentId: isGetSelfComment ? rootCommentId : (comment2?.dataValues.rootCommentId || null),
         commentId: isGetSelfComment ? id : commentId,
         replyCommentId,
-        title: noteInfo?.dataValues.title || '',
+        title: noteInfo?.dataValues.title || '该笔记已被删除',
         content: _content,
         replyContent: comment2?.dataValues.content || '',
         time: +new Date(notify.dataValues.createdAt),

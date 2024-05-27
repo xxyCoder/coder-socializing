@@ -105,7 +105,6 @@ const date = computed(() => {
 const router = useRouter()
 const handlerClick = (viewType: NotifyItem) => {
   const { notifyId, userId, type, replyCommentId, noteId, commentId, rootCommentId, isDel } = props;
-
   if (viewType === NotifyItem.user) {
     router.push(`/user/${userId}`)
     return
@@ -118,6 +117,7 @@ const handlerClick = (viewType: NotifyItem) => {
         emits('click', notifyId)
       })
   }
+
   if (isDel) return
 
   const { setNoteInfo } = useNoteInfoStore()
@@ -125,13 +125,8 @@ const handlerClick = (viewType: NotifyItem) => {
     case NotifyItemTypeMap.comment:
     case NotifyItemTypeMap['self-comment']:
       setNoteInfo({ replyCommentId: replyCommentId, commentId: commentId, rootCommentId })
-      router.push(`/explore/${noteId}`)
-      break
-    case NotifyItemTypeMap.thumb:
-    case NotifyItemTypeMap.collect:
-      router.push(`/explore/${noteId}`)
-      break
   }
+  router.push(`/explore/${noteId}`)
 }
 </script>
 
@@ -140,7 +135,7 @@ const handlerClick = (viewType: NotifyItem) => {
     <div class="header" @click="handlerClick(NotifyItem.user)">
       <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
       <span class="name">{{ username }}</span>
-      <span>{{ tips }}</span>
+      <span @click.stop="handlerClick(NotifyItem.content)">{{ tips }}</span>
     </div>
     <div class="container" @click="handlerClick(NotifyItem.content)">
       <div class="content">
@@ -169,6 +164,11 @@ const handlerClick = (viewType: NotifyItem) => {
     width: responsive(60, vw);
     height: responsive(60, vw);
     border-radius: 50%;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
   }
 }
 
