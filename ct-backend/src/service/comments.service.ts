@@ -49,11 +49,11 @@ class CommentService {
       include: [Users]
     })
   }
-  remove({ rootCommentId, commentId, noteId, userId }: { rootCommentId?: number, commentId?: number, noteId: number, userId?: number }) {
+  remove({ rootCommentId, commentId, noteId, userId, permission = 0 }: { rootCommentId?: number, commentId?: number, noteId: number, userId?: number, permission?: number }) {
     const whereOp = { noteId }
     rootCommentId && Object.assign(whereOp, { rootCommentId })
     commentId && Object.assign(whereOp, { id: commentId })
-    userId && Object.assign(whereOp, { userId })
+    !permission && userId && Object.assign(whereOp, { userId })
 
     return Comments.destroy({ where: whereOp })
   }

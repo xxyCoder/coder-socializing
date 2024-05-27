@@ -2,7 +2,7 @@ import Note, { NoteModel } from "@src/model/notes.model";
 import { categories, pageType } from "@src/constant/types";
 import Users from "@src/model/users.model";
 import { LikeOrCollectModel } from "@src/model/likes-collect.model";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { pageSize } from "@src/constant/resp.constant";
 import LikesCollectServe from "./likes-collect.serve";
 
@@ -56,16 +56,20 @@ class NoteService {
   countAll() {
     return Note.count()
   }
-  remove({ noteId, userId }: { noteId: number, userId: number }) {
-    return Note.destroy({ where: { id: noteId, userId } })
+  remove({ noteId, userId, permission }: { noteId: number, userId: number, permission: number }) {
+    const whereOp = { id: noteId }
+    !permission && Object.assign(whereOp, { userId })
+    return Note.destroy({ where: whereOp })
   }
-  update({ tag, title, content, mediaList, userId, isVideo, id }: Partial<NoteModel>) {
+  update({ tag, title, content, mediaList, userId, isVideo, id, permission }: Partial<NoteModel> & { permission: number }) {
     const updateOp = { isVideo }
+    const whereOp = { id }
     tag && Object.assign(updateOp, { tag })
     title && Object.assign(updateOp, { title })
     content && Object.assign(updateOp, { content })
     mediaList && Object.assign(updateOp, { mediaList })
-    return Note.update(updateOp, { where: { id, userId } })
+    !permission && Object.assign(whereOp, { userId })
+    return Note.update(updateOp, { where: whereOp })
   }
 }
 

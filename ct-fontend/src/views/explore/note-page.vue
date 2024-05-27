@@ -233,7 +233,7 @@ const VIntersect = {
 <template>
   <template v-if="note && viewr">
     <user-header :user="viewr">
-      <div v-if="viewr.userId === selfInfo?.id" class="dots">
+      <div v-if="viewr.userId === selfInfo?.id || selfInfo?.permission" class="dots">
         <span @click.stop="optPanel = !optPanel">. . .</span>
         <transition>
           <ul class="opt-panel" v-if="optPanel">

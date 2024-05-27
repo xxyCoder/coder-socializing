@@ -5,10 +5,12 @@ import NotifyController from '@src/controller/notify.controller'
 import NotesService from "@src/service/notes.service";
 import type { Request, Response } from "express";
 import { InteractionTypeMap, NotifyStateMap, NotifyTypeMap } from "@src/constant/notify";
+import UsersService from "@src/service/users.service";
 
 const { add, getWithPage, count, findUser, find, remove } = CommentsService
 const { addNotify, } = NotifyController
 const { get: getAuthorInfo } = NotesService
+const { precisionFind } = UsersService
 
 class CommentController {
   emit(req: Request, resp: Response) {
@@ -168,7 +170,8 @@ class CommentController {
         resp.send({ code: 400, msg: '该评论不存在' })
       }
     } else {
-      const effect_cnt = await remove({ noteId, commentId, userId: id })
+      const user = await precisionFind({ id })
+      const effect_cnt = await remove({ noteId, commentId, userId: id, permission: user?.dataValues.permission })
       if (!effect_cnt) {
         resp.send({ code: 400, msg: '非本人删除' })
         return

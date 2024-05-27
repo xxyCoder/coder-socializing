@@ -223,7 +223,8 @@ class NoteController {
         }
       })
     })
-    removeNoteById({ noteId: Number(noteId), userId: Number(id) })
+    const user = await precisionFind({ id: Number(id) })
+    removeNoteById({ noteId: Number(noteId), userId: Number(id), permission: user?.dataValues.permission })
       .then(res => {
         res ? resp.send({ code: 200, msg: '删除成功' }) : resp.send({ code: 400, msg: '删除失败' })
       })
@@ -232,15 +233,16 @@ class NoteController {
         resp.send(serviceError)
       })
   }
-  updateNote(req: Request, resp: Response) {
+  async updateNote(req: Request, resp: Response) {
     const userId = Number(req.query.id)
     const { category, title, content, is_video, staticUrls = '', noteId } = req.body;
     const mediaList = req.files as Express.Multer.File[];
-
+    const user = await precisionFind({ id: userId })
     updateNoteById({
       tag: category, title, content, id: noteId,
       mediaList: (staticUrls ? [staticUrls] : []).concat(...mediaList.map(media => `http://localhost:${PORT}/${media.path.replace(staticRoot, '').replace(/\\/g, '/')}`)).join(';'),
-      isVideo: JSON.parse(is_video), userId
+      isVideo: JSON.parse(is_video), userId,
+      permission: user?.dataValues.permission
     })
       .then(([cnt]) => {
         if (cnt) {

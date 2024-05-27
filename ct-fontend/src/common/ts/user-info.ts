@@ -8,6 +8,7 @@ export interface UserInfo {
   username: string;
   id: number;
   account: string;
+  permission: number;
 }
 
 let _userInfo: UserInfo | null = null;

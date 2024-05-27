@@ -70,8 +70,8 @@ class UserController {
           resp.send(userIsNotExists);
           return;
         }
-        const { avatarSrc, biography, username, account } = res.dataValues
-        resp.send({ code: 200, msg: "获取个人信息成功", data: { avatarSrc, intro: biography, username, account, id } });
+        const { avatarSrc, biography, username, account, permission } = res.dataValues
+        resp.send({ code: 200, msg: "获取个人信息成功", data: { avatarSrc, intro: biography, username, account, id, permission } });
       })
       .catch(err => {
         console.error(`获取个人信息失败：${err}`);

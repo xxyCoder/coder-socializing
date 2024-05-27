@@ -82,7 +82,7 @@ const extendRemain = (rootCommentId: number) => {
         <span
           @click="handlerReply({ targetCommentId: commentId, username: username, comment: content, rootCommentId: commentId, replyUserId: userId })"
           class="reply">回复</span>
-        <span v-if="userId === selfInfo?.id || isAuth" class="delete"
+        <span v-if="userId === selfInfo?.id || isAuth || selfInfo?.permission" class="delete"
           @click="handlerDelete(commentId, commentId)">删除</span>
       </div>
     </div>
@@ -100,7 +100,7 @@ const extendRemain = (rootCommentId: number) => {
         <span
           @click="handlerReply({ targetCommentId: item.id, username: item.user.username, comment: item.content, rootCommentId: commentId, replyUserId: item.user.userId })"
           class="reply">回复</span>
-        <span v-if="item.user.userId === selfInfo?.id || isAuth" class="delete"
+        <span v-if="item.user.userId === selfInfo?.id || isAuth || selfInfo?.permission" class="delete"
           @click="handlerDelete(item.id, commentId)">删除</span>
       </div>
     </div>
