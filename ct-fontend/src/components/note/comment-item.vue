@@ -56,7 +56,6 @@ const emits = defineEmits<{
   delete: [number, number]
 }>()
 const handlerReply = (info: ReplyInfo) => {
-  console.log(info)
   emits('reply', info)
 }
 
@@ -92,7 +91,7 @@ const extendRemain = (rootCommentId: number) => {
     <div class="user-info">
       <div class="author">
         <router-link :to="`/user/${item.user.userId}`">{{ item.user.username }}</router-link>
-        <span v-if="item.replyUsername">回复{{ item.replyUsername }}</span>
+        <span v-if="item.rootCommentId !== item.targetCommentId">回复{{ item.replyUsername }}</span>
       </div>
       <p class="content">{{ item.content }}</p>
       <div class="opt">

@@ -49,6 +49,7 @@ class NotiftController {
         noteId ? getNoteInfo(noteId) : Promise.resolve(null)
       ])
       let _content = content, isDel = false
+      console.log(comment1?.dataValues, 'dele')
       if (!isGetSelfComment) {
         if (comment1?.dataValues.deletedAt) {
           isDel = true

@@ -25,7 +25,6 @@ class CommentController {
             .then(() => {
               // 如果在线就通知
               const sse = getSSEConn(replyUserId)
-              console.log(sse, 'sse', replyUserId)
               sse && sse.write({ data: { type: InteractionTypeMap["comment-follow"] } })
             })
             .catch(err => {
@@ -91,7 +90,7 @@ class CommentController {
           findUser(replyCommentId),
           findUser(replyComment?.dataValues.targetCommentId || null),
           rootCommentId !== replyCommentId ? findUser(rootCommentId) : Promise.resolve(null),
-          count({ rootCommentId: rootComment || replyCommentId || commentId })
+          count({ rootCommentId: rootComment?.dataValues.id || replyCommentId || commentId })
         ])
         if (!rootComment) {
           if (replyComment) {
@@ -106,13 +105,14 @@ class CommentController {
           replyComment = comment, comment = null
           replyUser = user, user = null
         }
+        console.log(rootUser?.dataValues.user, '<-root', replyUser?.dataValues.user, '<-reply', targetUser?.dataValues.user, '<-user')
         resp.send({
           code: 200,
           msg: '获取成功',
           data: {
             comments: [{
               id: rootComment?.dataValues.id,
-              content: rootComment?.dataValues.content,
+              content: rootComment?.dataValues.content || '该评论已删除',
               atUsers: rootComment?.dataValues.atUsers,
               targetCommentId: null,
               rootCommentId: null,
@@ -120,9 +120,9 @@ class CommentController {
               createdAt: rootComment?.dataValues.createdAt,
               replyCnt,
               user: {
-                userId: rootUser?.dataValues.id,
-                username: rootUser?.dataValues.username,
-                avatarSrc: rootUser?.dataValues.avatarSrc
+                userId: rootUser?.dataValues.user.dataValues.id,
+                username: rootUser?.dataValues.user.dataValues.username,
+                avatarSrc: rootUser?.dataValues.user.dataValues.avatarSrc
               }
             }, {
               id: replyComment?.dataValues.id,
@@ -130,12 +130,12 @@ class CommentController {
               atUsers: replyComment?.dataValues.atUsers,
               targetCommentId: replyComment?.dataValues.targetCommentId,
               rootCommentId: replyComment?.dataValues.rootCommentId,
-              replyUsername: targetUser?.dataValues.username,
+              replyUsername: targetUser?.dataValues.user.username,
               createdAt: rootComment?.dataValues.createdAt,
               user: {
-                userId: replyUser?.dataValues.id,
-                username: replyUser?.dataValues.username,
-                avatarSrc: replyUser?.dataValues.avatarSrc
+                userId: replyUser?.dataValues.user.dataValues.id,
+                username: replyUser?.dataValues.user.dataValues.username,
+                avatarSrc: replyUser?.dataValues.user.dataValues.avatarSrc
               }
             }, {
               id: comment?.dataValues.id,
@@ -143,12 +143,12 @@ class CommentController {
               atUsers: comment?.dataValues.atUsers,
               targetCommentId: comment?.dataValues.targetCommentId,
               rootCommentId: comment?.dataValues.rootCommentId,
-              replyUsername: replyUser?.dataValues.username,
+              replyUsername: replyUser?.dataValues.user.dataValues.username,
               createdAt: comment?.dataValues.createdAt,
               user: {
-                userId: user?.dataValues.id,
-                username: user?.dataValues.username,
-                avatarSrc: user?.dataValues.avatarSrc
+                userId: user?.dataValues.user.dataValues.id,
+                username: user?.dataValues.user.dataValues.username,
+                avatarSrc: user?.dataValues.user.dataValues.avatarSrc
               }
             }]
           }

@@ -34,7 +34,8 @@ class CommentService {
     if (id || id === null) Object.assign(whereOp, { id })
 
     return Comments.findOne({
-      where: whereOp
+      where: whereOp,
+      paranoid: false
     })
   }
   findAll({ userId, page_num }: Partial<CommentModel> & pageType) {
