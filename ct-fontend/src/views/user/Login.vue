@@ -25,7 +25,7 @@ const handlerLogin = () => {
     return;
   }
   const remove = useLoading()
-  userLogin({ account: acc, password: cryptoPassword(pass) })
+  userLogin({ account: encodeURIComponent(acc), password: cryptoPassword(pass) })
     .then(res => {
       if (!res) throw new Error('空结果');
       remove();

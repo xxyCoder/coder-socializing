@@ -26,7 +26,8 @@ const handlerRegistered = () => {
     return useToast("长度不符合要求", "error");
   }
   const remove = useLoading()
-  userRegistry({ username: username.value.component.value, account: account.value.component.value, password: cryptoPassword(password.value.component.value) })
+  console.log('re')
+  userRegistry({ username: encodeURIComponent(username.value.component.value), account: encodeURIComponent(account.value.component.value), password: cryptoPassword(password.value.component.value) })
     .then(() => {
       remove();
       useToast("注册成功")

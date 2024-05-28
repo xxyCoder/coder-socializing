@@ -20,7 +20,9 @@ const DAY = 24 * 60 * 60 * 1000;
 
 class UserController {
   registry(req: Request, resp: Response) {
-    const { username, password, account } = req.body;
+    let { username, password, account } = req.body;
+    username = decodeURIComponent(username)
+    account = decodeURIComponent(account)
     precisionFind({ account })
       .then(res => {
         if (res && res.dataValues.id) {
@@ -43,7 +45,7 @@ class UserController {
   }
   login(req: Request, resp: Response) {
     const { password, account } = req.body;
-    verify({ account, password })
+    verify({ account: decodeURIComponent(account), password })
       .then(({ sc, id, username, intro, avatarSrc, account }) => {
         if (sc) {
           resp

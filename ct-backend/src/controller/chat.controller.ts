@@ -88,7 +88,7 @@ class ChatController {
           code: 200,
           msg: '获取成功',
           data: {
-            chatList: [...st.values()]
+            chatList: [...st.values()].sort((a, b) => b.time - a.time)
           }
         })
       })
