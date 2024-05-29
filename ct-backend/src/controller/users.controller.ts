@@ -105,7 +105,9 @@ class UserController {
       })
   }
   uploadInfo(req: Request, resp: Response) {
-    const { username, intro, id, account } = req.body;
+    const { username, intro } = req.body;
+    const id = Number(req.query.id)
+    const account = String(req.query.account)
     let avatarSrc: string | undefined = void 0;
     req.file && (avatarSrc = `http://localhost:${PORT}/${req.file?.path.replace(staticRoot, '').replace(/\\/g, '/')}`);
     update({ account, id, username, biography: intro, avatarSrc })

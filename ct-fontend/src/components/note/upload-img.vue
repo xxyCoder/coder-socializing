@@ -9,7 +9,6 @@ const isVideo = ref(false)
 
 const showUpload = computed(() => !isVideo.value && mediaUrls.value.length < 6)
 watch(() => mediaUrls.value.length, () => {
-  console.log('watch', mediaList.value.length)
   if (!mediaList.value.length) isVideo.value = false
 })
 
