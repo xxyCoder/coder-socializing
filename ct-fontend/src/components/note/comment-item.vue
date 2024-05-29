@@ -87,7 +87,7 @@ const extendRemain = (rootCommentId: number) => {
     </div>
   </div>
   <div class="comment-item ml-10" v-for="item in replyComments" :key="item.id">
-    <img :src="avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
+    <img :src="item.user.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
     <div class="user-info">
       <div class="author">
         <router-link :to="`/user/${item.user.userId}`">{{ item.user.username }}</router-link>
