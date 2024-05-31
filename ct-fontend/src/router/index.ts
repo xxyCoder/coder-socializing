@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/user/Info.vue")
   },
   {
+    path: "/follow",
+    component: () => import("@/views/user/follow-page.vue"),
+    props: (to) => ({ idx: Number(to.query.idx) })
+  },
+  {
     path: '/publish',
     component: () => import('@/views/note/index.vue')
   },

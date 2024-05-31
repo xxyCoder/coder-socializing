@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ComponentInternalInstance, computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { listMap, userStateMap, userStateEnum, userOptMap } from './ts/index';
+import { listMap, userStateMap, userStateEnum, userOptMap, Follow } from './ts/index';
 import { ip, port, backendStatic } from '@/api/constant';
-import { getViewerInfo, searchUser, signOut } from '@/api/users';
+import { getFollowers, getViewerInfo, searchUser, signOut } from '@/api/users';
 import { getViewerNote } from '@/api/note'
 import { follwerOrCancel } from '@/api/users'
 import { useLoading } from '@/components/Loading';
 import { getUserInfo } from '@/common/ts/user-info';
 import { useToast } from '@/components/Toast';
 import type { NoteCardType } from '@/common/types'
+import InfoItem from '@/components/user/info-item.vue'
 import BottomMenu from '@/components/common/bottom-menu.vue';
 import StickyList from '@/components/common/sticky-list.vue';
 import AllNotes from '@/components/note/all-notes.vue';
@@ -46,6 +47,7 @@ const showInfos = ref<NoteCardType[]>([]);
 
 const getInfo = () => {
   const remove = useLoading()
+
   getViewerInfo({
     viewer_id: route.params.id,
     page_num: pageNumObj.note,
@@ -68,6 +70,7 @@ const getInfo = () => {
 
 }
 watch(() => route.params.id, () => {
+  if (!route.params.id) return
   pageNumObj.note = pageNumObj.like = pageNumObj.collect = 0
   getInfo()
 }, { immediate: true })
@@ -160,6 +163,20 @@ const handlerSearch = (searchConn: string) => {
     })
 }
 
+const followed = ref(0)
+const follower = ref(0)
+getFollowers()
+  .then(res => {
+    followed.value = res.followed
+    follower.value = res.follower
+  })
+  .catch(err => {
+    console.log(err)
+  })
+
+function handlerInteraction(idx: number) {
+  router.push({ path: '/follow', query: { idx } })
+}
 </script>
 
 <template>
@@ -178,8 +195,11 @@ const handlerSearch = (searchConn: string) => {
         <button class="user-state" @click="handlerOpt">{{ userOptMap[userState] }}</button>
       </div>
     </div>
+    <div class="user-interactions">
+      <info-item :count="follower" info="关注者" @click="handlerInteraction(Follow.follower)" />
+      <info-item :count="followed" info="粉丝" @click="handlerInteraction(Follow.followed)" />
+    </div>
     <p class="intro">{{ userInfo.intro || '这个人没有个人介绍' }}</p>
-    <div class="user-interactions"></div>
   </div>
   <sticky-list :list="list" @click="reqListData" />
   <all-notes :show-infos="showInfos" @req-notes="reqListData(lastIdx)" />
@@ -229,6 +249,10 @@ const handlerSearch = (searchConn: string) => {
   padding: responsive(8, vh) responsive(20, vh);
   background-color: transparent;
   color: #fff;
+}
+
+.user-interactions {
+  display: flex;
 }
 
 .opt {

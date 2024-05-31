@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast';
 import CustomInput from '@/components/common/custom-input.vue';
 import NullState from '@/components/common/null-state.vue';
 import { updateUserInfo, updateUserPass } from '@/api/users'
-import { cryptoPassword, debounceTime, initNotPass, PassMap, MB } from './ts';
+import { cryptoPassword, throttleTime, initNotPass, PassMap, MB } from './ts';
 import { useLoading } from '@/components/Loading';
 import { recapUserInfo } from '@/common/ts/user-info'
 import { backendStatic, ip, port } from '@/api/constant';
@@ -84,7 +84,7 @@ const handlerVerify = debounce(() => {
     verify |= 1 << PassMap.confirmPassword;
     confirmPassword.value?.show();
   }
-}, debounceTime);
+}, throttleTime);
 
 const oldPassword = ref<CustomInputComponent>();
 const newPassword = ref<CustomInputComponent>();
@@ -168,7 +168,7 @@ onMounted(() => {
     </div>
     <BottomButton btn-text="保存" @click="modifyProfile" />
   </template>
-  <NullState v-else />
+  <null-state v-else />
 </template>
 
 <style lang="scss" scoped>

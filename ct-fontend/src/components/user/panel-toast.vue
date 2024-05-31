@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { PropType, defineProps, defineExpose, defineEmits, ref } from 'vue';
-import { backendStatic, ip, port } from '@/api/constant';
-import { useRouter } from 'vue-router';
+import UserItem from './user-item.vue'
 
 const props = defineProps({
   users: {
@@ -11,8 +10,6 @@ const props = defineProps({
     }
   }
 })
-
-const router = useRouter()
 
 const isShow = ref(false)
 function show() {
@@ -25,11 +22,6 @@ defineExpose({
   show,
   hide
 })
-
-function viewUser(userId: number) {
-  hide()
-  router.replace(`/user/${userId}`)
-}
 
 const emits = defineEmits(['needMore'])
 const VIntersect = {
@@ -59,14 +51,8 @@ const VIntersect = {
         <span @click="hide">关闭</span>
       </div>
       <div class="content">
-        <div class="user-item" v-for="(item, i) in users" :key="item.userId" @click="viewUser(item.userId)"
-          v-intersect="i">
-          <img :src="item.avatarSrc || `${ip}:${port}${backendStatic}/default.jpg`" alt="头像" />
-          <div class="user-info">
-            <h5>{{ item.username }}</h5>
-            <p>{{ item.biography || '这个人暂无简介' }}</p>
-          </div>
-        </div>
+        <user-item v-for="(item, i) in users" :key="item.userId" v-intersect="i" :user-id="item.userId"
+          :username="item.username" :avatar-src="item.avatarSrc" :biography="item.biography" @click="hide" />
         <div class="no-user" v-if="!users.length">没有该用户哦~</div>
       </div>
     </div>
@@ -112,33 +98,6 @@ const VIntersect = {
 .content {
   max-height: 50vh;
   overflow: auto;
-}
-
-.user-item {
-  margin-top: responsive(20, vw);
-  display: flex;
-
-  img {
-    margin-right: responsive(10, vw);
-    width: responsive(60, vw);
-    height: responsive(60, vw);
-    border-radius: 50%;
-  }
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-
-  h5 {
-    margin: 0;
-  }
-
-  p {
-    font-size: 12px;
-    margin: 0;
-  }
 }
 
 .no-user {

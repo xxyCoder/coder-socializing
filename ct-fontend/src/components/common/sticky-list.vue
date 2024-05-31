@@ -7,9 +7,13 @@ const props = defineProps({
     default() {
       return []
     }
+  },
+  initIdx: {
+    type: Number,
+    default: 0
   }
 });
-const activeIdx = ref(0);
+const activeIdx = ref(props.initIdx);
 const activeWidth = computed(() => props.list[activeIdx.value].length * 16 + 'px');
 
 const ul = ref<HTMLUListElement>()

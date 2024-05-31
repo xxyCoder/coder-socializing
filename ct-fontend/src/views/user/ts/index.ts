@@ -49,3 +49,8 @@ export const userOptMap = {
   [userStateEnum.follwer]: '私信',
   [userStateEnum.other]: '私信'
 }
+
+export const enum Follow {
+  follower,
+  followed
+}
