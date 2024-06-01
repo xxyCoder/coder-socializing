@@ -38,7 +38,7 @@ class ConcernController {
       })
   }
   async getFollowers(req: Request, resp: Response) {
-    const id = Number(req.query.id)
+    const id = Number(req.query.viewer_id)
     try {
       const [followed, follower] = await Promise.all([count({ followed: id }), count({ follower: id })])
       resp.send({
@@ -54,9 +54,8 @@ class ConcernController {
     }
   }
   async getFollowList(req: Request, resp: Response) {
-    const userId = Number(req.query.id), idx = Number(req.query.idx), page_num = Number(req.query.page_num)
+    const userId = Number(req.query.viewer_id), idx = Number(req.query.idx), page_num = Number(req.query.page_num)
     let result: Model<any, any>[] = []
-    console.log(userId, idx, 'num')
     switch (idx) {
       case Follow.follower: // 关注者
         result = await searchByPage({ page_num, follower: userId })

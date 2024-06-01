@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/follow",
     component: () => import("@/views/user/follow-page.vue"),
-    props: (to) => ({ idx: Number(to.query.idx) })
+    props: (to) => ({ idx: Number(to.query.idx), viewerId: Number(to.query.viewerId) })
   },
   {
     path: '/publish',

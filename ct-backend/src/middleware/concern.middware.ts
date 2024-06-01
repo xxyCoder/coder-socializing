@@ -18,3 +18,11 @@ export const checkFollowIdx = (req: Request, res: Response, next: NextFunction) 
   }
   next()
 }
+
+export const checkFollowViewerId = (req: Request, res: Response, next: NextFunction) => {
+  const viewer_id = Number(req.query.viewer_id)
+  if (Number.isNaN(viewer_id)) {
+    return res.send(importArgsIsNull)
+  }
+  next()
+}

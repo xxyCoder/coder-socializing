@@ -165,7 +165,7 @@ const handlerSearch = (searchConn: string) => {
 
 const followed = ref(0)
 const follower = ref(0)
-getFollowers()
+getFollowers({ viewer_id: route.params.id })
   .then(res => {
     followed.value = res.followed
     follower.value = res.follower
@@ -175,7 +175,7 @@ getFollowers()
   })
 
 function handlerInteraction(idx: number) {
-  router.push({ path: '/follow', query: { idx } })
+  router.push({ path: '/follow', query: { idx, viewerId: route.params.id } })
 }
 </script>
 
